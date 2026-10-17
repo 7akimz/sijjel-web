@@ -1,0 +1,103 @@
+/* With no explicit choice the page follows the device setting; an explicit data-theme wins both ways. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		--ground: #17130f;
+		--surface: #211b16;
+		--surface-sunk: #120f0c;
+		--line: #3a3027;
+		--line-strong: #7a6a58;
+		--ink: #f1e9dd;
+		--ink-muted: #b8a894;
+		--focus: var(--ink);
+		--accent: #d29a66;
+		--on-accent: #2a1a0c;
+		--accent-soft: #3a2a1c;
+		--on-accent-soft: #f0d8be;
+		--brass: #e2b45e;
+		--brass-soft: #3a2c12;
+		--paddock: #7cc495;
+		--paddock-soft: #1e3326;
+		--danger: #f08a6e;
+		--on-danger: #2a1008;
+		--danger-soft: #3d1d15;
+		--stone: #b5ada4;
+		--stone-soft: #2c2824;
+		--hover-veil: rgba(255, 244, 230, 0.1);
+		--scrim: rgba(0, 0, 0, 0.6);
+		--shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.35);
+	}
+}
+
+:root {
+	color-scheme: light;
+}
+:root[data-theme='dark'] {
+	color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		color-scheme: dark;
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	min-block-size: 100dvh;
+	background: var(--ground);
+	color: var(--ink);
+	font-family: var(--font-body);
+	font-size: 16px;
+	line-height: 24px;
+}
+
+:where(h1, h2, h3, p) {
+	margin: 0;
+}
+
+a {
+	color: var(--accent);
+}
+
+:focus-visible {
+	outline: 2px solid var(--focus);
+	outline-offset: 2px;
+}
+
+.sj-page {
+	inline-size: 100%;
+	max-inline-size: var(--content-max);
+	margin-inline: auto;
+	padding-block: var(--space-6) var(--space-12);
+	padding-inline: var(--space-4);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-6);
+}
+
+.sj-visually-hidden {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition-duration: 0ms !important;
+		animation-duration: 0ms !important;
+	}
+}

@@ -34,8 +34,8 @@ export default defineConfig(
 		}
 	},
 	{
-		// Override or add rule settings here, such as:
-		// 'svelte/button-has-type': 'error'
-		rules: {}
+		// Shared UI components receive hrefs that their callers have already resolved.
+		files: ['src/lib/ui/**/*.svelte'],
+		rules: { 'svelte/no-navigation-without-resolve': 'off' }
 	}
 );
