@@ -1,12 +1,15 @@
-// See https://svelte.dev/docs/kit/types#app.d.ts
-// for information about these interfaces
+import type { Locale, Me, Membership, Tenant } from '#lib/api/types.js';
+import type { Theme } from '#lib/theme/theme.js';
+
 declare global {
 	namespace App {
-		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
-		// interface PageState {}
-		// interface Platform {}
+		interface Locals {
+			tenant: Tenant;
+			user: Me | null;
+			membership: Membership | null;
+			theme: Theme;
+			locale: Locale;
+		}
 	}
 }
 
