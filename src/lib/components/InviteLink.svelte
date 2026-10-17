@@ -37,6 +37,7 @@
 			{copied ? m.action_copied() : m.action_copy()}
 		</Button>
 	</div>
+	<span class="sj-visually-hidden" role="status">{copied ? m.action_copied() : ''}</span>
 	<span class="sj-hint" id="{id}-expiry">
 		{m.academy_invite_expires({ date: formatDate(invite.expiresAt, locale) })}
 	</span>

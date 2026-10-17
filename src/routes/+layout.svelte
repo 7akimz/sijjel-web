@@ -6,8 +6,10 @@
 	import LanguageSwitch from '#lib/components/LanguageSwitch.svelte';
 	import StatusPage from '#lib/components/StatusPage.svelte';
 	import ThemeSwitch from '#lib/components/ThemeSwitch.svelte';
+	import { api } from '#lib/api/client.js';
+	import { ApiError, errorText } from '#lib/api/errors.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { AppShell, Button } from '#lib/ui/index.js';
+	import { AppShell, Banner, Button } from '#lib/ui/index.js';
 	import favicon from '#lib/assets/favicon.svg';
 	import type { LayoutProps } from './$types';
 	import '#lib/styles/tokens.css';
@@ -47,8 +49,16 @@
 		return [];
 	});
 
+	let signOutFailure = $state<string>();
+
 	async function signOut() {
-		await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+		signOutFailure = undefined;
+		try {
+			await api('/auth/logout', { method: 'POST', body: {} });
+		} catch (e) {
+			signOutFailure = errorText(e instanceof ApiError ? e.code : 'internal_error');
+			return;
+		}
 		await invalidateAll();
 		await goto(resolve('/'));
 	}
@@ -78,6 +88,11 @@
 		{/if}
 	{/snippet}
 
+	{#if signOutFailure}
+		<div class="sj-page sign-out-failure">
+			<Banner tone="danger" icon="error">{signOutFailure}</Banner>
+		</div>
+	{/if}
 	{#if tenant.kind === 'unknown'}
 		<StatusPage
 			icon="travel_explore"
@@ -98,3 +113,9 @@
 		{#if tenant.kind === 'academy'}{m.powered_by({}, { locale })}{/if}
 	{/snippet}
 </AppShell>
+
+<style>
+	.sign-out-failure {
+		padding-block-end: 0;
+	}
+</style>

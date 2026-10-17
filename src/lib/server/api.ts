@@ -10,7 +10,7 @@ export function apiFetch(
 	init: RequestInit = {}
 ): Promise<Response> {
 	const headers = new Headers(init.headers);
-	headers.set('x-forwarded-host', event.request.headers.get('host') ?? event.url.host);
+	headers.set('x-forwarded-host', event.url.host);
 	const cookie = event.request.headers.get('cookie');
 	if (cookie) headers.set('cookie', cookie);
 	headers.set('accept', 'application/json');

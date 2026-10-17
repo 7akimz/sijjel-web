@@ -12,17 +12,19 @@
 
 {#if page.status === 404}
 	<div class="sj-page">
-		<EmptyState icon="link_off" title={m.invite_invalid_title()}>
+		<EmptyState icon="link_off" title={m.invite_invalid_title()} headingLevel={1}>
 			{m.invite_invalid_body()}
 			{#snippet action()}
 				<Button variant="secondary" href={resolve('/')}>{m.nav_home()}</Button>
 			{/snippet}
 		</EmptyState>
 	</div>
-{:else}
+{:else if page.status === 503}
 	<StatusPage
 		icon="cloud_off"
 		title={m.status_unavailable_title()}
 		body={m.status_unavailable_body()}
 	/>
+{:else}
+	<StatusPage icon="error" title={m.status_error_title()} body={m.error_internal_error()} />
 {/if}

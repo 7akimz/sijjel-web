@@ -4,7 +4,7 @@ import { buildUpstreamRequest, toClientResponse, unreachable } from '#lib/server
 
 const proxy: RequestHandler = async ({ request, url }) => {
 	try {
-		const upstream = await fetch(buildUpstreamRequest(request, API_URL, url.pathname, url.search));
+		const upstream = await fetch(buildUpstreamRequest(request, API_URL, url));
 		return toClientResponse(upstream);
 	} catch {
 		return unreachable();

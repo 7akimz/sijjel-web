@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
-export const POST: RequestHandler = async ({ request, cookies, url }) => {
+export const POST: RequestHandler = async ({ request, cookies }) => {
 	const body = (await request.json().catch(() => null)) as { theme?: unknown } | null;
 	const theme = body?.theme;
 	if (theme !== 'light' && theme !== 'dark' && theme !== 'system') {
@@ -15,7 +15,8 @@ export const POST: RequestHandler = async ({ request, cookies, url }) => {
 		maxAge: ONE_YEAR,
 		httpOnly: true,
 		sameSite: 'lax',
-		secure: url.protocol === 'https:'
+		// A display preference, not a credential: keep it working on plain-http hosts too.
+		secure: false
 	});
 	return new Response(null, { status: 204 });
 };

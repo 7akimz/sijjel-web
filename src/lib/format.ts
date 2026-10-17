@@ -4,5 +4,7 @@ import type { Locale } from '#lib/api/types.js';
 const intlLocale = (locale: Locale) => (locale === 'ar' ? 'ar-u-nu-latn' : 'en-GB');
 
 export function formatDate(iso: string, locale: Locale): string {
-	return new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: 'long' }).format(new Date(iso));
+	return new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: 'long', timeZone: 'UTC' }).format(
+		new Date(iso)
+	);
 }

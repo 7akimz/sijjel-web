@@ -31,13 +31,14 @@ const declarations = (vars: Record<string, string>) =>
 		.map(([name, value]) => `${name}:${value}`)
 		.join(';');
 
+// The doubled :root outranks the design-system token rules, which load after this tag.
 export function accentStyle({ light, dark }: AccentVars): string {
 	if (Object.keys(light).length === 0) return '';
 	return (
 		`<style id="academy-accent">` +
-		`:root,[data-theme="light"]{${declarations(light)}}` +
-		`[data-theme="dark"]{${declarations(dark)}}` +
-		`@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){${declarations(dark)}}}` +
+		`:root:root,:root:root[data-theme="light"]{${declarations(light)}}` +
+		`:root:root[data-theme="dark"]{${declarations(dark)}}` +
+		`@media (prefers-color-scheme: dark){:root:root:not([data-theme="light"]){${declarations(dark)}}}` +
 		`</style>`
 	);
 }

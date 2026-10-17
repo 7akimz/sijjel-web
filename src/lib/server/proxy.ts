@@ -7,22 +7,17 @@ const RETURNED_RESPONSE_HEADERS = [
 	'location'
 ];
 
-export function buildUpstreamRequest(
-	request: Request,
-	apiUrl: string,
-	path: string,
-	search: string
-): Request {
+// url is SvelteKit's event.url, whose host honours adapter-node's HOST_HEADER behind a proxy.
+export function buildUpstreamRequest(request: Request, apiUrl: string, url: URL): Request {
 	const headers = new Headers();
 	for (const name of FORWARDED_REQUEST_HEADERS) {
 		const value = request.headers.get(name);
 		if (value !== null) headers.set(name, value);
 	}
-	const host = request.headers.get('host') ?? new URL(request.url).host;
-	headers.set('x-forwarded-host', host);
+	headers.set('x-forwarded-host', url.host);
 
 	const hasBody = request.method !== 'GET' && request.method !== 'HEAD';
-	return new Request(new URL(path + search, apiUrl), {
+	return new Request(new URL(url.pathname + url.search, apiUrl), {
 		method: request.method,
 		headers,
 		body: hasBody ? request.body : undefined,

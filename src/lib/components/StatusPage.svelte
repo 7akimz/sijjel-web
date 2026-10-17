@@ -10,5 +10,5 @@
 </svelte:head>
 
 <div class="sj-page">
-	<EmptyState {icon} {title}>{body}</EmptyState>
+	<EmptyState {icon} {title} headingLevel={1}>{body}</EmptyState>
 </div>

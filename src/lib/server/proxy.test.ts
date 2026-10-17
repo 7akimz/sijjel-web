@@ -13,7 +13,7 @@ describe('buildUpstreamRequest', () => {
 			}
 		});
 
-		const upstream = buildUpstreamRequest(incoming, 'http://localhost:8080', '/api/tenant', '?x=1');
+		const upstream = buildUpstreamRequest(incoming, 'http://localhost:8080', new URL(incoming.url));
 
 		expect(upstream.url).toBe('http://localhost:8080/api/tenant?x=1');
 		expect(upstream.headers.get('x-forwarded-host')).toBe('alfaris.localhost:5173');
@@ -23,6 +23,20 @@ describe('buildUpstreamRequest', () => {
 		expect(upstream.headers.get('host')).toBeNull();
 	});
 
+	it('forwards the public host SvelteKit resolved, not the proxy-to-app Host header', () => {
+		const incoming = new Request('http://web:3000/api/tenant', {
+			headers: { host: 'web:3000', 'x-forwarded-host': 'alfaris.example.com' }
+		});
+
+		const upstream = buildUpstreamRequest(
+			incoming,
+			'http://api:8080',
+			new URL('https://alfaris.example.com/api/tenant')
+		);
+
+		expect(upstream.headers.get('x-forwarded-host')).toBe('alfaris.example.com');
+	});
+
 	it('streams the body of unsafe methods', async () => {
 		const incoming = new Request('http://localhost:5173/api/auth/login', {
 			method: 'POST',
@@ -30,7 +44,7 @@ describe('buildUpstreamRequest', () => {
 			body: '{"email":"a@b.c"}'
 		});
 
-		const upstream = buildUpstreamRequest(incoming, 'http://localhost:8080', '/api/auth/login', '');
+		const upstream = buildUpstreamRequest(incoming, 'http://localhost:8080', new URL(incoming.url));
 
 		expect(upstream.method).toBe('POST');
 		expect(upstream.headers.get('content-type')).toBe('application/json');

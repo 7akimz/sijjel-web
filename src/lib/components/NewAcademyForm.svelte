@@ -8,6 +8,7 @@
 		toCreateAcademyRequest,
 		type AcademyForm
 	} from '#lib/forms/academy.js';
+	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import {
 		Banner,
@@ -44,6 +45,7 @@
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let busy = $state(false);
+	let formElement = $state<HTMLFormElement>();
 
 	const zones = Intl.supportedValuesOf('timeZone');
 	const timeZones = (zones.includes('UTC') ? zones : ['UTC', ...zones]).map((zone) => ({
@@ -76,7 +78,7 @@
 		form.disciplineIds = disciplines.filter((d) => picked[d.id]).map((d) => d.id);
 		failure = undefined;
 		errors = academyFormErrors(form);
-		if (Object.keys(errors).length > 0) return;
+		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
 
 		busy = true;
 		try {
@@ -90,6 +92,7 @@
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
 			if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
+			else focusFirstInvalid(formElement);
 		} finally {
 			busy = false;
 		}
@@ -97,7 +100,7 @@
 </script>
 
 <Card raised>
-	<form class="sj-stack" onsubmit={submit} novalidate>
+	<form class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
 		<h2 class="sj-heading">{m.academy_new()}</h2>
 		{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 		<TextField
@@ -135,14 +138,13 @@
 			error={fieldError('defaultLanguage')}
 			bind:value={language}
 		/>
-		<fieldset
-			class="sj-stack"
-			aria-describedby={errors.disciplineIds ? 'disciplines-error' : undefined}
-		>
+		<fieldset class="sj-stack">
 			<legend class="sj-label">{m.academy_disciplines()}</legend>
 			{#each disciplines as discipline (discipline.id)}
 				<CheckboxField
 					label={locale === 'ar' ? discipline.nameAr : discipline.nameEn}
+					invalid={!!errors.disciplineIds}
+					describedBy={errors.disciplineIds ? 'disciplines-error' : undefined}
 					bind:checked={picked[discipline.id]}
 				/>
 			{/each}

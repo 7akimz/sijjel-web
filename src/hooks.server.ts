@@ -1,6 +1,5 @@
 import type { Handle } from '@sveltejs/kit/hooks';
 import { sequence } from '@sveltejs/kit/hooks';
-import type { Me, Membership, Tenant } from '#lib/api/types.js';
 import {
 	cookieName as LOCALE_COOKIE,
 	defineCustomServerStrategy,
@@ -9,7 +8,7 @@ import {
 } from '#lib/paraglide/runtime.js';
 import { paraglideMiddleware } from '#lib/paraglide/server.js';
 import { apiFetch } from '#lib/server/api.js';
-import { resolveTenant } from '#lib/server/tenant.js';
+import { finishResponse, loadContext } from '#lib/server/context.js';
 import { accentStyle, accentVars } from '#lib/theme/accent.js';
 import { THEME_COOKIE, themeAttr, themeFromCookie } from '#lib/theme/theme.js';
 
@@ -23,24 +22,6 @@ const PASSTHROUGH = new Set(['/healthz', '/theme']);
 const isPassthrough = (pathname: string) =>
 	pathname.startsWith('/api/') || PASSTHROUGH.has(pathname);
 
-const TENANT_STATUS: Partial<Record<Tenant['kind'], number>> = { unknown: 404, unavailable: 503 };
-
-function withTenantStatus(response: Response, tenant: Tenant): Response {
-	const status = TENANT_STATUS[tenant.kind];
-	const isPage = response.headers.get('content-type')?.startsWith('text/html');
-	if (!status || !isPage || response.status !== 200) return response;
-	return new Response(response.body, { status, headers: response.headers });
-}
-
-async function loadJSON<T>(response: Promise<Response>): Promise<T | null> {
-	try {
-		const result = await response;
-		return result.ok ? ((await result.json()) as T) : null;
-	} catch {
-		return null;
-	}
-}
-
 const handleContext: Handle = async ({ event, resolve }) => {
 	event.locals.theme = themeFromCookie(event.cookies.get(THEME_COOKIE));
 	event.locals.user = null;
@@ -50,16 +31,12 @@ const handleContext: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	const tenant = await resolveTenant(() => apiFetch(event, '/api/tenant'));
-	event.locals.tenant = tenant;
-	const known = tenant.kind === 'platform' || tenant.kind === 'academy';
-	if (known && event.cookies.get('sijjel_session')) {
-		event.locals.user = await loadJSON<Me>(apiFetch(event, '/api/me'));
-		if (event.locals.user && tenant.kind === 'academy') {
-			event.locals.membership = await loadJSON<Membership>(apiFetch(event, '/api/membership'));
-		}
-	}
-	return withTenantStatus(await resolve(event), tenant);
+	const signedIn = !!event.cookies.get('sijjel_session');
+	const context = await loadContext((path) => apiFetch(event, path), signedIn);
+	event.locals.tenant = context.tenant;
+	event.locals.user = context.user;
+	event.locals.membership = context.membership;
+	return finishResponse(await resolve(event), context.tenant, context.setCookies);
 };
 
 const handlePage: Handle = ({ event, resolve }) => {

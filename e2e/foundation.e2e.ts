@@ -47,6 +47,15 @@ test('a platform admin creates an academy and its owner joins through the invite
 	await expect(owner.getByRole('heading', { name: `Welcome to ${academy}` })).toBeVisible();
 	await expect(owner.getByText('Admin', { exact: true })).toBeVisible();
 
+	const accent = await owner.evaluate(() => ({
+		computed: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+		injected: document
+			.getElementById('academy-accent')
+			?.textContent?.match(/--accent:([^;}]+)/)?.[1]
+	}));
+	expect(accent.injected).toMatch(/^#[0-9a-f]{6}$/i);
+	expect(accent.computed.toLowerCase()).toBe(accent.injected!.toLowerCase());
+
 	await owner.getByRole('button', { name: 'العربية' }).click();
 	await expect(owner.locator('html')).toHaveAttribute('dir', 'rtl');
 	await expect(owner.getByText('مشرف', { exact: true })).toBeVisible();
@@ -57,6 +66,11 @@ test('a platform admin creates an academy and its owner joins through the invite
 	await expect(owner.locator('html')).toHaveAttribute('data-theme', 'dark');
 	await owner.reload();
 	await expect(owner.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+	await owner.getByRole('button', { name: 'تسجيل الخروج' }).click();
+	await expect(owner.getByRole('link', { name: 'تسجيل الدخول' }).first()).toBeVisible();
+	await owner.reload();
+	await expect(owner.getByRole('button', { name: 'تسجيل الخروج' })).toHaveCount(0);
 
 	const reused = await request.get(academyUrl(slug, invitePath));
 	expect(reused.status()).toBe(404);

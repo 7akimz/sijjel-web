@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, type FieldErrors } from '#lib/api/errors.js';
 	import type { Discipline } from '#lib/api/types.js';
@@ -12,6 +12,7 @@
 		trimLadder,
 		type LadderRow
 	} from '#lib/forms/ladder.js';
+	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Icon, TextField } from '#lib/ui/index.js';
 
@@ -33,6 +34,22 @@
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let busy = $state(false);
+	let formElement = $state<HTMLFormElement>();
+
+	// Keeps focus on the moved level; at either end its button disables, so use the other one.
+	async function move(from: number, to: number) {
+		rows = moveRow(rows, from, to);
+		await tick();
+		const number = to + 1;
+		const labels = [
+			to < from ? m.discipline_move_up({ number }) : m.discipline_move_down({ number }),
+			to < from ? m.discipline_move_down({ number }) : m.discipline_move_up({ number })
+		];
+		for (const label of labels) {
+			const button = formElement?.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`);
+			if (button && !button.disabled) return button.focus();
+		}
+	}
 
 	const fieldError = (field: string) => {
 		const code = errors[field]?.[0];
@@ -47,7 +64,7 @@
 		if (!nameEn.trim()) errors.nameEn = ['name_required'];
 		if (!nameAr.trim()) errors.nameAr = ['name_required'];
 		if (levelCodes.length > 0) errors.levels = levelCodes;
-		if (Object.keys(errors).length > 0) return;
+		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
 
 		const body = {
 			key: key.trim(),
@@ -65,13 +82,14 @@
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
 			if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
+			else focusFirstInvalid(formElement);
 		} finally {
 			busy = false;
 		}
 	}
 </script>
 
-<form class="sj-stack" onsubmit={submit} novalidate>
+<form class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 	{#if isNew}
 		<TextField
@@ -124,14 +142,14 @@
 							icon="arrow_upward"
 							label={m.discipline_move_up({ number })}
 							disabled={index === 0}
-							onclick={() => (rows = moveRow(rows, index, index - 1))}
+							onclick={() => move(index, index - 1)}
 						/>
 						<Button
 							variant="quiet"
 							icon="arrow_downward"
 							label={m.discipline_move_down({ number })}
 							disabled={index === rows.length - 1}
-							onclick={() => (rows = moveRow(rows, index, index + 1))}
+							onclick={() => move(index, index + 1)}
 						/>
 						<Button
 							variant="quiet"

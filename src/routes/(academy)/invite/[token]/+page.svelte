@@ -7,6 +7,7 @@
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, type FieldErrors } from '#lib/api/errors.js';
 	import { formatDate } from '#lib/format.js';
+	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { inviteFormErrors, toSignUpRequest, type InviteSignUp } from '#lib/forms/invite.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, StatusChip, TextField } from '#lib/ui/index.js';
@@ -38,6 +39,7 @@
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let busy = $state(false);
+	let formElement = $state<HTMLFormElement>();
 
 	const fieldError = (field: string) => {
 		const code = errors[field]?.[0];
@@ -62,6 +64,7 @@
 			}
 			errors = error.fields;
 			if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
+			else focusFirstInvalid(formElement);
 		} finally {
 			busy = false;
 		}
@@ -71,6 +74,7 @@
 		event.preventDefault();
 		errors = inviteFormErrors(form, preview.email);
 		if (Object.keys(errors).length === 0) accept(toSignUpRequest(form));
+		else focusFirstInvalid(formElement);
 	}
 </script>
 
@@ -107,7 +111,7 @@
 			{#if data.user}
 				<Button block disabled={busy} onclick={() => accept({})}>{m.invite_accept()}</Button>
 			{:else}
-				<form class="sj-stack" onsubmit={signUp} novalidate>
+				<form class="sj-stack" bind:this={formElement} onsubmit={signUp} novalidate>
 					<h2 class="sj-heading">{m.invite_sign_up()}</h2>
 					<TextField
 						label={m.field_display_name()}
