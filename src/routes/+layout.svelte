@@ -1,25 +1,100 @@
 <script lang="ts">
-	import type { Path } from '$app/types';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { locales, localizeHref } from '#lib/paraglide/runtime.js';
+	import { academyMark, academyName } from '#lib/academy.js';
+	import LanguageSwitch from '#lib/components/LanguageSwitch.svelte';
+	import StatusPage from '#lib/components/StatusPage.svelte';
+	import ThemeSwitch from '#lib/components/ThemeSwitch.svelte';
+	import { m } from '#lib/paraglide/messages.js';
+	import { AppShell, Button } from '#lib/ui/index.js';
 	import favicon from '#lib/assets/favicon.svg';
 	import type { LayoutProps } from './$types';
 	import '#lib/styles/tokens.css';
 	import '#lib/styles/base.css';
 	import '#lib/styles/components.css';
 
-	let { children }: LayoutProps = $props();
+	let { data, children }: LayoutProps = $props();
+
+	const locale = $derived(data.locale);
+	const tenant = $derived(data.tenant);
+	const knownTenant = $derived(tenant.kind === 'platform' || tenant.kind === 'academy');
+
+	const brand = $derived.by(() => {
+		if (tenant.kind !== 'academy') return { name: m.app_name({}, { locale }), mark: 'س' };
+		const name = academyName(tenant.academy, locale);
+		return { name, mark: academyMark(name) };
+	});
+
+	const nav = $derived.by(() => {
+		if (tenant.kind === 'platform' && data.user?.isPlatformAdmin) {
+			return [
+				{
+					href: resolve('/(platform)/platform/academies'),
+					label: m.nav_academies({}, { locale }),
+					icon: 'domain'
+				},
+				{
+					href: resolve('/(platform)/platform/disciplines'),
+					label: m.nav_disciplines({}, { locale }),
+					icon: 'format_list_numbered'
+				}
+			];
+		}
+		if (tenant.kind === 'academy' && data.membership) {
+			return [{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' }];
+		}
+		return [];
+	});
+
+	async function signOut() {
+		await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+		await invalidateAll();
+		await goto(resolve('/'));
+	}
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-{@render children()}
+<AppShell {brand} {nav} current={page.url.pathname} navLabel={m.nav_main({}, { locale })}>
+	{#snippet actions()}
+		<LanguageSwitch {locale} />
+		<ThemeSwitch theme={data.theme} {locale} />
+		{#if knownTenant}
+			{#if data.user}
+				<Button
+					variant="quiet"
+					icon="logout"
+					label={m.action_sign_out({}, { locale })}
+					onclick={signOut}
+				/>
+			{:else if page.url.pathname !== '/login'}
+				<Button variant="secondary" href={resolve('/login')}
+					>{m.action_sign_in({}, { locale })}</Button
+				>
+			{/if}
+		{/if}
+	{/snippet}
 
-<div style="display:none">
-	{#each locales as locale (locale)}
-		<a href={resolve(localizeHref(page.url.pathname, { locale }) as Path)}>{locale}</a>
-	{/each}
-</div>
+	{#if tenant.kind === 'unknown'}
+		<StatusPage
+			icon="travel_explore"
+			title={m.status_unknown_title({}, { locale })}
+			body={m.status_unknown_body({}, { locale })}
+		/>
+	{:else if tenant.kind === 'unavailable'}
+		<StatusPage
+			icon="cloud_off"
+			title={m.status_unavailable_title({}, { locale })}
+			body={m.status_unavailable_body({}, { locale })}
+		/>
+	{:else}
+		{@render children()}
+	{/if}
+
+	{#snippet footer()}
+		{#if tenant.kind === 'academy'}{m.powered_by({}, { locale })}{/if}
+	{/snippet}
+</AppShell>

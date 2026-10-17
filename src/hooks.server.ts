@@ -1,7 +1,12 @@
 import type { Handle } from '@sveltejs/kit/hooks';
 import { sequence } from '@sveltejs/kit/hooks';
-import type { Me, Membership } from '#lib/api/types.js';
-import { defineCustomServerStrategy, getTextDirection } from '#lib/paraglide/runtime.js';
+import type { Me, Membership, Tenant } from '#lib/api/types.js';
+import {
+	cookieName as LOCALE_COOKIE,
+	defineCustomServerStrategy,
+	getTextDirection,
+	isLocale
+} from '#lib/paraglide/runtime.js';
 import { paraglideMiddleware } from '#lib/paraglide/server.js';
 import { apiFetch } from '#lib/server/api.js';
 import { resolveTenant } from '#lib/server/tenant.js';
@@ -14,7 +19,18 @@ defineCustomServerStrategy('custom-academy', {
 	getLocale: (request) => request?.headers.get(ACADEMY_LOCALE_HEADER) ?? undefined
 });
 
-const isPassthrough = (pathname: string) => pathname.startsWith('/api/') || pathname === '/healthz';
+const PASSTHROUGH = new Set(['/healthz', '/theme']);
+const isPassthrough = (pathname: string) =>
+	pathname.startsWith('/api/') || PASSTHROUGH.has(pathname);
+
+const TENANT_STATUS: Partial<Record<Tenant['kind'], number>> = { unknown: 404, unavailable: 503 };
+
+function withTenantStatus(response: Response, tenant: Tenant): Response {
+	const status = TENANT_STATUS[tenant.kind];
+	const isPage = response.headers.get('content-type')?.startsWith('text/html');
+	if (!status || !isPage || response.status !== 200) return response;
+	return new Response(response.body, { status, headers: response.headers });
+}
 
 async function loadJSON<T>(response: Promise<Response>): Promise<T | null> {
 	try {
@@ -43,7 +59,7 @@ const handleContext: Handle = async ({ event, resolve }) => {
 			event.locals.membership = await loadJSON<Membership>(apiFetch(event, '/api/membership'));
 		}
 	}
-	return resolve(event);
+	return withTenantStatus(await resolve(event), tenant);
 };
 
 const handlePage: Handle = ({ event, resolve }) => {
@@ -51,7 +67,12 @@ const handlePage: Handle = ({ event, resolve }) => {
 
 	const tenant = event.locals.tenant;
 	const headers = new Headers(event.request.headers);
-	if (tenant.kind === 'academy') headers.set(ACADEMY_LOCALE_HEADER, tenant.academy.defaultLanguage);
+	// Paraglide runs custom server strategies before the cookie one, so the academy default
+	// is only offered when the visitor hasn't chosen a language.
+	const chosen = isLocale(event.cookies.get(LOCALE_COOKIE));
+	if (tenant.kind === 'academy' && !chosen) {
+		headers.set(ACADEMY_LOCALE_HEADER, tenant.academy.defaultLanguage);
+	}
 	const request = new Request(event.request, { headers, duplex: 'half' } as RequestInit);
 	const accent =
 		tenant.kind === 'academy' ? accentStyle(accentVars(tenant.academy.primaryColor)) : '';
