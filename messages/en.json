@@ -68,9 +68,6 @@
 	"discipline_saved": "Saved.",
 	"discipline_edit": "Edit",
 	"invite_title": "You're invited to {academy}",
-	"invite_role_admin": "Admin",
-	"invite_role_trainer": "Trainer",
-	"invite_role_rider": "Rider",
 	"invite_grants": "This invitation makes you:",
 	"invite_sign_up": "Create your account",
 	"invite_accept": "Accept invitation",
@@ -131,5 +128,8 @@
 	"status_not_found_title": "We couldn't find this page",
 	"status_not_found_body": "Check the address, or go back to the start.",
 	"status_error_title": "Something went wrong",
-	"academy_no_owner": "No owner yet"
+	"academy_no_owner": "No owner yet",
+	"invite_page_title": "{academy}: invitation",
+	"invite_accepted_already": "You're already a member, so the invitation wasn't needed.",
+	"invite_expires": "This invitation expires on {date}."
 }

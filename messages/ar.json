@@ -68,9 +68,6 @@
 	"discipline_saved": "تم الحفظ.",
 	"discipline_edit": "تعديل",
 	"invite_title": "أنت مدعو إلى {academy}",
-	"invite_role_admin": "مشرف",
-	"invite_role_trainer": "مدرّب",
-	"invite_role_rider": "فارس",
 	"invite_grants": "هذه الدعوة تجعلك:",
 	"invite_sign_up": "أنشئ حسابك",
 	"invite_accept": "قبول الدعوة",
@@ -131,5 +128,8 @@
 	"status_not_found_title": "لم نعثر على هذه الصفحة",
 	"status_not_found_body": "تحقّق من العنوان، أو عُد إلى البداية.",
 	"status_error_title": "حدث خطأ ما",
-	"academy_no_owner": "بلا مالك بعد"
+	"academy_no_owner": "بلا مالك بعد",
+	"invite_page_title": "{academy}: دعوة",
+	"invite_accepted_already": "أنت عضو بالفعل، فلم تكن هناك حاجة إلى الدعوة.",
+	"invite_expires": "تنتهي صلاحية هذه الدعوة في {date}."
 }

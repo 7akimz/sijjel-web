@@ -1,25 +1,58 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import { academyName } from '#lib/academy.js';
+	import AcademyHome from '#lib/components/AcademyHome.svelte';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Button, EmptyState } from '#lib/ui/index.js';
+	import { Banner, Button, EmptyState } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	const academy = $derived(data.tenant.kind === 'academy' ? data.tenant.academy : null);
+	const welcome = $derived(
+		academy ? (data.locale === 'ar' ? academy.welcomeTextAr : academy.welcomeTextEn) : null
+	);
+	const name = $derived(academy ? academyName(academy, data.locale) : m.app_name());
+	const alreadyMember = $derived(page.url.searchParams.get('notice') === 'already_member');
 </script>
 
+{#snippet signInPrompt(title: string)}
+	<EmptyState icon="login" {title}>
+		{#snippet action()}
+			<Button href={resolve('/login')}>{m.action_sign_in()}</Button>
+		{/snippet}
+	</EmptyState>
+{/snippet}
+
 <svelte:head>
-	<title>{m.app_name()}</title>
+	<title>{name}</title>
+	<meta property="og:title" content={name} />
+	<meta property="og:site_name" content={name} />
 </svelte:head>
 
-<div class="sj-page">
-	<h1 class="sj-title">{m.platform_home_title()}</h1>
-	{#if data.user}
-		<EmptyState icon="link" title={data.user.displayName}>{m.platform_home_member()}</EmptyState>
-	{:else}
-		<EmptyState icon="login" title={m.platform_home_signed_out()}>
-			{#snippet action()}
-				<Button href={resolve('/login')}>{m.action_sign_in()}</Button>
-			{/snippet}
-		</EmptyState>
-	{/if}
-</div>
+{#if academy}
+	<div class="sj-page">
+		<div class="sj-stack">
+			<h1 class="sj-title">{m.home_welcome({ academy: name })}</h1>
+			{#if welcome}<p class="sj-muted">{welcome}</p>{/if}
+		</div>
+		{#if alreadyMember}<Banner icon="info">{m.invite_accepted_already()}</Banner>{/if}
+		{#if data.membership}
+			<AcademyHome membership={data.membership} locale={data.locale} />
+		{:else if data.user}
+			<EmptyState icon="lock" title={m.home_not_member()} />
+		{:else}
+			{@render signInPrompt(m.home_signed_out())}
+		{/if}
+	</div>
+{:else}
+	<div class="sj-page">
+		<h1 class="sj-title">{m.platform_home_title()}</h1>
+		{#if data.user}
+			<EmptyState icon="link" title={data.user.displayName}>{m.platform_home_member()}</EmptyState>
+		{:else}
+			{@render signInPrompt(m.platform_home_signed_out())}
+		{/if}
+	</div>
+{/if}

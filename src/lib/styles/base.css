@@ -112,3 +112,7 @@ a {
 .sj-page-head > :first-child {
 	flex: 1 1 18rem;
 }
+.sj-appbar .sj-btn {
+	flex-shrink: 0;
+	white-space: nowrap;
+}

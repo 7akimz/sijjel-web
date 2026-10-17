@@ -74,3 +74,15 @@ export interface CreatedInvite {
 	expiresAt: string;
 	url: string;
 }
+
+export type Role = Membership['roles'][number];
+
+export interface InvitePreview {
+	academy: { slug: string; nameEn: string; nameAr: string };
+	roles: Role[];
+	discipline: DisciplineRef | null;
+	level: NameRef | null;
+	name: string | null;
+	email: string | null;
+	expiresAt: string;
+}

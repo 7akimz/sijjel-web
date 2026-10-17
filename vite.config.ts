@@ -26,6 +26,9 @@ export default defineConfig({
 		port: 5173,
 		allowedHosts: ['.localhost']
 	},
+	preview: {
+		allowedHosts: ['.localhost']
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
