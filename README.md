@@ -37,14 +37,14 @@ npx vitest --run
 
 Vitest runs `*.svelte.test.ts` component tests in headless Chromium and the other `*.test.ts` files in Node.
 
-The end-to-end suite builds the app, serves it on port 4173 and drives both hosts against the API container:
+The end-to-end suite builds the app, serves it on port 4173 and drives both hosts against a throwaway API and Postgres (compose project `sijjel-e2e`, `e2e/compose.yaml`). Postgres keeps its data in memory. The global setup removes any leftover stack, starts a fresh one with its own platform admin, and removes it again when the run ends, pass or fail, so your dev database is never touched.
 
 ```sh
-(cd ../sijjel-api && docker compose --profile app up -d)
-E2E_API_COMPOSE_DIR=../sijjel-api npx playwright test
+(cd ../sijjel-api && docker compose --profile app build)
+npx playwright test
 ```
 
-`E2E_API_COMPOSE_DIR` lets the setup create the e2e platform admin inside the API container. Override the account with `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD`.
+The suite runs the `sijjel-api-api` image, so rebuild it after API changes. Set `E2E_API_IMAGE` to use another image, and `E2E_API_PORT` (default 18080) if that port is taken.
 
 ## Container
 

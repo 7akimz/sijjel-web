@@ -1,28 +1,48 @@
 import { execFileSync } from 'node:child_process';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from './config';
+import { fileURLToPath } from 'node:url';
+import { ADMIN_EMAIL, ADMIN_PASSWORD, API_PORT } from './config';
 
-// Creates the platform admin inside the running API container, which is the only way to
-// make one. Without E2E_API_COMPOSE_DIR the admin must already exist.
-export default function globalSetup() {
-	const composeDir = process.env.E2E_API_COMPOSE_DIR;
-	if (!composeDir) return;
-	execFileSync(
-		'docker',
-		[
-			'compose',
-			'--profile',
-			'app',
-			'exec',
-			'-T',
-			'api',
-			'/sijjel-api',
-			'admin',
-			'create',
-			'--email',
-			ADMIN_EMAIL,
-			'--name',
-			'E2E admin'
-		],
-		{ cwd: composeDir, input: `${ADMIN_PASSWORD}\n`, stdio: ['pipe', 'inherit', 'inherit'] }
-	);
+const composeFile = fileURLToPath(new URL('./compose.yaml', import.meta.url));
+
+function compose(args: string[], input?: string) {
+	execFileSync('docker', ['compose', '-f', composeFile, ...args], {
+		input,
+		stdio: [input === undefined ? 'ignore' : 'pipe', 'inherit', 'inherit'],
+		env: { ...process.env, E2E_API_PORT: String(API_PORT) }
+	});
+}
+
+const removeStack = () => compose(['down', '--volumes', '--remove-orphans']);
+
+async function waitUntilReady() {
+	const deadline = Date.now() + 60_000;
+	while (Date.now() < deadline) {
+		try {
+			const response = await fetch(`http://127.0.0.1:${API_PORT}/health/ready`);
+			if (response.ok) return;
+		} catch {
+			// The API is still starting.
+		}
+		await new Promise((resolve) => setTimeout(resolve, 500));
+	}
+	throw new Error(`the e2e API on port ${API_PORT} did not become ready`);
+}
+
+// Every run starts from an empty database and leaves nothing behind. The returned function is
+// Playwright's global teardown.
+export default async function globalSetup() {
+	removeStack();
+	try {
+		compose(['up', '--detach', '--wait', 'postgres']);
+		compose(['up', '--detach', 'api']);
+		await waitUntilReady();
+		compose(
+			['exec', '-T', 'api', '/sijjel-api', 'admin', 'create', '--email', ADMIN_EMAIL],
+			`${ADMIN_PASSWORD}\n`
+		);
+	} catch (error) {
+		removeStack();
+		throw error;
+	}
+	return removeStack;
 }

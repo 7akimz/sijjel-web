@@ -1,0 +1,33 @@
+# A throwaway stack for the end-to-end tests. Postgres keeps its data in memory, and the
+# global setup removes the whole project before and after every run.
+name: sijjel-e2e
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: sijjel
+      POSTGRES_USER: sijjel
+      POSTGRES_PASSWORD: e2e
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sijjel -d sijjel']
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  api:
+    image: ${E2E_API_IMAGE:-sijjel-api-api}
+    environment:
+      DATABASE_URL: postgres://sijjel:e2e@postgres:5432/sijjel?sslmode=disable
+      ROOT_DOMAIN: localhost
+      SECURE_COOKIES: 'false'
+      MIGRATE_ON_START: 'true'
+      ALLOWED_ORIGIN_SCHEMES: 'http,https'
+      TRUST_PROXY: 'true'
+    ports:
+      - '127.0.0.1:${E2E_API_PORT:-18080}:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
