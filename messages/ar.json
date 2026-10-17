@@ -177,5 +177,20 @@
 	"settings_disciplines_title": "التخصصات والمستويات",
 	"settings_disciplines_body": "ما تدرّسه وسلّم المستويات لكل تخصص",
 	"status_platform_forbidden_title": "هذه المنطقة لمشرفي المنصة",
-	"status_platform_forbidden_body": "سجّل الدخول بحساب مشرف منصة لإدارة الأكاديميات."
+	"status_platform_forbidden_body": "سجّل الدخول بحساب مشرف منصة لإدارة الأكاديميات.",
+	"setup_title": "جهّز {academy} للحجوزات",
+	"setup_progress": "اكتمل {done} من 3",
+	"setup_hours_title": "ساعات العمل",
+	"setup_hours_body": "متى تفتح وكم تستغرق الحصص",
+	"setup_arenas_title": "الحلبات",
+	"setup_arenas_body": "أين تُقام الحصص وكم فارسًا تتسع",
+	"setup_horses_title": "الخيول",
+	"setup_horses_body": "خيول المدرسة ونطاق مستوياتها",
+	"setup_step_done": "تم",
+	"field_opens": "{label} يفتح",
+	"field_closes": "{label} يغلق",
+	"field_from": "{label} من",
+	"field_to": "{label} إلى",
+	"date_from": "من",
+	"date_to": "إلى"
 }

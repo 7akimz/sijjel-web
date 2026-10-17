@@ -5,13 +5,17 @@
 		Button,
 		Card,
 		CheckboxField,
+		DateRangeField,
 		EmptyState,
 		ListRow,
+		ProgressBar,
 		SelectField,
 		SessionSlot,
 		StatusChip,
-		TextField
+		TextField,
+		TimeRangeField
 	} from '#lib/ui/index.js';
+	import SetupChecklist from '#lib/components/SetupChecklist.svelte';
 
 	let theme = $state<'light' | 'dark'>('light');
 	let dir = $state<'ltr' | 'rtl'>('ltr');
@@ -19,6 +23,10 @@
 	let sessions = $state(7);
 	let level = $state('beginner');
 	let beginner = $state(true);
+	let opens = $state('18:00');
+	let closes = $state('22:00');
+	let closedFrom = $state('');
+	let closedTo = $state('');
 	const ar = $derived(dir === 'rtl');
 </script>
 
@@ -186,6 +194,18 @@
 					Add your school horses and the levels each one can carry.
 					{#snippet action()}<Button icon="add">Add a horse</Button>{/snippet}
 				</EmptyState>
+			</Card>
+
+			<SetupChecklist
+				state={{ hours: { done: true }, arenas: { done: false }, horses: { done: false } }}
+				academyName="Al Faris Academy"
+			/>
+
+			<Card>
+				<h2 class="heading">Time and date ranges</h2>
+				<ProgressBar value={2} max={3} label="2 of 3 done" />
+				<TimeRangeField label="Saturday" bind:opens bind:closes />
+				<DateRangeField label="Closed" bind:from={closedFrom} bind:to={closedTo} />
 			</Card>
 		</div>
 	</AppShell>

@@ -177,5 +177,20 @@
 	"settings_disciplines_title": "Disciplines and levels",
 	"settings_disciplines_body": "What you teach and each discipline's level ladder",
 	"status_platform_forbidden_title": "This area is for platform admins",
-	"status_platform_forbidden_body": "Sign in with a platform admin account to manage academies."
+	"status_platform_forbidden_body": "Sign in with a platform admin account to manage academies.",
+	"setup_title": "Get {academy} ready for bookings",
+	"setup_progress": "{done} of 3 done",
+	"setup_hours_title": "Opening hours",
+	"setup_hours_body": "When you're open and how long sessions last",
+	"setup_arenas_title": "Arenas",
+	"setup_arenas_body": "Where sessions happen, and how many riders fit",
+	"setup_horses_title": "Horses",
+	"setup_horses_body": "School horses and their level range",
+	"setup_step_done": "Done",
+	"field_opens": "{label} opens",
+	"field_closes": "{label} closes",
+	"field_from": "{label} from",
+	"field_to": "{label} to",
+	"date_from": "From",
+	"date_to": "To"
 }
