@@ -5,10 +5,17 @@
 
 	const locale = $derived(page.data.locale ?? 'en');
 	const forbidden = $derived(page.status === 403);
+	const onPlatform = $derived(page.data.tenant?.kind === 'platform');
 	const missing = $derived(page.status === 404);
 </script>
 
-{#if forbidden}
+{#if forbidden && onPlatform}
+	<StatusPage
+		icon="lock"
+		title={m.status_platform_forbidden_title({}, { locale })}
+		body={m.status_platform_forbidden_body({}, { locale })}
+	/>
+{:else if forbidden}
 	<StatusPage
 		icon="lock"
 		title={m.status_forbidden_title({}, { locale })}

@@ -35,3 +35,8 @@ export function errorText(code: string, locale?: Locale): string {
 	const message = messages[`error_${code}`] ?? messages.error_internal_error!;
 	return message({}, { locale });
 }
+
+export function fieldText(fields: FieldErrors, field: string): string | undefined {
+	const code = fields[field]?.[0];
+	return code ? errorText(code) : undefined;
+}

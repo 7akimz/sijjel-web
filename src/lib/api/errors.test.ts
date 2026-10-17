@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from './client';
-import { ApiError, errorText } from './errors';
+import { ApiError, errorText, fieldText } from './errors';
 
 const problem = (status: number, body: object) =>
 	new Response(JSON.stringify(body), {
@@ -93,5 +93,17 @@ describe('errorText', () => {
 		expect(errorText('no_such_code', 'en')).toBe(
 			'Something went wrong on our side. Try again in a moment.'
 		);
+	});
+});
+
+describe('fieldText', () => {
+	it('translates the first code on a field', () => {
+		expect(fieldText({ slug: ['slug_taken', 'slug_invalid'] }, 'slug')).toBe(
+			'Another academy already uses this address.'
+		);
+	});
+
+	it('is undefined when the field has no error', () => {
+		expect(fieldText({ slug: ['slug_taken'] }, 'name')).toBeUndefined();
 	});
 });
