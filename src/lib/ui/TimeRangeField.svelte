@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { m } from '#lib/paraglide/messages.js';
+	import { normalizeTime } from '#lib/time.js';
 	import Icon from './Icon.svelte';
 
 	type Props = { label: string; opens?: string; closes?: string; error?: string };
@@ -13,25 +14,33 @@
 		<input
 			id="{id}-opens"
 			class="sj-input"
-			type="time"
-			step="60"
+			type="text"
+			inputmode="numeric"
+			autocomplete="off"
+			maxlength="5"
+			placeholder="18:00"
 			dir="ltr"
 			aria-label={m.field_opens({ label })}
 			aria-invalid={error ? 'true' : undefined}
 			aria-describedby={error ? `${id}-error` : undefined}
 			bind:value={opens}
+			onblur={() => (opens = normalizeTime(opens))}
 		/>
 		<span aria-hidden="true">–</span>
 		<input
 			id="{id}-closes"
 			class="sj-input"
-			type="time"
-			step="60"
+			type="text"
+			inputmode="numeric"
+			autocomplete="off"
+			maxlength="5"
+			placeholder="18:00"
 			dir="ltr"
 			aria-label={m.field_closes({ label })}
 			aria-invalid={error ? 'true' : undefined}
 			aria-describedby={error ? `${id}-error` : undefined}
 			bind:value={closes}
+			onblur={() => (closes = normalizeTime(closes))}
 		/>
 	</div>
 	{#if error}

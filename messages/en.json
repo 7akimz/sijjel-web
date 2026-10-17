@@ -192,5 +192,20 @@
 	"field_from": "{label} from",
 	"field_to": "{label} to",
 	"date_from": "From",
-	"date_to": "To"
+	"date_to": "To",
+	"hours_title": "Opening hours and sessions",
+	"hours_intro": "Riders can book any session that fits inside these hours.",
+	"hours_open": "Open",
+	"hours_closed": "Closed",
+	"hours_copy": "Copy to other open days",
+	"hours_session_length": "Session length",
+	"hours_break": "Break between sessions",
+	"hours_minutes": "{count} minutes",
+	"hours_no_break": "No break",
+	"hours_time_zone": "Time zone",
+	"hours_preview_title": "Sessions riders will see",
+	"hours_preview_summary": "{count} sessions · {first} – {last}",
+	"hours_preview_one": "1 session · {first}",
+	"hours_preview_none": "No session fits these hours",
+	"hours_saved": "Opening hours saved."
 }

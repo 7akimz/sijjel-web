@@ -9,6 +9,7 @@
 		type AcademyForm
 	} from '#lib/forms/academy.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
+	import { TIME_ZONES, timeZoneOptions } from '#lib/forms/time-zones.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import {
 		Banner,
@@ -47,11 +48,7 @@
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
-	const zones = Intl.supportedValuesOf('timeZone');
-	const timeZones = (zones.includes('UTC') ? zones : ['UTC', ...zones]).map((zone) => ({
-		value: zone,
-		label: zone.replaceAll('_', ' ')
-	}));
+	const timeZones = timeZoneOptions();
 	const languages = [
 		{ value: 'en', label: m.language_en() },
 		{ value: 'ar', label: m.language_ar() }
@@ -64,7 +61,7 @@
 
 	onMount(() => {
 		const browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-		if (zones.includes(browserZone)) form.timeZone = browserZone;
+		if (TIME_ZONES.includes(browserZone)) form.timeZone = browserZone;
 	});
 
 	const fieldError = (field: string) => {

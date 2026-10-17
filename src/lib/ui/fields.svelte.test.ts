@@ -3,7 +3,7 @@ import { render } from 'vitest-browser-svelte';
 import { DateRangeField, TimeRangeField } from './index';
 
 describe('TimeRangeField', () => {
-	it('keeps times left-to-right as time inputs', () => {
+	it('keeps 24-hour times left-to-right whatever the browser locale', () => {
 		const { container } = render(TimeRangeField, {
 			label: 'Saturday',
 			opens: '18:00',
@@ -13,9 +13,21 @@ describe('TimeRangeField', () => {
 		const inputs = [...container.querySelectorAll('input')];
 		expect(inputs).toHaveLength(2);
 		for (const input of inputs) {
-			expect(input.getAttribute('type')).toBe('time');
+			expect(input.getAttribute('type')).toBe('text');
+			expect(input.getAttribute('inputmode')).toBe('numeric');
 			expect(input.getAttribute('dir')).toBe('ltr');
 		}
+		expect(inputs[0].value).toBe('18:00');
+	});
+
+	it('tidies a typed time when leaving the field', async () => {
+		const screen = render(TimeRangeField, { label: 'Saturday', opens: '', closes: '' });
+		const opens = screen.getByLabelText('Saturday opens');
+
+		await opens.fill('930');
+		await screen.getByLabelText('Saturday closes').click();
+
+		await expect.element(opens).toHaveValue('09:30');
 	});
 });
 

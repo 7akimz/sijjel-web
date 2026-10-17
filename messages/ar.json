@@ -192,5 +192,20 @@
 	"field_from": "{label} من",
 	"field_to": "{label} إلى",
 	"date_from": "من",
-	"date_to": "إلى"
+	"date_to": "إلى",
+	"hours_title": "ساعات العمل والحصص",
+	"hours_intro": "يمكن للفرسان حجز أي حصة ضمن هذه الساعات.",
+	"hours_open": "مفتوح",
+	"hours_closed": "مغلق",
+	"hours_copy": "نسخ إلى باقي الأيام المفتوحة",
+	"hours_session_length": "مدة الحصة",
+	"hours_break": "الاستراحة بين الحصص",
+	"hours_minutes": "{count} دقيقة",
+	"hours_no_break": "بلا استراحة",
+	"hours_time_zone": "المنطقة الزمنية",
+	"hours_preview_title": "الحصص التي سيراها الفرسان",
+	"hours_preview_summary": "{count} حصص · {first} – {last}",
+	"hours_preview_one": "حصة واحدة · {first}",
+	"hours_preview_none": "لا تتسع هذه الساعات لأي حصة",
+	"hours_saved": "تم حفظ ساعات العمل."
 }
