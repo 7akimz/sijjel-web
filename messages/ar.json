@@ -130,5 +130,6 @@
 	"error_internal_error": "حدث خطأ من جهتنا. حاول مرة أخرى بعد قليل.",
 	"status_not_found_title": "لم نعثر على هذه الصفحة",
 	"status_not_found_body": "تحقّق من العنوان، أو عُد إلى البداية.",
-	"status_error_title": "حدث خطأ ما"
+	"status_error_title": "حدث خطأ ما",
+	"academy_no_owner": "بلا مالك بعد"
 }

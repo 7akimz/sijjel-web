@@ -44,3 +44,33 @@ export interface Membership {
 	discipline: DisciplineRef | null;
 	level: NameRef | null;
 }
+
+export interface LevelName {
+	nameEn: string;
+	nameAr: string;
+}
+
+export interface Discipline {
+	id: string;
+	key: string;
+	nameEn: string;
+	nameAr: string;
+	levels: LevelName[];
+}
+
+export interface AcademySummary {
+	id: string;
+	slug: string;
+	nameEn: string;
+	nameAr: string;
+	isActive: boolean;
+	disciplines: string[];
+	ownerCount: number;
+}
+
+export interface CreatedInvite {
+	inviteId: string;
+	token: string;
+	expiresAt: string;
+	url: string;
+}

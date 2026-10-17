@@ -4,6 +4,7 @@ export function academyName(academy: Pick<AcademyTenant, 'nameEn' | 'nameAr'>, l
 	return locale === 'ar' ? academy.nameAr : academy.nameEn;
 }
 
+// The mark uses the English name so an academy keeps the same mark in both languages.
 export function academyMark(name: string): string {
 	const words = name.trim().split(/\s+/).filter(Boolean);
 	return words

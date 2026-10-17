@@ -44,7 +44,7 @@
 	"academy_time_zone": "Time zone",
 	"academy_default_language": "Default language",
 	"academy_disciplines": "Disciplines taught",
-	"academy_owners": "{count} owners",
+	"academy_owners": "Owners: {count}",
 	"academy_invite_owner": "Invite owner",
 	"academy_invite_link": "Invitation link",
 	"academy_invite_expires": "Expires on {date}. It works once.",
@@ -130,5 +130,6 @@
 	"error_internal_error": "Something went wrong on our side. Try again in a moment.",
 	"status_not_found_title": "We couldn't find this page",
 	"status_not_found_body": "Check the address, or go back to the start.",
-	"status_error_title": "Something went wrong"
+	"status_error_title": "Something went wrong",
+	"academy_no_owner": "No owner yet"
 }
