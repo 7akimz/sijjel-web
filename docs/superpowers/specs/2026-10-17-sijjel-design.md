@@ -43,7 +43,7 @@ The visual language is the **sijjel design system**: https://claude.ai/artifact/
 | Horses | Each horse has one discipline. A school horse has a level range (lowest–highest level on its discipline's ladder), a max sessions/day, and can be marked unavailable for a date range. A private horse has an owner rider and takes the owner's discipline. |
 | Guarantee | At booking time a **feasibility check** (max-flow) runs over the whole academy-day. No horse is locked at booking time. The trainer assigns horses later, with a one-click suggestion. |
 | Recurring bookings | None in v1. |
-| v1 extras | Cancellation rules: a booking window and a cancellation cutoff. |
+| v1 extras | Booking rules: how far ahead booking opens, how close to the start it closes, and a riders' cancellation cutoff. |
 | Language | English and Arabic, with full RTL. |
 | Branding | Each academy has a subdomain (`{slug}.<root-domain>`) carrying its logo, brand colour (generating its accent tones), cover photo, welcome text (EN/AR) and house rules (EN/AR). sijjel appears only as a small "Powered by" footer. |
 | Stack: API | Go 1.27, stdlib `net/http` routing, `pgx/v5`, `sqlc`, `goose` migrations, PostgreSQL 17. |
@@ -75,12 +75,12 @@ The visual language is the **sijjel design system**: https://claude.ai/artifact/
 - **sessions**: id (random 256-bit, stored hashed), user_id, created_at, expires_at, last_seen_at.
 - **disciplines** (catalogue): id, key (e.g. `dressage`), name_en, name_ar, sort_order.
 - **discipline_default_levels**: discipline_id, position, name_en, name_ar.
-- **academies**: id, slug (unique, lowercase `a-z0-9-`, 3–30, reserved words blocked), name_en, name_ar, time_zone (IANA), session_length_minutes, break_minutes, booking_window_days (default 14), cancellation_cutoff_hours (default 12), default_language, is_active, created_at.
+- **academies**: id, slug (unique, lowercase `a-z0-9-`, 3–30, reserved words blocked), name_en, name_ar, time_zone (IANA), session_length_minutes, break_minutes, booking_window_days (default 14), booking_closes_hours (default 0), cancellation_cutoff_hours (default 12), default_language, is_active, created_at.
 - **academy_branding**: academy_id, primary_color (default `#7A5230`), logo_file_id, cover_file_id, welcome_text_en/ar, house_rules_en/ar.
 - **academy_disciplines**: academy_id, discipline_id (the disciplines the academy teaches).
 - **levels**: id, academy_id, discipline_id, position, name_en, name_ar. Unique (academy_id, discipline_id, position).
 - **opening_hours**: academy_id, weekday, opens_at, closes_at.
-- **closed_dates**: academy_id, date, reason.
+- **closed_dates**: id, academy_id, from_date, to_date, reason.
 - **arenas**: id, academy_id, name, capacity, is_active.
 - **memberships**: id, academy_id, user_id, roles (admin/trainer/rider flags), discipline_id and level_id (riders only), status (Active, Suspended), created_at. Unique (academy_id, user_id).
 - **invites**:
@@ -211,9 +211,9 @@ sijjel-web/
    - Platform admin CLI and platform UI: academies, owner invites, discipline catalogue with default ladders.
    - Invite acceptance with sign-up; academy home.
    - The design-system UI kit, dark mode and the `/design` route.
-2. **Scheduling engine:** the slot grid, the discipline- and level-aware allocator, booking rules.
-3. **Academy setup:** disciplines and ladders, schedule and rules, arenas, closed dates, invites (staff and riders), members, horses, unavailability.
-4. **Booking:** slots, booking and cancelling with the advisory lock, the rider UI.
+2. **Scheduling engine:** the slot grid (built in Milestone 3), the discipline- and level-aware allocator, booking rules. Built with booking, after Milestone 3.
+3. **Academy setup** (design: `2026-10-18-academy-setup-design.md`): a setup checklist on the admin home; opening hours and sessions with the slot grid preview; booking rules; arenas; closed dates; disciplines and ladders; school horses and their unavailability.
+4. **Members and booking:** staff and rider invites, the member list, private horses, then slots, booking and cancelling with the horse allocator and the advisory lock, and the rider UI. Settle the parked booking models first (see the Milestone 3 design, "To settle before booking").
 5. **Planning board:** placement, trainers, suggestions, conflicts.
 6. **Branding uploads:** logo, cover, live preview.
 7. **Later:** AWS deployment, email, waitlist, recurring bookings, attendance, payments.
