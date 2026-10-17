@@ -1,0 +1,15 @@
+.git
+.superpowers
+.svelte-kit
+.vscode
+build
+docs
+e2e
+node_modules
+test-results
+src/lib/paraglide
+.env
+.env.*
+!.env.example
+Dockerfile
+compose.yaml

@@ -1,54 +1,59 @@
-# sv
+# sijjel-web
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+The web app for sijjel, session planning for riding academies. It is a SvelteKit app rendered on the server (`adapter-node`). The browser only ever talks to this app: `/api/*` is proxied to [sijjel-api](../sijjel-api) on the same origin, so session cookies stay host-only and `SameSite=Strict`.
 
-## Creating a project
+- **Platform site** (`localhost`): platform admins sign in, manage the discipline catalogue, create academies and copy owner invitation links.
+- **Academy sites** (`{slug}.localhost`): invitees open their link, create an account or sign in, and land on the academy home.
 
-If you're seeing this, you've probably already done this step. Congrats!
+The first HTML of every page already carries the academy accent colours, the theme (`sijjel_theme` cookie), `lang`/`dir` (`PARAGLIDE_LOCALE` cookie, else the academy's default language), and the link-preview tags.
 
-```sh
-# create a new project
-npx sv create my-app
-```
+Design system: https://claude.ai/artifact/HysWBDjQnrq5zDEoY1cZqj. Its tokens and component CSS live in `src/lib/styles`, and the Svelte components in `src/lib/ui`. In development, `/design` shows every component.
 
-To recreate this project with the same configuration:
+## Development
 
-```sh
-# recreate this project
-npx sv@1.1.1 create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" playwright="demo:no" sveltekit-adapter="adapter:node" paraglide="languageTags:en,ar+demo:no" --install npm .
-```
-
-## Adding features
-
-Add features to your project with `sv add`:
+Requires Node 24 and a running API on port 8080 (see the sijjel-api README).
 
 ```sh
-npx sv add
-```
-
-For example, to add Tailwind CSS:
-
-```sh
-npx sv add tailwindcss
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
+npm install
+cp .env.example .env
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+Open http://localhost:5173 for the platform site and http://alfaris.localhost:5173 for an academy. Browsers resolve `*.localhost` to the loopback address without any hosts-file changes.
 
-To create a production version of your app:
+| Variable  | Default                 | Purpose                                      |
+| --------- | ----------------------- | -------------------------------------------- |
+| `API_URL` | `http://localhost:8080` | sijjel-api base URL, used only on the server |
+
+All user-facing text lives in `messages/en.json` and `messages/ar.json`. API error codes map to `error_<code>` keys.
+
+## Tests
 
 ```sh
-npm run build
+npm run check
+npm run lint
+npx vitest --run
 ```
 
-You can preview the production build with `npm run preview`.
+Vitest runs `*.svelte.test.ts` component tests in headless Chromium and the other `*.test.ts` files in Node.
+
+The end-to-end suite builds the app, serves it on port 4173 and drives both hosts against the API container:
+
+```sh
+(cd ../sijjel-api && docker compose --profile app up -d)
+E2E_API_COMPOSE_DIR=../sijjel-api npx playwright test
+```
+
+`E2E_API_COMPOSE_DIR` lets the setup create the e2e platform admin inside the API container. Override the account with `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD`.
+
+## Container
+
+```sh
+(cd ../sijjel-api && docker compose --profile app up -d)
+docker compose up -d --build
+curl -s localhost:3000/healthz
+```
+
+The `web` service joins the API stack's `sijjel-api_default` network and listens on `127.0.0.1:3000`. The image runs as the `node` user and reports health from `/healthz`, which doesn't call the API.
+
+Behind a TLS-terminating proxy, also set adapter-node's `PROTOCOL_HEADER=x-forwarded-proto` and `HOST_HEADER=x-forwarded-host`. Academy subdomains share one deployment, so don't set `ORIGIN`.
