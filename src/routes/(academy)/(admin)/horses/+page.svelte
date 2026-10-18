@@ -46,7 +46,7 @@
 	{/if}
 
 	{#if data.horses.length === 0}
-		<EmptyState icon="pets" title={m.horses_empty_title()}>
+		<EmptyState icon="horseshoe" title={m.horses_empty_title()}>
 			{m.horses_empty_body()}
 			{#snippet action()}
 				<Button icon="add" href={resolve('/(academy)/(admin)/horses/new')}>{m.horse_new()}</Button>

@@ -190,7 +190,7 @@
 			>
 
 			<Card>
-				<EmptyState icon="pets" title="No horses yet">
+				<EmptyState icon="horseshoe" title="No horses yet">
 					Add your school horses and the levels each one can carry.
 					{#snippet action()}<Button icon="add">Add a horse</Button>{/snippet}
 				</EmptyState>

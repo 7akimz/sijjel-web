@@ -68,7 +68,7 @@
 				{
 					href: resolve('/(academy)/(admin)/horses'),
 					label: m.nav_horses({}, { locale }),
-					icon: 'pets'
+					icon: 'horseshoe'
 				},
 				{
 					href: resolve('/(academy)/(admin)/settings'),

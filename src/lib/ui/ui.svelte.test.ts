@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
-import { Button, SessionSlot, StatusChip, TextField } from './index';
+import { Button, Icon, SessionSlot, StatusChip, TextField } from './index';
 
 const text = (value: string) => createRawSnippet(() => ({ render: () => `<span>${value}</span>` }));
 
@@ -75,5 +75,20 @@ describe('SessionSlot', () => {
 		expect(container.querySelectorAll('.sj-horses__horse')).toHaveLength(2);
 		expect(container.querySelectorAll('.sj-horses__horse--taken')).toHaveLength(2);
 		expect(container.textContent).toContain('20:00');
+	});
+});
+
+describe('Icon', () => {
+	it('draws the horseshoe, which the icon font lacks, and fills it when active', async () => {
+		const outline = render(Icon, { name: 'horseshoe' });
+		const icon = outline.container.querySelector('.sj-icon');
+		expect(icon?.querySelector('svg')).not.toBeNull();
+		expect(icon?.textContent).toBe('');
+
+		const filled = render(Icon, { name: 'horseshoe', filled: true });
+		expect(filled.container.querySelector('svg path[fill-rule="evenodd"]')).not.toBeNull();
+
+		const font = render(Icon, { name: 'home' });
+		expect(font.container.querySelector('.sj-icon')?.textContent).toBe('home');
 	});
 });
