@@ -478,11 +478,11 @@
 	"book_end": "حتى {time}",
 	"staff_book_title": "الحجز لـ {rider}",
 	"staff_book_confirm": "هل تحجز {day} الساعة {time} لـ {rider}؟",
-	"staff_book_warning": "تحقّق قبل حجز {rider}:",
 	"staff_book_anyway": "احجز على أي حال",
 	"staff_book_done": "تم حجز {rider}: {day} الساعة {time}.",
 	"staff_book_back": "العودة إلى {rider}",
 	"hours_affected_body": "هذه الحجوزات لن تتوافق مع المواعيد الجديدة. ألغِها أولًا، أو أبقِ المواعيد الحالية.",
 	"closed_affected_body": "هذه الحجوزات تقع في الأيام التي تغلقها.",
-	"closed_affected_confirm": "أغلق هذه الأيام وألغِ الحجوزات"
+	"closed_affected_confirm": "أغلق هذه الأيام وألغِ الحجوزات",
+	"rider_past_title": "الحصص السابقة"
 }

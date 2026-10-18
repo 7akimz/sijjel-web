@@ -8,6 +8,7 @@
 	import {
 		closedRangeErrors,
 		formatRange,
+		type DateRangeForm,
 		isPast,
 		toDateRangeInput
 	} from '#lib/forms/closed-dates.js';
@@ -26,7 +27,7 @@
 	let failure = $state<string>();
 	let notice = $state<string>();
 	let busy = $state(false);
-	let affected = $state<AffectedBooking[]>();
+	let affected = $state<{ bookings: AffectedBooking[]; form: DateRangeForm }>();
 	let formElement = $state<HTMLFormElement>();
 
 	const sorted = $derived([...closures].sort((a, b) => a.from.localeCompare(b.from)));
@@ -35,14 +36,14 @@
 
 	function add(event: SubmitEvent) {
 		event.preventDefault();
-		return submit(false);
+		return submit({ from, to, reason }, false);
 	}
 
-	async function submit(confirm: boolean) {
+	// Confirming resends the range whose bookings were listed, even if the fields changed since.
+	async function submit(form: DateRangeForm, confirm: boolean) {
 		failure = undefined;
 		notice = undefined;
 		affected = undefined;
-		const form = { from, to, reason };
 		errors = closedRangeErrors(form);
 		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
 		busy = true;
@@ -58,7 +59,10 @@
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
 			if (error.code === 'bookings_affected')
-				affected = (error.extra.bookings as AffectedBooking[] | undefined) ?? [];
+				affected = {
+					bookings: (error.extra.bookings as AffectedBooking[] | undefined) ?? [],
+					form
+				};
 			else if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
 			else focusFirstInvalid(formElement);
 		} finally {
@@ -112,11 +116,11 @@
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 	{#if affected}
 		<AffectedBookings
-			bookings={affected}
+			bookings={affected.bookings}
 			locale={data.locale}
 			body={m.closed_affected_body()}
 			confirmLabel={m.closed_affected_confirm()}
-			onconfirm={() => submit(true)}
+			onconfirm={() => affected && submit(affected.form, true)}
 			oncancel={() => (affected = undefined)}
 		/>
 	{/if}

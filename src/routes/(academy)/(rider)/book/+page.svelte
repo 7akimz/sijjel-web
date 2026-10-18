@@ -29,7 +29,7 @@
 		return school ? m.book_confirm_school(inputs) : m.book_confirm_own(inputs);
 	}
 
-	async function book(slot: SlotView) {
+	async function book(slot: SlotView): Promise<null> {
 		busy = true;
 		notice = '';
 		failure = '';
@@ -46,6 +46,7 @@
 			busy = false;
 			await invalidateAll();
 		}
+		return null;
 	}
 </script>
 

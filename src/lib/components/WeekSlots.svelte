@@ -21,14 +21,22 @@
 		locale: Locale;
 		weekHref: (week: string) => string;
 		confirmText: (slot: SlotView) => string;
-		onbook: (slot: SlotView) => Promise<void>;
+		onbook: (slot: SlotView, confirm: boolean) => Promise<string[] | null>;
 	};
 	let { slots, week, firstWeek, school, busy, locale, weekHref, confirmText, onbook }: Props =
 		$props();
 
-	let pending = $state.raw<SlotView | null>(null);
+	let pending = $state<string | null>(null);
+	let warnings = $state<string[] | null>(null);
+
+	$effect(() => {
+		void week;
+		pending = null;
+		warnings = null;
+	});
 
 	const days = $derived(groupByDate(slots));
+	const keyOf = (slot: SlotView) => `${slot.date} ${slot.start}`;
 	const dayDate = (date: string) => formatDate(`${date}T00:00:00Z`, locale);
 
 	function slotState(slot: SlotView) {
@@ -45,9 +53,10 @@
 		return m.book_horses_free({ count: slot.suitableHorsesFree ?? 0 });
 	}
 
-	async function book(slot: SlotView) {
-		await onbook(slot);
-		pending = null;
+	// Staff bookings can come back with warnings to confirm; they stay with the slot they're about.
+	async function book(slot: SlotView, confirm: boolean) {
+		warnings = await onbook(slot, confirm);
+		if (!warnings) pending = null;
 	}
 </script>
 
@@ -89,18 +98,40 @@
 				note={slotNote(slot)}
 			>
 				{#snippet action()}
-					{#if slot.canBook && pending !== slot}
-						<Button disabled={busy} onclick={() => (pending = slot)}>{m.book_action()}</Button>
+					{#if slot.canBook && pending !== keyOf(slot)}
+						<Button disabled={busy} onclick={() => (pending = keyOf(slot))}
+							>{m.book_action()}</Button
+						>
 					{/if}
 				{/snippet}
 			</SessionSlot>
-			{#if pending === slot}
+			{#if pending === keyOf(slot)}
 				<div class="confirm" role="group" aria-label={confirmText(slot)}>
 					<p>{confirmText(slot)}</p>
+					{#if warnings}
+						<ul class="warnings" role="list">
+							{#each warnings as warning (warning)}
+								<li><Icon name="warning" size={20} />{warning}</li>
+							{/each}
+						</ul>
+					{/if}
 					<div class="sj-row">
-						<Button disabled={busy} onclick={() => book(slot)}>{m.book_confirm_action()}</Button>
-						<Button variant="quiet" disabled={busy} onclick={() => (pending = null)}
-							>{m.action_cancel()}</Button
+						{#if warnings}
+							<Button disabled={busy} onclick={() => book(slot, true)}
+								>{m.staff_book_anyway()}</Button
+							>
+						{:else}
+							<Button disabled={busy} onclick={() => book(slot, false)}
+								>{m.book_confirm_action()}</Button
+							>
+						{/if}
+						<Button
+							variant="quiet"
+							disabled={busy}
+							onclick={() => {
+								pending = null;
+								warnings = null;
+							}}>{m.action_cancel()}</Button
 						>
 					</div>
 				</div>
@@ -127,5 +158,16 @@
 	}
 	.confirm p {
 		margin: 0;
+	}
+	.warnings {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		color: var(--brass);
+	}
+	.warnings li {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
 	}
 </style>

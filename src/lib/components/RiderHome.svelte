@@ -40,6 +40,12 @@
 				(b.status === 'active' || (b.status === 'cancelled' && b.cancelledByAcademy))
 		)
 	);
+	const past = $derived(
+		bookings
+			.filter((b) => Date.parse(b.startsAt) <= now)
+			.sort((a, b) => b.startsAt.localeCompare(a.startsAt))
+	);
+	const pastId = $props.id();
 	const when = (b: BookingView) =>
 		`${dayName(b.date, locale)} · ${formatDate(`${b.date}T00:00:00Z`, locale)}`;
 
@@ -131,7 +137,45 @@
 	</div>
 </Card>
 
+{#if past.length > 0}
+	<Card>
+		<section class="sj-stack" aria-labelledby={pastId}>
+			<h2 class="sj-heading" id={pastId}>{m.rider_past_title()}</h2>
+			<ul class="past" role="list">
+				{#each past as booking (booking.id)}
+					<li>
+						<span>{when(booking)} <span dir="ltr">{booking.start}</span></span>
+						<span class="sj-small sj-muted">
+							{#if booking.status === 'cancelled'}
+								{booking.cancelledByAcademy
+									? m.booking_cancelled_by_academy()
+									: m.booking_cancelled()}
+							{:else}
+								{booking.ownHorseName ?? m.booking_school_horse()}
+							{/if}
+						</span>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	</Card>
+{/if}
+
 <style>
+	.past {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+	.past li {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: var(--space-2);
+	}
 	.plan {
 		display: flex;
 		flex-wrap: wrap;
