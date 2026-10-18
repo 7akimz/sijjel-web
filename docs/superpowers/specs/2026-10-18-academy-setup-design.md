@@ -32,7 +32,7 @@ The user trains as a rider at an academy and doesn't run one. Operational detail
 
 ## Non-goals (this phase)
 
-- **Inviting trainers and riders, and the member list.** These move to a later milestone, before booking. The user was explicit: inviting is not part of setup, because an academy doesn't open with its clients already signed up.
+- **Inviting trainers and riders, and the member list.** These move to a later milestone, before booking. The user was explicit: inviting is not part of setup, because an academy doesn't open with its clients already signed up. When invitations are built, an academy can only invite once its setup is done (opening hours and sessions saved, an arena, a school horse).
 - **Private horses.** Each needs an owner rider, and riders arrive through invitations.
 - **The horse allocator, booking, cancelling and the planning board.**
 - **Branding uploads.**
@@ -77,7 +77,8 @@ Marked here so they can be checked while reading.
 8. **Time zone:** the academy's time zone (set at creation) is shown and editable on this page.
 9. **Session preview:** the page shows the session start times for each open day, recomputed as the owner edits ("8 sessions · 18:00 – 21:30"). While editing, the page sends the unsaved schedule to a dry-run endpoint (`POST /api/academy/schedule/preview`, debounced), so the slot rule lives only in Go.
 10. **Limits:**
-    - Session length is 15–240 minutes, in steps of 5. The default stays 60.
+    - Session length is 15–240 minutes, in steps of 5. The page offers the common lengths 15, 20, 30, 45, 60, 90 and 120 (plus the academy's own saved value if it is unusual).
+    - Session length and break stay empty until the owner first saves the schedule. Until then the page shows the current defaults, 30 minutes and no break, so a change of default reaches every academy that hasn't chosen yet. The time zone is different: the platform admin sets it when creating the academy (default Africa/Cairo), because "today" for closed dates and horse unavailability depends on it.
     - Break is 0–60 minutes, in steps of 5.
     - Opening and closing times are whole minutes.
     - Closing 00:00 means end of day. A stretch never crosses midnight, and its closing time must be after its opening time.

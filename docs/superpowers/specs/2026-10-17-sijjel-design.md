@@ -75,7 +75,7 @@ The visual language is the **sijjel design system**: https://claude.ai/artifact/
 - **sessions**: id (random 256-bit, stored hashed), user_id, created_at, expires_at, last_seen_at.
 - **disciplines** (catalogue): id, key (e.g. `dressage`), name_en, name_ar, sort_order.
 - **discipline_default_levels**: discipline_id, position, name_en, name_ar.
-- **academies**: id, slug (unique, lowercase `a-z0-9-`, 3–30, reserved words blocked), name_en, name_ar, time_zone (IANA), session_length_minutes, break_minutes, booking_window_days (default 14), booking_closes_hours (default 0), cancellation_cutoff_hours (default 12), default_language, is_active, created_at.
+- **academies**: id, slug (unique, lowercase `a-z0-9-`, 3–30, reserved words blocked), name_en, name_ar, time_zone (IANA, default Africa/Cairo), session_length_minutes and break_minutes (empty until the owner saves the schedule; shown as 30 and 0 meanwhile), booking_window_days (default 14), booking_closes_hours (default 0), cancellation_cutoff_hours (default 12), default_language, is_active, created_at.
 - **academy_branding**: academy_id, primary_color (default `#7A5230`), logo_file_id, cover_file_id, welcome_text_en/ar, house_rules_en/ar.
 - **academy_disciplines**: academy_id, discipline_id (the disciplines the academy teaches).
 - **levels**: id, academy_id, discipline_id, position, name_en, name_ar. Unique (academy_id, discipline_id, position).
