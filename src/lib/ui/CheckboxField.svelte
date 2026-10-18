@@ -6,6 +6,7 @@
 		value?: string;
 		invalid?: boolean;
 		describedBy?: string;
+		onchange?: (checked: boolean) => void;
 	};
 	let {
 		label,
@@ -13,7 +14,8 @@
 		name,
 		value,
 		invalid = false,
-		describedBy
+		describedBy,
+		onchange
 	}: Props = $props();
 </script>
 
@@ -25,5 +27,6 @@
 		aria-invalid={invalid ? 'true' : undefined}
 		aria-describedby={describedBy}
 		bind:checked
+		onchange={() => onchange?.(checked)}
 	/>{label}</label
 >
