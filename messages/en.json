@@ -481,5 +481,8 @@
 	"staff_book_warning": "Check before booking {rider}:",
 	"staff_book_anyway": "Book anyway",
 	"staff_book_done": "Booked {rider} for {day} {time}.",
-	"staff_book_back": "Back to {rider}"
+	"staff_book_back": "Back to {rider}",
+	"hours_affected_body": "These bookings would no longer fit. Cancel them first, or keep the current hours.",
+	"closed_affected_body": "These bookings fall on the days you're closing.",
+	"closed_affected_confirm": "Close these days and cancel the bookings"
 }

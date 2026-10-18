@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
 	import type { DayPreview, Schedule } from '#lib/api/academy-types.js';
+	import type { AffectedBooking } from '#lib/api/member-types.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import {
 		copyToOpenDays,
@@ -41,6 +43,7 @@
 	let preview = $state<DayPreview[]>(initial.preview);
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
+	let affected = $state<AffectedBooking[]>();
 	let saved = $state(false);
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
@@ -98,6 +101,7 @@
 		event.preventDefault();
 		saved = false;
 		failure = undefined;
+		affected = undefined;
 		errors = hoursErrors(rows, base);
 		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
 		busy = true;
@@ -112,7 +116,9 @@
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
 			const unexplained = error.fields.days && !rows.some((r) => r.open && rowInvalid(r));
-			if (Object.keys(error.fields).length === 0 || unexplained)
+			if (error.code === 'bookings_affected')
+				affected = (error.extra.bookings as AffectedBooking[] | undefined) ?? [];
+			else if (Object.keys(error.fields).length === 0 || unexplained)
 				failure = errorText(error.code === 'validation_failed' ? 'hours_invalid' : error.code);
 			else focusFirstInvalid(formElement);
 		} finally {
@@ -133,6 +139,14 @@
 
 	{#if saved}<Banner icon="check_circle">{m.hours_saved()}</Banner>{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
+	{#if affected}
+		<AffectedBookings
+			bookings={affected}
+			locale={data.locale}
+			body={m.hours_affected_body()}
+			oncancel={() => (affected = undefined)}
+		/>
+	{/if}
 
 	<form class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
 		<Card>

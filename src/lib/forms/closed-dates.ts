@@ -16,9 +16,10 @@ export function closedRangeErrors(r: DateRangeForm): FieldErrors {
 	return errors;
 }
 
-export function toDateRangeInput(r: DateRangeForm) {
+export function toDateRangeInput(r: DateRangeForm, confirm = false) {
 	const reason = r.reason.trim();
-	return { from: r.from, to: r.to, reason: reason || null };
+	const input = { from: r.from, to: r.to, reason: reason || null };
+	return confirm ? { ...input, confirm: true } : input;
 }
 
 export function isPast(r: ClosedRange, today: string): boolean {

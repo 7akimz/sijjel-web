@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
 	import type { ClosedRange } from '#lib/api/academy-types.js';
+	import type { AffectedBooking } from '#lib/api/member-types.js';
 	import {
 		closedRangeErrors,
 		formatRange,
@@ -24,16 +26,22 @@
 	let failure = $state<string>();
 	let notice = $state<string>();
 	let busy = $state(false);
+	let affected = $state<AffectedBooking[]>();
 	let formElement = $state<HTMLFormElement>();
 
 	const sorted = $derived([...closures].sort((a, b) => a.from.localeCompare(b.from)));
 	const upcoming = $derived(sorted.filter((r) => !isPast(r, data.today)));
 	const past = $derived(sorted.filter((r) => isPast(r, data.today)).reverse());
 
-	async function add(event: SubmitEvent) {
+	function add(event: SubmitEvent) {
 		event.preventDefault();
+		return submit(false);
+	}
+
+	async function submit(confirm: boolean) {
 		failure = undefined;
 		notice = undefined;
+		affected = undefined;
 		const form = { from, to, reason };
 		errors = closedRangeErrors(form);
 		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
@@ -41,7 +49,7 @@
 		try {
 			const created = await api<ClosedRange>('/academy/closed-dates', {
 				method: 'POST',
-				body: toDateRangeInput(form)
+				body: toDateRangeInput(form, confirm)
 			});
 			closures = [...closures, created];
 			from = to = reason = '';
@@ -49,7 +57,9 @@
 		} catch (e) {
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
-			if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
+			if (error.code === 'bookings_affected')
+				affected = (error.extra.bookings as AffectedBooking[] | undefined) ?? [];
+			else if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
 			else focusFirstInvalid(formElement);
 		} finally {
 			busy = false;
@@ -100,6 +110,16 @@
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
+	{#if affected}
+		<AffectedBookings
+			bookings={affected}
+			locale={data.locale}
+			body={m.closed_affected_body()}
+			confirmLabel={m.closed_affected_confirm()}
+			onconfirm={() => submit(true)}
+			oncancel={() => (affected = undefined)}
+		/>
+	{/if}
 
 	<Card raised>
 		<form class="sj-stack" bind:this={formElement} onsubmit={add} novalidate>

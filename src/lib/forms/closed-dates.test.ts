@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { closedRangeErrors, formatRange, isPast } from './closed-dates';
+import { closedRangeErrors, formatRange, isPast, toDateRangeInput } from './closed-dates';
 
 describe('closedRangeErrors', () => {
 	it('accepts a range with an optional reason', () => {
@@ -37,5 +37,19 @@ describe('formatRange', () => {
 		expect(formatRange({ from: '2026-03-30', to: '2026-04-01' }, 'en')).toBe(
 			'30 March 2026 – 1 April 2026'
 		);
+	});
+});
+
+describe('toDateRangeInput', () => {
+	it('sends confirm only when the admin agreed to cancel bookings', () => {
+		const form = { from: '2026-10-20', to: '2026-10-20', reason: '' };
+
+		expect(toDateRangeInput(form, true)).toEqual({
+			from: '2026-10-20',
+			to: '2026-10-20',
+			reason: null,
+			confirm: true
+		});
+		expect(toDateRangeInput(form)).not.toHaveProperty('confirm');
 	});
 });
