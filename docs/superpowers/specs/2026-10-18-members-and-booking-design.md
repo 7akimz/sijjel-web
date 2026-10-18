@@ -157,6 +157,13 @@ The user rides at an academy and doesn't run one. Rider-side details below come 
     - Valid numbers have 8–15 digits after normalisation, otherwise `phone_invalid`.
     - WhatsApp links use the stored digits.
 
+### Weight (added by the user during the build)
+36. **Rider weight limit.** Some academies only accept riders up to a weight, for example 80 kg.
+    - The academy has an optional maximum rider weight in kg (`max_rider_weight_kg`, 20–200, empty by default), set on the booking rules page.
+    - Riders have an optional weight in whole kg (`weight_kg`, 10–250), set on the invitation and the member page.
+    - When the academy has a limit, the rider's weight is required, and a weight above the limit is refused with `weight_out_of_range`, like the age range.
+    - Changing the limit doesn't affect existing riders.
+
 ### Visibility
 30. **Riders can read** the academy's opening hours, closed dates and booking rules through the slot API. They see only their own bookings, plan and payment status. They never see horse names other than their own private horse, only counts.
 
