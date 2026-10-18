@@ -241,5 +241,18 @@
 	"closed_delete": "حذف {dates}",
 	"closed_empty_title": "لا توجد أيام إغلاق",
 	"closed_empty_body": "أضف العطل والأيام الأخرى بلا حصص.",
-	"closed_added": "تمت إضافة أيام الإغلاق."
+	"closed_added": "تمت إضافة أيام الإغلاق.",
+	"ladder_remove_in_use": "المستوى {number} مستخدم لحصان",
+	"ladder_inverts_horses": "هذا الترتيب يُخرج {horses} عن نطاق مستوياتها.",
+	"disciplines_page_title": "التخصصات والمستويات",
+	"disciplines_page_intro": "فعّل ما تدرّسه وعدّل سلّم المستويات لكل تخصص. تتم مطابقة الخيول والفرسان ضمن التخصص نفسه.",
+	"discipline_edit_levels": "تعديل المستويات",
+	"discipline_turn_off": "إيقاف",
+	"discipline_turn_on": "تفعيل",
+	"discipline_in_use_hint": "تستخدم خيول أو فرسان هذا التخصص.",
+	"disciplines_add_title": "إضافة تخصص",
+	"disciplines_none_available": "أنت تدرّس كل التخصصات الموجودة في القائمة.",
+	"discipline_levels_saved": "تم حفظ المستويات.",
+	"discipline_turned_on": "تم تفعيل التخصص.",
+	"discipline_turned_off": "تم إيقاف التخصص."
 }

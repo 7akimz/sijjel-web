@@ -241,5 +241,18 @@
 	"closed_delete": "Delete {dates}",
 	"closed_empty_title": "No closed dates",
 	"closed_empty_body": "Add holidays and other days with no sessions.",
-	"closed_added": "Closed dates added."
+	"closed_added": "Closed dates added.",
+	"ladder_remove_in_use": "Level {number} is used by a horse",
+	"ladder_inverts_horses": "This order would put {horses} outside their level range.",
+	"disciplines_page_title": "Disciplines and levels",
+	"disciplines_page_intro": "Turn on what you teach and adjust each level ladder. Horses and riders are matched within a discipline.",
+	"discipline_edit_levels": "Edit levels",
+	"discipline_turn_off": "Turn off",
+	"discipline_turn_on": "Turn on",
+	"discipline_in_use_hint": "Horses or riders use this discipline.",
+	"disciplines_add_title": "Add a discipline",
+	"disciplines_none_available": "You already teach every discipline in the catalogue.",
+	"discipline_levels_saved": "Levels saved.",
+	"discipline_turned_on": "Discipline turned on.",
+	"discipline_turned_off": "Discipline turned off."
 }

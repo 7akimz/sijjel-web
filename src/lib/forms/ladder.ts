@@ -1,6 +1,8 @@
 export interface LadderRow {
+	id?: string;
 	nameEn: string;
 	nameAr: string;
+	inUse?: boolean;
 }
 
 export const MAX_LEVELS = 12;
