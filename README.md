@@ -3,7 +3,7 @@
 The web app for sijjel, session planning for riding academies. It is a SvelteKit app rendered on the server (`adapter-node`). The browser only ever talks to this app: `/api/*` is proxied to [sijjel-api](../sijjel-api) on the same origin, so session cookies stay host-only and `SameSite=Strict`.
 
 - **Platform site** (`localhost`): platform admins sign in, manage the discipline catalogue, create academies and copy owner invitation links.
-- **Academy sites** (`{slug}.localhost`): invitees open their link, create an account or sign in, and land on the academy home.
+- **Academy sites** (`{slug}.localhost`): invitees open their link, create an account or sign in, and land on the academy home. Riders see their plan, the sessions left this week and their bookings there, and book at `/book`.
 
 The first HTML of every page already carries the academy accent colours, the theme (`sijjel_theme` cookie), `lang`/`dir` (`PARAGLIDE_LOCALE` cookie, else the academy's default language), and the link-preview tags.
 
@@ -33,9 +33,16 @@ An academy's active admins get Home, Horses and Settings in the navigation. Unti
 
 - `/settings/hours`: weekly opening hours, session length, break and time zone, with a live preview of session times
 - `/settings/booking-rules`, `/settings/arenas`, `/settings/closed-dates`, `/settings/disciplines`
-- `/horses`, `/horses/new`, `/horses/{id}`: school horses, their level range and unavailable dates
+- `/horses`, `/horses/new`, `/horses/{id}`: school horses, their level range, rider weight limit and unavailable dates
+
+Admins also get `/settings/plans` (weekly session limit and monthly price) and `/members/invite`, which makes an invitation link to send on WhatsApp or show as a QR code (drawn by the `qrcode` package). When an hours change or a closure would hit existing bookings, the page lists them; closing days can cancel them in the same step.
 
 Other visitors get a 403 page on these routes.
+
+### Members and booking
+
+- Admins and trainers get Members: `/members` (filter by riders, trainers or, for admins, unpaid this month, plus pending invitations) and `/members/{id}`, where admins edit the rider, mark this month paid, register an own horse and suspend or reactivate. Staff can cancel bookings there and book on the rider's behalf at `/members/{id}/book`, confirming past a weekly limit or an unpaid month.
+- Riders get Book: `/book` shows a week of sessions with places left and suitable horses free, and books after a confirmation. Riders cancel from their home until the academy's cancellation cutoff.
 
 ## Tests
 
@@ -54,7 +61,7 @@ The end-to-end suite builds the app, serves it on port 4173 and drives both host
 npx playwright test
 ```
 
-The suite runs the `sijjel-api-api` image, so rebuild it after API changes; the academy setup tests need the API from Milestone 3 onwards. Set `E2E_API_IMAGE` to use another image, and `E2E_API_PORT` (default 18080) if that port is taken.
+The suite runs the `sijjel-api-api` image, so rebuild it after API changes; the academy setup tests need the API from Milestone 3 onwards, and the booking test the API from Milestone 4. Set `E2E_API_IMAGE` to use another image, and `E2E_API_PORT` (default 18080) if that port is taken.
 
 ## Container
 
