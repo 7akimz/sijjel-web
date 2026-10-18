@@ -11,6 +11,7 @@ export interface AcademyTenant {
 	nameEn: string;
 	nameAr: string;
 	defaultLanguage: Locale;
+	timeZone: string;
 	primaryColor: string;
 	welcomeTextEn?: string | null;
 	welcomeTextAr?: string | null;

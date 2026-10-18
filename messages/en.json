@@ -475,5 +475,11 @@
 	"book_confirm_action": "Yes, book it",
 	"book_done": "Booked for {day} {time}.",
 	"book_no_slots": "No sessions left to book this week.",
-	"book_end": "to {time}"
+	"book_end": "to {time}",
+	"staff_book_title": "Booking for {rider}",
+	"staff_book_confirm": "Book {day} {time} for {rider}?",
+	"staff_book_warning": "Check before booking {rider}:",
+	"staff_book_anyway": "Book anyway",
+	"staff_book_done": "Booked {rider} for {day} {time}.",
+	"staff_book_back": "Back to {rider}"
 }

@@ -475,5 +475,11 @@
 	"book_confirm_action": "نعم، احجز",
 	"book_done": "تم الحجز: {day} الساعة {time}.",
 	"book_no_slots": "لا توجد حصص متاحة للحجز هذا الأسبوع.",
-	"book_end": "حتى {time}"
+	"book_end": "حتى {time}",
+	"staff_book_title": "الحجز لـ {rider}",
+	"staff_book_confirm": "هل تحجز {day} الساعة {time} لـ {rider}؟",
+	"staff_book_warning": "تحقّق قبل حجز {rider}:",
+	"staff_book_anyway": "احجز على أي حال",
+	"staff_book_done": "تم حجز {rider}: {day} الساعة {time}.",
+	"staff_book_back": "العودة إلى {rider}"
 }

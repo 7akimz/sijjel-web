@@ -8,6 +8,7 @@ import {
 	riderBlockText,
 	shiftWeek,
 	slotReasonText,
+	warningTexts,
 	weekStartOf
 } from './booking';
 
@@ -91,5 +92,19 @@ describe('riderBlockReason', () => {
 		expect(riderBlockText('no_own_horse', 'en')).toBe(
 			"Your horse isn't registered yet. Ask the academy to add it before you book."
 		);
+	});
+});
+
+describe('warningTexts', () => {
+	it('lists what staff are asked to confirm', () => {
+		const e = new ApiError(
+			409,
+			'warning_required',
+			{},
+			{ warnings: ['weekly_limit', 'month_unpaid'] }
+		);
+
+		expect(warningTexts(e, 'en')).toEqual(['Weekly limit reached', 'Month not paid']);
+		expect(warningTexts(new ApiError(409, 'full'), 'en')).toBeNull();
 	});
 });

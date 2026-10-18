@@ -71,3 +71,8 @@ export function riderBlockReason(summary: PlanSummary | null): string | null {
 export function riderBlockText(reason: string, locale?: Locale): string {
 	return (messages[`rider_block_${reason}`] ?? messages.error_internal_error!)({}, { locale });
 }
+
+export function warningTexts(e: ApiError, locale?: Locale): string[] | null {
+	if (e.code !== 'warning_required' || !Array.isArray(e.extra.warnings)) return null;
+	return e.extra.warnings.map((reason) => slotReasonText(String(reason), locale));
+}
