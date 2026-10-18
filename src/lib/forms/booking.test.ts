@@ -1,0 +1,95 @@
+import { describe, expect, it } from 'vitest';
+import { ApiError } from '#lib/api/errors.js';
+import type { PlanSummary, SlotView } from '#lib/api/member-types.js';
+import {
+	bookingErrorText,
+	groupByDate,
+	riderBlockReason,
+	riderBlockText,
+	shiftWeek,
+	slotReasonText,
+	weekStartOf
+} from './booking';
+
+const summary = (overrides: Partial<PlanSummary> = {}): PlanSummary => ({
+	plan: {
+		id: 'p',
+		nameEn: 'Two',
+		nameAr: 'اثنتان',
+		sessionsPerWeek: 2,
+		monthlyPrice: 1000,
+		discipline: null,
+		isActive: true
+	},
+	currency: 'EGP',
+	sessionsPerWeek: 2,
+	usedThisWeek: 0,
+	leftThisWeek: 2,
+	weekStart: '2026-10-17',
+	weekEnd: '2026-10-23',
+	paidThisMonth: true,
+	unpaidBooking: 'allow',
+	horseSource: 'school',
+	hasOwnHorse: false,
+	...overrides
+});
+
+const slot = (date: string, start: string): SlotView => ({
+	date,
+	start,
+	end: start,
+	placesLeft: 2,
+	canBook: true,
+	reason: '',
+	suitableHorsesFree: 1,
+	suitableHorsesTotal: 1,
+	booked: false,
+	bookingId: null
+});
+
+describe('weeks', () => {
+	it('starts weeks on Saturday', () => {
+		expect(weekStartOf('2026-10-19')).toBe('2026-10-17');
+		expect(weekStartOf('2026-10-31')).toBe('2026-10-31');
+		expect(shiftWeek('2026-10-17', 1)).toBe('2026-10-24');
+		expect(shiftWeek('2026-10-31', -1)).toBe('2026-10-24');
+	});
+});
+
+describe('groupByDate', () => {
+	it('keeps days and times in order', () => {
+		const days = groupByDate([
+			slot('2026-10-19', '18:00'),
+			slot('2026-10-19', '18:30'),
+			slot('2026-10-20', '18:00')
+		]);
+
+		expect(days.map((d) => d.date)).toEqual(['2026-10-19', '2026-10-20']);
+		expect(days[0].slots).toHaveLength(2);
+	});
+});
+
+describe('reasons', () => {
+	it('explains a slot in plain words and reuses that for booking errors', () => {
+		expect(slotReasonText('weekly_limit', 'en')).toBe('Weekly limit reached');
+		expect(bookingErrorText(new ApiError(409, 'no_suitable_school_horse'), 'en')).toBe(
+			'No suitable school horse is free at this time.'
+		);
+	});
+});
+
+describe('riderBlockReason', () => {
+	it('says why a rider cannot book at all', () => {
+		expect(riderBlockReason(null)).toBe('no_plan');
+		expect(riderBlockReason(summary({ plan: null }))).toBe('no_plan');
+		expect(riderBlockReason(summary({ unpaidBooking: 'block', paidThisMonth: false }))).toBe(
+			'month_unpaid'
+		);
+		expect(riderBlockReason(summary({ paidThisMonth: false }))).toBeNull();
+		expect(riderBlockReason(summary({ horseSource: 'own' }))).toBe('no_own_horse');
+		expect(riderBlockReason(summary({ horseSource: 'own', hasOwnHorse: true }))).toBeNull();
+		expect(riderBlockText('no_own_horse', 'en')).toBe(
+			"Your horse isn't registered yet. Ask the academy to add it before you book."
+		);
+	});
+});

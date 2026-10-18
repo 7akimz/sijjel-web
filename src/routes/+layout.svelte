@@ -5,6 +5,7 @@
 	import { academyMark, academyName } from '#lib/academy.js';
 	import { isAcademyAdmin } from '#lib/academy/admin.js';
 	import { isAcademyStaff } from '#lib/academy/staff.js';
+	import { isAcademyRider } from '#lib/academy/rider.js';
 	import LanguageSwitch from '#lib/components/LanguageSwitch.svelte';
 	import StatusPage from '#lib/components/StatusPage.svelte';
 	import ThemeSwitch from '#lib/components/ThemeSwitch.svelte';
@@ -31,6 +32,16 @@
 	});
 
 	const nav = $derived.by(() => {
+		const bookNav =
+			tenant.kind === 'academy' && isAcademyRider(data.membership)
+				? [
+						{
+							href: resolve('/(academy)/(rider)/book'),
+							label: m.nav_book({}, { locale }),
+							icon: 'event_available'
+						}
+					]
+				: [];
 		if (tenant.kind === 'platform' && data.user?.isPlatformAdmin) {
 			return [
 				{
@@ -48,6 +59,7 @@
 		if (tenant.kind === 'academy' && isAcademyAdmin(data.membership)) {
 			return [
 				{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' },
+				...bookNav,
 				{
 					href: resolve('/(academy)/(staff)/members'),
 					label: m.nav_members({}, { locale }),
@@ -68,6 +80,7 @@
 		if (tenant.kind === 'academy' && isAcademyStaff(data.membership)) {
 			return [
 				{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' },
+				...bookNav,
 				{
 					href: resolve('/(academy)/(staff)/members'),
 					label: m.nav_members({}, { locale }),
@@ -76,7 +89,7 @@
 			];
 		}
 		if (tenant.kind === 'academy' && data.membership) {
-			return [{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' }];
+			return [{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' }, ...bookNav];
 		}
 		return [];
 	});

@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { academyName } from '#lib/academy.js';
 	import AcademyHome from '#lib/components/AcademyHome.svelte';
+	import RiderHome from '#lib/components/RiderHome.svelte';
 	import SetupChecklist from '#lib/components/SetupChecklist.svelte';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, EmptyState } from '#lib/ui/index.js';
@@ -40,7 +41,9 @@
 		</div>
 		{#if alreadyMember}<Banner icon="info">{m.invite_accepted_already()}</Banner>{/if}
 		{#if data.setup}<SetupChecklist state={data.setup} academyName={name} />{/if}
-		{#if data.membership}
+		{#if data.rider}
+			<RiderHome summary={data.rider.plan} bookings={data.rider.bookings} locale={data.locale} />
+		{:else if data.membership}
 			<AcademyHome membership={data.membership} locale={data.locale} />
 		{:else if data.user}
 			<EmptyState icon="lock" title={m.home_not_member()} />

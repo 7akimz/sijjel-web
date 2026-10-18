@@ -101,6 +101,7 @@ export interface BookingView {
 	date: string;
 	start: string;
 	end: string;
+	startsAt: string;
 	horseSource: HorseSource;
 	ownHorseName: string | null;
 	status: 'active' | 'cancelled';
@@ -118,6 +119,8 @@ export interface PlanSummary {
 	weekEnd: string;
 	paidThisMonth: boolean;
 	unpaidBooking: 'allow' | 'block';
+	horseSource: HorseSource;
+	hasOwnHorse: boolean;
 }
 
 export interface AffectedBooking {
