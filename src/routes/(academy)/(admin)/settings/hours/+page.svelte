@@ -12,6 +12,8 @@
 		sessionSummary,
 		toScheduleInput,
 		WEEK_ORDER,
+		breakChoices,
+		sessionLengthChoices,
 		type DayRow,
 		type ScheduleBase
 	} from '#lib/forms/hours.js';
@@ -52,13 +54,11 @@
 		5: m.weekday_5,
 		6: m.weekday_6
 	};
-	const steps = (min: number, max: number) =>
-		Array.from({ length: (max - min) / 5 + 1 }, (_, i) => min + i * 5);
-	const sessionOptions = steps(15, 240).map((n) => ({
+	const sessionOptions = sessionLengthChoices(initial.sessionLengthMinutes).map((n) => ({
 		value: String(n),
 		label: m.hours_minutes({ count: n })
 	}));
-	const breakOptions = steps(0, 60).map((n) => ({
+	const breakOptions = breakChoices(initial.breakMinutes).map((n) => ({
 		value: String(n),
 		label: n === 0 ? m.hours_no_break() : m.hours_minutes({ count: n })
 	}));

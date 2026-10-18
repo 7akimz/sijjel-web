@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, type FieldErrors } from '#lib/api/errors.js';
 	import type { AcademySummary, Discipline, Locale } from '#lib/api/types.js';
@@ -9,7 +9,7 @@
 		type AcademyForm
 	} from '#lib/forms/academy.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
-	import { TIME_ZONES, timeZoneOptions } from '#lib/forms/time-zones.js';
+	import { DEFAULT_TIME_ZONE, timeZoneOptions } from '#lib/forms/time-zones.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import {
 		Banner,
@@ -35,7 +35,7 @@
 		slug: '',
 		nameEn: '',
 		nameAr: '',
-		timeZone: 'UTC',
+		timeZone: DEFAULT_TIME_ZONE,
 		defaultLanguage: initialLanguage,
 		disciplineIds: []
 	});
@@ -58,11 +58,6 @@
 	const host = $derived(
 		`${isolateLtr}${form.slug.trim().toLowerCase() || '…'}.${rootHost}${popIsolate}`
 	);
-
-	onMount(() => {
-		const browserZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-		if (TIME_ZONES.includes(browserZone)) form.timeZone = browserZone;
-	});
 
 	const fieldError = (field: string) => {
 		const code = errors[field]?.[0];

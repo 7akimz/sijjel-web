@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { Schedule } from '#lib/api/academy-types.js';
 import {
 	WEEK_ORDER,
+	breakChoices,
+	sessionLengthChoices,
 	copyToOpenDays,
 	hoursErrors,
 	normalizeTime,
@@ -118,5 +120,15 @@ describe('hours form', () => {
 
 		expect(hoursErrors(withSaturday('18:00', '25:00'), base)).toEqual({ days: ['hours_invalid'] });
 		expect(hoursErrors(withSaturday('18:75', '22:00'), base)).toEqual({ days: ['hours_invalid'] });
+	});
+
+	it('offers common session lengths and breaks', () => {
+		expect(sessionLengthChoices(30)).toEqual([15, 20, 30, 45, 60, 90, 120]);
+		expect(breakChoices(0)).toEqual([0, 5, 10, 15, 30]);
+	});
+
+	it("keeps an academy's unusual saved value selectable", () => {
+		expect(sessionLengthChoices(50)).toEqual([15, 20, 30, 45, 50, 60, 90, 120]);
+		expect(breakChoices(20)).toEqual([0, 5, 10, 15, 20, 30]);
 	});
 });

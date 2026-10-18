@@ -90,3 +90,13 @@ export function sessionSummary(starts: string[]): string {
 	});
 }
 export { normalizeTime } from '#lib/time.js';
+
+const SESSION_LENGTHS = [15, 20, 30, 45, 60, 90, 120];
+const BREAK_LENGTHS = [0, 5, 10, 15, 30];
+
+// The saved value is always offered, so an academy with an unusual length can't lose it by saving.
+const withCurrent = (choices: number[], current: number) =>
+	choices.includes(current) ? choices : [...choices, current].sort((a, b) => a - b);
+
+export const sessionLengthChoices = (current: number) => withCurrent(SESSION_LENGTHS, current);
+export const breakChoices = (current: number) => withCurrent(BREAK_LENGTHS, current);
