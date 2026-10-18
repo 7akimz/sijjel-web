@@ -27,6 +27,16 @@ Open http://localhost:5173 for the platform site and http://alfaris.localhost:51
 
 All user-facing text lives in `messages/en.json` and `messages/ar.json`. API error codes map to `error_<code>` keys.
 
+### Academy admin pages
+
+An academy's active admins get Home, Horses and Settings in the navigation. Until opening hours, an arena and a school horse exist, the home page shows a setup checklist linking to:
+
+- `/settings/hours`: weekly opening hours, session length, break and time zone, with a live preview of session times
+- `/settings/booking-rules`, `/settings/arenas`, `/settings/closed-dates`, `/settings/disciplines`
+- `/horses`, `/horses/new`, `/horses/{id}`: school horses, their level range and unavailable dates
+
+Other visitors get a 403 page on these routes.
+
 ## Tests
 
 ```sh
@@ -44,7 +54,7 @@ The end-to-end suite builds the app, serves it on port 4173 and drives both host
 npx playwright test
 ```
 
-The suite runs the `sijjel-api-api` image, so rebuild it after API changes. Set `E2E_API_IMAGE` to use another image, and `E2E_API_PORT` (default 18080) if that port is taken.
+The suite runs the `sijjel-api-api` image, so rebuild it after API changes; the academy setup tests need the API from Milestone 3 onwards. Set `E2E_API_IMAGE` to use another image, and `E2E_API_PORT` (default 18080) if that port is taken.
 
 ## Container
 
