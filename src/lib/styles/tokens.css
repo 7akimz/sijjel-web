@@ -3,6 +3,8 @@
 [data-theme='light'] {
 	--ground: #f5f0e6;
 	--surface: #fffdf8;
+	/* QR codes need a white ground in both themes to scan reliably. */
+	--qr-ground: #ffffff;
 	--surface-sunk: #ede5d6;
 	--line: #dcd0bc;
 	--line-strong: #907e65;

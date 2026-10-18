@@ -1,0 +1,182 @@
+<script lang="ts">
+	import { untrack } from 'svelte';
+	import { localName } from '#lib/academy.js';
+	import { api } from '#lib/api/client.js';
+	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
+	import type { AcademyDisciplines, BookingRules } from '#lib/api/academy-types.js';
+	import type { CreatedAcademyInvite, Plan } from '#lib/api/member-types.js';
+	import type { Locale } from '#lib/api/types.js';
+	import { focusFirstInvalid } from '#lib/forms/focus.js';
+	import {
+		inviteMemberErrors,
+		toInviteRequest,
+		type InviteMemberForm
+	} from '#lib/forms/invite-member.js';
+	import { m } from '#lib/paraglide/messages.js';
+	import { Banner, Button, SelectField, TextField } from '#lib/ui/index.js';
+
+	type Props = {
+		disciplines: AcademyDisciplines;
+		plans: Plan[];
+		rules: BookingRules;
+		locale: Locale;
+		oncreated: (invite: CreatedAcademyInvite, form: InviteMemberForm) => void;
+	};
+	let { disciplines, plans, rules, locale, oncreated }: Props = $props();
+
+	const first = untrack(() => disciplines.enabled[0]);
+	let form = $state<InviteMemberForm>({
+		role: 'rider',
+		name: '',
+		phone: '',
+		age: '',
+		weightKg: '',
+		disciplineId: first?.id ?? '',
+		levelId: first?.levels[0]?.id ?? '',
+		planId: '',
+		horseSource: 'school'
+	});
+	let errors = $state<FieldErrors>({});
+	let failure = $state<string>();
+	let busy = $state(false);
+	let formElement = $state<HTMLFormElement>();
+
+	const roleOptions = [
+		{ value: 'rider', label: m.invite_role_rider_option() },
+		{ value: 'trainer', label: m.invite_role_trainer_option() },
+		{ value: 'admin', label: m.invite_role_admin_option() }
+	];
+	const horseOptions = [
+		{ value: 'school', label: m.invite_horse_school() },
+		{ value: 'own', label: m.invite_horse_own() }
+	];
+	const disciplineOptions = $derived(
+		disciplines.enabled.map((d) => ({ value: d.id, label: localName(d, locale) }))
+	);
+	const levelOptions = $derived(
+		(disciplines.enabled.find((d) => d.id === form.disciplineId)?.levels ?? []).map((l) => ({
+			value: l.id,
+			label: localName(l, locale)
+		}))
+	);
+	const planOptions = $derived([
+		{ value: '', label: '—' },
+		...plans
+			.filter((p) => !p.discipline || p.discipline.id === form.disciplineId)
+			.map((p) => ({ value: p.id, label: localName(p, locale) }))
+	]);
+
+	let shownDiscipline = untrack(() => form.disciplineId);
+	$effect(() => {
+		if (form.disciplineId === shownDiscipline) return;
+		shownDiscipline = form.disciplineId;
+		form.levelId = disciplines.enabled.find((d) => d.id === form.disciplineId)?.levels[0]?.id ?? '';
+		form.planId = '';
+	});
+
+	async function submit(event: SubmitEvent) {
+		event.preventDefault();
+		failure = undefined;
+		errors = inviteMemberErrors(form, rules);
+		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
+		busy = true;
+		try {
+			const created = await api<CreatedAcademyInvite>('/academy/invites', {
+				method: 'POST',
+				body: toInviteRequest(form)
+			});
+			oncreated(created, { ...form });
+		} catch (e) {
+			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
+			errors = error.fields;
+			if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
+			else focusFirstInvalid(formElement);
+		} finally {
+			busy = false;
+		}
+	}
+</script>
+
+<form class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
+	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
+	<SelectField label={m.invite_role()} options={roleOptions} bind:value={form.role as string} />
+	<TextField
+		label={m.invite_name()}
+		autocomplete="off"
+		error={fieldText(errors, 'name')}
+		required
+		bind:value={form.name}
+	/>
+	<TextField
+		label={m.invite_phone()}
+		type="text"
+		dir="ltr"
+		hint={m.invite_phone_hint()}
+		error={fieldText(errors, 'phone')}
+		bind:value={form.phone}
+	/>
+	{#if form.role === 'rider'}
+		{#if plans.length === 0}
+			<Banner tone="pending" icon="info">{m.invite_no_plans()}</Banner>
+		{/if}
+		<div class="pair">
+			<TextField
+				label={m.invite_age()}
+				type="number"
+				dir="ltr"
+				hint={m.invite_age_hint({ age: rules.minRiderAge })}
+				error={fieldText(errors, 'age')}
+				bind:value={form.age}
+			/>
+			<TextField
+				label={rules.maxRiderWeightKg ? m.invite_weight() : m.invite_weight_optional()}
+				type="number"
+				dir="ltr"
+				hint={rules.maxRiderWeightKg
+					? m.invite_weight_hint({ kg: rules.maxRiderWeightKg })
+					: undefined}
+				error={fieldText(errors, 'weightKg')}
+				bind:value={form.weightKg}
+			/>
+		</div>
+		<SelectField
+			label={m.invite_discipline()}
+			options={disciplineOptions}
+			error={fieldText(errors, 'disciplineId')}
+			bind:value={form.disciplineId}
+		/>
+		<SelectField
+			label={m.invite_level()}
+			options={levelOptions}
+			error={fieldText(errors, 'levelId') ?? undefined}
+			bind:value={form.levelId}
+		/>
+		<p class="sj-small sj-muted">{m.invite_level_hint()}</p>
+		<SelectField
+			label={m.invite_plan()}
+			options={planOptions}
+			error={fieldText(errors, 'planId')}
+			bind:value={form.planId}
+		/>
+		<SelectField
+			label={m.invite_horse()}
+			options={horseOptions}
+			bind:value={form.horseSource as string}
+		/>
+	{/if}
+	<div>
+		<Button type="submit" icon="send" disabled={busy}>{m.invite_create()}</Button>
+	</div>
+</form>
+
+<style>
+	.pair {
+		display: grid;
+		gap: var(--space-3);
+	}
+	@media (min-width: 720px) {
+		.pair {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+</style>

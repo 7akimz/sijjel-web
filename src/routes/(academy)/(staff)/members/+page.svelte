@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import { resolve } from '$app/paths';
-	import InviteLink from '#lib/components/InviteLink.svelte';
-	import { academyMark, localName, roleName } from '#lib/academy.js';
+	import InviteShareCard from '#lib/components/InviteShareCard.svelte';
+	import { academyMark, academyName, localName, roleName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { CreatedAcademyInvite, PendingInvite } from '#lib/api/member-types.js';
@@ -40,6 +40,18 @@
 				]
 			: [])
 	]);
+
+	const academy = $derived(data.tenant.kind === 'academy' ? data.tenant.academy : null);
+	const shareLocale = $derived(academy?.defaultLanguage ?? data.locale);
+	function shareMessage(invite: PendingInvite) {
+		const values = {
+			name: invite.name ?? '',
+			academy: academy ? academyName(academy, shareLocale) : ''
+		};
+		return invite.role === 'rider'
+			? m.invite_share_message_rider(values, { locale: shareLocale })
+			: m.invite_share_message_staff(values, { locale: shareLocale });
+	}
 
 	const toError = (e: unknown) => errorText(e instanceof ApiError ? e.code : 'internal_error');
 
@@ -115,7 +127,13 @@
 							/>
 						</div>
 						{#if renewed?.id === invite.id}
-							<InviteLink invite={renewed.invite} locale={data.locale} />
+							<InviteShareCard
+								invite={renewed.invite}
+								name={invite.name ?? ''}
+								message={shareMessage(invite)}
+								phone={invite.phone}
+								locale={data.locale}
+							/>
 						{/if}
 					</li>
 				{/each}
