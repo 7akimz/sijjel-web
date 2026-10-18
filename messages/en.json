@@ -195,7 +195,6 @@
 	"date_to": "To",
 	"hours_title": "Opening hours and sessions",
 	"hours_intro": "Riders can book any session that fits inside these hours.",
-	"hours_open": "Open",
 	"hours_closed": "Closed",
 	"hours_copy": "Copy to other open days",
 	"hours_session_length": "Session length",
@@ -279,5 +278,8 @@
 	"horse_unavailable_dates": "Unavailable",
 	"horse_unavailable_add": "Add dates",
 	"horse_unavailable_none": "No unavailable dates.",
-	"horse_back": "All horses"
+	"horse_back": "All horses",
+	"hours_open_day": "Open on {day}",
+	"hours_copy_from": "Copy to other open days from {day}",
+	"time_format_hint": "24-hour time, for example 18:30"
 }

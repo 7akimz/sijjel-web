@@ -1,6 +1,7 @@
 import type { FieldErrors } from '#lib/api/errors.js';
 import type { Schedule, ScheduleInput } from '#lib/api/academy-types.js';
 import { m } from '#lib/paraglide/messages.js';
+import { isValidTime } from '#lib/time.js';
 
 export type DayRow = { weekday: number; open: boolean; opensAt: string; closesAt: string };
 export type ScheduleBase = Pick<
@@ -67,8 +68,8 @@ export function hoursErrors(rows: DayRow[], base: ScheduleBase): FieldErrors {
 	const badDay = rows.some(
 		(r) =>
 			r.open &&
-			(!TIME_PATTERN.test(r.opensAt) ||
-				!TIME_PATTERN.test(r.closesAt) ||
+			(!isValidTime(r.opensAt) ||
+				!isValidTime(r.closesAt) ||
 				minutes(r.closesAt, true) <= minutes(r.opensAt, false))
 	);
 	if (badDay) errors.days = ['hours_invalid'];

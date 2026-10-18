@@ -195,7 +195,6 @@
 	"date_to": "إلى",
 	"hours_title": "ساعات العمل والحصص",
 	"hours_intro": "يمكن للفرسان حجز أي حصة ضمن هذه الساعات.",
-	"hours_open": "مفتوح",
 	"hours_closed": "مغلق",
 	"hours_copy": "نسخ إلى باقي الأيام المفتوحة",
 	"hours_session_length": "مدة الحصة",
@@ -279,5 +278,8 @@
 	"horse_unavailable_dates": "غير متاح",
 	"horse_unavailable_add": "إضافة أيام",
 	"horse_unavailable_none": "لا توجد أيام عدم توفر.",
-	"horse_back": "كل الخيول"
+	"horse_back": "كل الخيول",
+	"hours_open_day": "مفتوح يوم {day}",
+	"hours_copy_from": "نسخ إلى باقي الأيام المفتوحة من {day}",
+	"time_format_hint": "بنظام 24 ساعة، مثل 18:30"
 }

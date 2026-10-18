@@ -3,7 +3,7 @@
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
 	import type { BookingRules } from '#lib/api/academy-types.js';
-	import { bookingRulesErrors } from '#lib/forms/booking-rules.js';
+	import { bookingRulesErrors, wholeNumber } from '#lib/forms/booking-rules.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, TextField } from '#lib/ui/index.js';
@@ -22,9 +22,9 @@
 	let formElement = $state<HTMLFormElement>();
 
 	const rules = $derived<BookingRules>({
-		bookingWindowDays: Number(windowDays),
-		bookingClosesHours: Number(closesHours),
-		cancellationCutoffHours: Number(cutoffHours)
+		bookingWindowDays: wholeNumber(windowDays),
+		bookingClosesHours: wholeNumber(closesHours),
+		cancellationCutoffHours: wholeNumber(cutoffHours)
 	});
 
 	async function save(event: SubmitEvent) {

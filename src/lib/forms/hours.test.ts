@@ -103,4 +103,20 @@ describe('hours form', () => {
 		expect(normalizeTime('2500')).toBe('2500');
 		expect(normalizeTime('')).toBe('');
 	});
+
+	it('reads midnight, dots and Arabic or Persian digits', () => {
+		expect(normalizeTime('24:00')).toBe('00:00');
+		expect(normalizeTime('18.30')).toBe('18:30');
+		expect(normalizeTime('١٨:٠٠')).toBe('18:00');
+		expect(normalizeTime('۱۸۰۰')).toBe('18:00');
+	});
+
+	it('rejects hours and minutes out of range', () => {
+		const rows = rowsFromSchedule(alFaris);
+		const withSaturday = (opensAt: string, closesAt: string) =>
+			rows.map((r) => (r.weekday === 6 ? { ...r, opensAt, closesAt } : r));
+
+		expect(hoursErrors(withSaturday('18:00', '25:00'), base)).toEqual({ days: ['hours_invalid'] });
+		expect(hoursErrors(withSaturday('18:75', '22:00'), base)).toEqual({ days: ['hours_invalid'] });
+	});
 });

@@ -111,7 +111,9 @@
 		} catch (e) {
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
-			if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
+			const unexplained = error.fields.days && !rows.some((r) => r.open && rowInvalid(r));
+			if (Object.keys(error.fields).length === 0 || unexplained)
+				failure = errorText(error.code === 'validation_failed' ? 'hours_invalid' : error.code);
 			else focusFirstInvalid(formElement);
 		} finally {
 			busy = false;
@@ -139,8 +141,7 @@
 					{@const name = weekdayNames[row.weekday]()}
 					<li class="day">
 						<div class="day-head">
-							<span class="day-name">{name}</span>
-							<CheckboxField label={m.hours_open()} bind:checked={row.open} />
+							<CheckboxField label={m.hours_open_day({ day: name })} bind:checked={row.open} />
 						</div>
 						{#if row.open}
 							<TimeRangeField
@@ -154,6 +155,7 @@
 									<Button
 										variant="quiet"
 										icon="content_copy"
+										label={m.hours_copy_from({ day: name })}
 										onclick={() => (rows = copyToOpenDays(rows, row.weekday))}
 									>
 										{m.hours_copy()}
@@ -227,9 +229,6 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--space-3);
-	}
-	.day-name {
-		font-weight: 600;
 	}
 	.preview {
 		margin: 0;

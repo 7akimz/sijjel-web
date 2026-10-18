@@ -7,6 +7,12 @@ const LIMITS: Record<keyof BookingRules, [number, number]> = {
 	cancellationCutoffHours: [0, 168]
 };
 
+// wholeNumber reads a number field, treating a cleared field as missing rather than zero.
+export function wholeNumber(value: string | number | null | undefined): number {
+	if (value === null || value === undefined || String(value).trim() === '') return Number.NaN;
+	return Number(value);
+}
+
 export function bookingRulesErrors(rules: BookingRules): FieldErrors {
 	const errors: FieldErrors = {};
 	for (const [field, [min, max]] of Object.entries(LIMITS) as [

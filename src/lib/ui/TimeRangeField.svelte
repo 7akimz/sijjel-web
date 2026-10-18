@@ -7,6 +7,9 @@
 	let { label, opens = $bindable(''), closes = $bindable(''), error }: Props = $props();
 
 	const id = $props.id();
+	const PLACEHOLDER = '18:00';
+	const CLOSE_PLACEHOLDER = '22:00';
+	const describedBy = $derived(error ? `${id}-format ${id}-error` : `${id}-format`);
 </script>
 
 <div class="sj-field">
@@ -18,11 +21,11 @@
 			inputmode="numeric"
 			autocomplete="off"
 			maxlength="5"
-			placeholder="18:00"
+			placeholder={PLACEHOLDER}
 			dir="ltr"
 			aria-label={m.field_opens({ label })}
 			aria-invalid={error ? 'true' : undefined}
-			aria-describedby={error ? `${id}-error` : undefined}
+			aria-describedby={describedBy}
 			bind:value={opens}
 			onblur={() => (opens = normalizeTime(opens))}
 		/>
@@ -34,15 +37,16 @@
 			inputmode="numeric"
 			autocomplete="off"
 			maxlength="5"
-			placeholder="18:00"
+			placeholder={CLOSE_PLACEHOLDER}
 			dir="ltr"
 			aria-label={m.field_closes({ label })}
 			aria-invalid={error ? 'true' : undefined}
-			aria-describedby={error ? `${id}-error` : undefined}
+			aria-describedby={describedBy}
 			bind:value={closes}
 			onblur={() => (closes = normalizeTime(closes))}
 		/>
 	</div>
+	<span class="sj-visually-hidden" id="{id}-format">{m.time_format_hint()}</span>
 	{#if error}
 		<span class="sj-field-error" id="{id}-error"><Icon name="error" size={20} />{error}</span>
 	{/if}

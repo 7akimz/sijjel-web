@@ -14,18 +14,20 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 
 	await checklist.getByRole('link', { name: /Opening hours/ }).click();
 	for (const day of ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday']) {
-		await owner.locator('li.day', { hasText: day }).getByLabel('Open', { exact: true }).check();
+		await owner.getByRole('checkbox', { name: `Open on ${day}` }).check();
 	}
 	await owner.getByLabel('Saturday opens').fill('18:00');
 	await owner.getByLabel('Saturday closes').fill('22:00');
-	await owner
-		.locator('li.day', { hasText: 'Saturday' })
-		.getByRole('button', { name: 'Copy to other open days' })
-		.click();
+	await owner.getByRole('button', { name: 'Copy to other open days from Saturday' }).click();
 	await owner.getByLabel('Session length').selectOption('30');
 	await expect(owner.getByText('8 sessions · 18:00 – 21:30').first()).toBeVisible();
+	await owner.getByLabel('Saturday closes').fill('25:00');
+	await owner.getByRole('button', { name: 'Save' }).click();
+	await expect(owner.getByLabel('Saturday opens')).toBeFocused();
+	await owner.getByLabel('Saturday closes').fill('24:00');
 	await owner.getByRole('button', { name: 'Save' }).click();
 	await expect(owner.getByText('Opening hours saved.')).toBeVisible();
+	await expect(owner.getByLabel('Saturday closes')).toHaveValue('00:00');
 
 	await owner.goto(academyUrl(slug, '/'));
 	await expect(checklist.getByText('1 of 3 done')).toBeVisible();
