@@ -107,3 +107,18 @@ describe('fieldText', () => {
 		expect(fieldText({ slug: ['slug_taken'] }, 'name')).toBeUndefined();
 	});
 });
+
+describe('ApiError extra details', () => {
+	it('keeps problem keys other than the standard ones', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () =>
+				problem(409, { status: 409, code: 'bookings_affected', bookings: [{ id: 'b1' }] })
+			)
+		);
+
+		const error = await api('/academy/closed-dates', { method: 'POST', body: {} }).catch((e) => e);
+
+		expect(error.extra).toEqual({ bookings: [{ id: 'b1' }] });
+	});
+});

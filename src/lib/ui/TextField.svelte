@@ -3,7 +3,7 @@
 
 	type Props = {
 		label: string;
-		value?: string | number;
+		value?: string | number | null;
 		type?: 'text' | 'email' | 'password' | 'time' | 'number' | 'url';
 		hint?: string;
 		error?: string;

@@ -9,6 +9,7 @@ export type HorseFormState = {
 	minLevelId: string;
 	maxLevelId: string;
 	maxSessionsPerDay: number;
+	maxRiderWeightKg: string | number | null;
 	notes: string;
 	isActive: boolean;
 };
@@ -30,6 +31,7 @@ export function newHorseState(d: AcademyDisciplines): HorseFormState {
 		disciplineId,
 		...rangeAfterDisciplineChange(d, disciplineId),
 		maxSessionsPerDay: DEFAULT_SESSIONS_PER_DAY,
+		maxRiderWeightKg: '',
 		notes: '',
 		isActive: true
 	};
@@ -42,6 +44,7 @@ export function stateFromHorse(h: Horse): HorseFormState {
 		minLevelId: h.minLevel.id,
 		maxLevelId: h.maxLevel.id,
 		maxSessionsPerDay: h.maxSessionsPerDay,
+		maxRiderWeightKg: h.maxRiderWeightKg === null ? '' : String(h.maxRiderWeightKg),
 		notes: h.notes ?? '',
 		isActive: h.isActive
 	};
@@ -61,9 +64,17 @@ export function horseErrors(s: HorseFormState, d: AcademyDisciplines): FieldErro
 	if (!Number.isInteger(sessions) || sessions < 1 || sessions > 6) {
 		errors.maxSessionsPerDay = ['sessions_per_day_invalid'];
 	}
+	const weight = weightLimit(s.maxRiderWeightKg);
+	if (weight !== null && (!Number.isInteger(weight) || weight < 20 || weight > 200)) {
+		errors.maxRiderWeightKg = ['weight_range_invalid'];
+	}
 	if ([...s.notes.trim()].length > 500) errors.notes = ['notes_too_long'];
 	return errors;
 }
+
+// An empty weight field means the horse has no rider weight limit.
+const weightLimit = (value: string | number | null): number | null =>
+	value === null || String(value).trim() === '' ? null : Number(value);
 
 export function toHorseInput(s: HorseFormState): HorseInput {
 	const notes = s.notes.trim();
@@ -73,6 +84,7 @@ export function toHorseInput(s: HorseFormState): HorseInput {
 		minLevelId: s.minLevelId,
 		maxLevelId: s.maxLevelId,
 		maxSessionsPerDay: s.maxSessionsPerDay,
+		maxRiderWeightKg: weightLimit(s.maxRiderWeightKg),
 		notes: notes || null,
 		isActive: s.isActive
 	};

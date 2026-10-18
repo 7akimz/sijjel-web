@@ -6,7 +6,7 @@
 	import { bookingRulesErrors, wholeNumber } from '#lib/forms/booking-rules.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner, Button, Card, TextField } from '#lib/ui/index.js';
+	import { Banner, Button, Card, SelectField, TextField } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -15,17 +15,35 @@
 	let windowDays = $state<string | number>(initial.bookingWindowDays);
 	let closesHours = $state<string | number>(initial.bookingClosesHours);
 	let cutoffHours = $state<string | number>(initial.cancellationCutoffHours);
+	let currency = $state(initial.currency);
+	let unpaidBooking = $state<string>(initial.unpaidBooking);
+	let minAge = $state<string | number | null>(initial.minRiderAge);
+	let maxAge = $state<string | number | null>(initial.maxRiderAge ?? '');
+	let maxWeight = $state<string | number | null>(initial.maxRiderWeightKg ?? '');
+	let callingCode = $state(initial.countryCallingCode);
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let saved = $state(false);
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
+	const optional = (value: string | number | null) =>
+		value === null || String(value).trim() === '' ? null : wholeNumber(value);
 	const rules = $derived<BookingRules>({
 		bookingWindowDays: wholeNumber(windowDays),
 		bookingClosesHours: wholeNumber(closesHours),
-		cancellationCutoffHours: wholeNumber(cutoffHours)
+		cancellationCutoffHours: wholeNumber(cutoffHours),
+		currency: currency.trim().toUpperCase(),
+		unpaidBooking: unpaidBooking === 'block' ? 'block' : 'allow',
+		minRiderAge: wholeNumber(minAge),
+		maxRiderAge: optional(maxAge),
+		maxRiderWeightKg: optional(maxWeight),
+		countryCallingCode: callingCode.trim()
 	});
+	const unpaidOptions = [
+		{ value: 'allow', label: m.rules_unpaid_allow() },
+		{ value: 'block', label: m.rules_unpaid_block() }
+	];
 
 	async function save(event: SubmitEvent) {
 		event.preventDefault();
@@ -86,6 +104,51 @@
 				hint={m.rules_cutoff_hint({ count: rules.cancellationCutoffHours })}
 				error={fieldText(errors, 'cancellationCutoffHours')}
 				bind:value={cutoffHours}
+			/>
+		</Card>
+		<Card>
+			<h2 class="sj-heading">{m.rules_members_title()}</h2>
+			<SelectField
+				label={m.rules_unpaid()}
+				options={unpaidOptions}
+				error={fieldText(errors, 'unpaidBooking')}
+				bind:value={unpaidBooking}
+			/>
+			<TextField
+				label={m.rules_currency()}
+				dir="ltr"
+				hint={m.rules_currency_hint()}
+				error={fieldText(errors, 'currency')}
+				bind:value={currency}
+			/>
+			<TextField
+				label={m.rules_min_age()}
+				type="number"
+				dir="ltr"
+				error={fieldText(errors, 'minRiderAge')}
+				bind:value={minAge}
+			/>
+			<TextField
+				label={m.rules_max_age()}
+				type="number"
+				dir="ltr"
+				error={fieldText(errors, 'maxRiderAge')}
+				bind:value={maxAge}
+			/>
+			<TextField
+				label={m.rules_max_weight()}
+				type="number"
+				dir="ltr"
+				hint={m.rules_max_weight_hint()}
+				error={fieldText(errors, 'maxRiderWeightKg')}
+				bind:value={maxWeight}
+			/>
+			<TextField
+				label={m.rules_calling_code()}
+				dir="ltr"
+				hint={m.rules_calling_code_hint()}
+				error={fieldText(errors, 'countryCallingCode')}
+				bind:value={callingCode}
 			/>
 		</Card>
 		<div>

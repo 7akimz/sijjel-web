@@ -17,6 +17,12 @@
 			body: m.settings_rules_body()
 		},
 		{
+			href: resolve('/(academy)/(admin)/settings/plans'),
+			icon: 'payments',
+			title: m.settings_plans_title(),
+			body: m.settings_plans_body()
+		},
+		{
 			href: resolve('/(academy)/(admin)/settings/arenas'),
 			icon: 'fence',
 			title: m.settings_arenas_title(),

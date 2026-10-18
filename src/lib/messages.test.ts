@@ -26,7 +26,58 @@ const academySetupErrors = [
 	'sessions_per_day_invalid',
 	'notes_too_long',
 	'horse_not_found',
-	'unavailability_not_found'
+	'unavailability_not_found',
+	'setup_incomplete',
+	'age_out_of_range',
+	'weight_out_of_range',
+	'weight_range_invalid',
+	'plan_required',
+	'plan_not_found',
+	'price_invalid',
+	'sessions_per_week_invalid',
+	'currency_invalid',
+	'age_range_invalid',
+	'phone_invalid',
+	'member_not_found',
+	'month_invalid',
+	'not_a_rider',
+	'not_staff',
+	'not_a_member',
+	'member_suspended',
+	'role_invalid',
+	'horse_source_invalid',
+	'bookings_affected',
+	'last_admin',
+	'booking_not_found',
+	'cancel_too_late',
+	'warning_required',
+	'slot_invalid',
+	'closed',
+	'past',
+	'too_soon',
+	'outside_window',
+	'full',
+	'already_booked',
+	'weekly_limit',
+	'month_unpaid',
+	'no_plan',
+	'no_suitable_school_horse',
+	'own_horse_busy',
+	'no_own_horse'
+];
+
+const slotReasons = [
+	'past',
+	'too_soon',
+	'outside_window',
+	'full',
+	'already_booked',
+	'weekly_limit',
+	'month_unpaid',
+	'no_plan',
+	'no_suitable_school_horse',
+	'own_horse_busy',
+	'no_own_horse'
 ];
 
 describe('messages', () => {
@@ -34,6 +85,13 @@ describe('messages', () => {
 		for (const code of academySetupErrors) {
 			expect(en, code).toHaveProperty(`error_${code}`);
 			expect(ar, code).toHaveProperty(`error_${code}`);
+		}
+	});
+
+	it('explains every slot reason in both languages', () => {
+		for (const reason of slotReasons) {
+			expect(en, reason).toHaveProperty(`slot_reason_${reason}`);
+			expect(ar, reason).toHaveProperty(`slot_reason_${reason}`);
 		}
 	});
 

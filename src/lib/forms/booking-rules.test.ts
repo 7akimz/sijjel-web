@@ -1,7 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { bookingRulesErrors, wholeNumber } from './booking-rules';
 
-const rules = { bookingWindowDays: 14, bookingClosesHours: 0, cancellationCutoffHours: 12 };
+const rules = {
+	bookingWindowDays: 14,
+	bookingClosesHours: 0,
+	cancellationCutoffHours: 12,
+	currency: 'EGP',
+	unpaidBooking: 'allow' as const,
+	minRiderAge: 6,
+	maxRiderAge: null,
+	countryCallingCode: '20',
+	maxRiderWeightKg: null
+};
 
 describe('bookingRulesErrors', () => {
 	it('accepts the defaults', () => {
@@ -34,12 +44,26 @@ describe('wholeNumber', () => {
 	});
 
 	it('makes a cleared field invalid', () => {
-		expect(
-			bookingRulesErrors({
-				bookingWindowDays: 14,
-				bookingClosesHours: 0,
-				cancellationCutoffHours: wholeNumber('')
-			})
-		).toEqual({ cancellationCutoffHours: ['booking_rule_invalid'] });
+		expect(bookingRulesErrors({ ...rules, cancellationCutoffHours: wholeNumber('') })).toEqual({
+			cancellationCutoffHours: ['booking_rule_invalid']
+		});
+	});
+});
+
+describe('member settings', () => {
+	it('validates currency, age range, calling code and weight limit', () => {
+		expect(bookingRulesErrors({ ...rules, currency: 'egp' })).toEqual({
+			currency: ['currency_invalid']
+		});
+		expect(bookingRulesErrors({ ...rules, minRiderAge: 10, maxRiderAge: 8 })).toEqual({
+			maxRiderAge: ['age_range_invalid']
+		});
+		expect(bookingRulesErrors({ ...rules, countryCallingCode: '2001' })).toEqual({
+			countryCallingCode: ['phone_invalid']
+		});
+		expect(bookingRulesErrors({ ...rules, maxRiderWeightKg: 15 })).toEqual({
+			maxRiderWeightKg: ['weight_range_invalid']
+		});
+		expect(bookingRulesErrors({ ...rules, maxRiderWeightKg: 80, maxRiderAge: 18 })).toEqual({});
 	});
 });

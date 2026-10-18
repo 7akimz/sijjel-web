@@ -7,25 +7,34 @@ export class ApiError extends Error {
 	readonly status: number;
 	readonly code: string;
 	readonly fields: FieldErrors;
+	readonly extra: Record<string, unknown>;
 
-	constructor(status: number, code: string, fields: FieldErrors = {}) {
+	constructor(
+		status: number,
+		code: string,
+		fields: FieldErrors = {},
+		extra: Record<string, unknown> = {}
+	) {
 		super(code);
 		this.name = 'ApiError';
 		this.status = status;
 		this.code = code;
 		this.fields = fields;
+		this.extra = extra;
 	}
 }
 
+const PROBLEM_KEYS = new Set(['type', 'title', 'status', 'code', 'errors']);
+
 export async function apiErrorFrom(response: Response): Promise<ApiError> {
-	const body = (await response.json().catch(() => null)) as {
-		code?: unknown;
-		errors?: unknown;
-	} | null;
+	const body = (await response.json().catch(() => null)) as Record<string, unknown> | null;
 	const code = typeof body?.code === 'string' ? body.code : 'internal_error';
 	const fields =
 		body?.errors && typeof body.errors === 'object' ? (body.errors as FieldErrors) : {};
-	return new ApiError(response.status, code, fields);
+	const extra = Object.fromEntries(
+		Object.entries(body ?? {}).filter(([key]) => !PROBLEM_KEYS.has(key))
+	);
+	return new ApiError(response.status, code, fields, extra);
 }
 
 type MessageFn = (inputs: object, options: { locale?: Locale }) => string;

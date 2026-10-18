@@ -63,6 +63,11 @@
 							<span class="sj-row chips">
 								<StatusChip tone="level">{localName(horse.discipline, data.locale)}</StatusChip>
 								<StatusChip tone="neutral">{rangeLabel(horse, data.locale)}</StatusChip>
+								{#if horse.maxRiderWeightKg}
+									<StatusChip tone="neutral"
+										>{m.horse_max_weight_chip({ kg: horse.maxRiderWeightKg })}</StatusChip
+									>
+								{/if}
 								{#if horse.unavailableToday}
 									<StatusChip tone="pending" dot>{m.horse_unavailable_today()}</StatusChip>
 								{/if}

@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import { academyMark, academyName } from '#lib/academy.js';
 	import { isAcademyAdmin } from '#lib/academy/admin.js';
+	import { isAcademyStaff } from '#lib/academy/staff.js';
 	import LanguageSwitch from '#lib/components/LanguageSwitch.svelte';
 	import StatusPage from '#lib/components/StatusPage.svelte';
 	import ThemeSwitch from '#lib/components/ThemeSwitch.svelte';
@@ -48,6 +49,11 @@
 			return [
 				{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' },
 				{
+					href: resolve('/(academy)/(staff)/members'),
+					label: m.nav_members({}, { locale }),
+					icon: 'group'
+				},
+				{
 					href: resolve('/(academy)/(admin)/horses'),
 					label: m.nav_horses({}, { locale }),
 					icon: 'pets'
@@ -56,6 +62,16 @@
 					href: resolve('/(academy)/(admin)/settings'),
 					label: m.nav_settings({}, { locale }),
 					icon: 'settings'
+				}
+			];
+		}
+		if (tenant.kind === 'academy' && isAcademyStaff(data.membership)) {
+			return [
+				{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' },
+				{
+					href: resolve('/(academy)/(staff)/members'),
+					label: m.nav_members({}, { locale }),
+					icon: 'group'
 				}
 			];
 		}
