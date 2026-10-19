@@ -68,7 +68,10 @@ const picker: HorsePicker = {
 
 type Call = { method: string; url: string; body: unknown };
 
-function stubApi(placement: () => Response) {
+function stubApi(
+	placement: () => Response,
+	note: () => Response = () => new Response(null, { status: 204 })
+) {
 	const calls: Call[] = [];
 	vi.stubGlobal(
 		'fetch',
@@ -76,8 +79,9 @@ function stubApi(placement: () => Response) {
 			const method = init.method ?? 'GET';
 			calls.push({ method, url, body: init.body ? JSON.parse(String(init.body)) : undefined });
 			if (url.startsWith('/api/board/horses')) return Response.json(picker);
+			if (url.startsWith('/api/board?')) return Response.json(session());
 			if (url.endsWith('/placement')) return placement();
-			return new Response(null, { status: 204 });
+			return note();
 		})
 	);
 	return calls;
@@ -173,5 +177,71 @@ describe('RiderSheet', () => {
 		await vi.waitFor(() => expect(calls.some((c) => c.url.endsWith('/note'))).toBe(true));
 		expect(calls.some((c) => c.url.endsWith('/placement'))).toBe(false);
 		expect(calls.find((c) => c.url.endsWith('/note'))?.body).toEqual({ body: 'Good canter' });
+	});
+
+	it('refreshes the board after a refused placement and drops the refused horse', async () => {
+		const calls = stubApi(() => Response.json({ code: 'horse_taken' }, { status: 409 }));
+		const onsession = vi.fn();
+		const screen = render(RiderSheet, {
+			session: session(),
+			rider: sara,
+			locale: 'en',
+			onclose: () => {},
+			onsession
+		});
+
+		await screen.getByRole('radio', { name: /Badr/ }).click();
+		await screen.getByRole('button', { name: 'Save' }).click();
+
+		await vi.waitFor(() =>
+			expect(
+				calls.some((c) =>
+					decodeURIComponent(c.url).startsWith('/api/board?date=2026-10-19&start=18:00')
+				)
+			).toBe(true)
+		);
+		await vi.waitFor(() => expect(onsession).toHaveBeenCalled());
+		await expect.element(screen.getByRole('dialog')).toBeVisible();
+	});
+
+	it('keeps the saved placement on the board when the note then fails', async () => {
+		stubApi(placed, () => Response.json({ code: 'internal_error' }, { status: 500 }));
+		const onsession = vi.fn();
+		const screen = render(RiderSheet, {
+			session: session(),
+			rider: sara,
+			locale: 'en',
+			onclose: () => {},
+			onsession
+		});
+
+		await screen.getByRole('radio', { name: /Badr/ }).click();
+		await screen.getByLabelText('Note on this ride').fill('Steady trot');
+		await screen.getByRole('button', { name: 'Save' }).click();
+
+		await vi.waitFor(() => expect(onsession).toHaveBeenCalled());
+		expect(onsession.mock.calls[0][0].riders[0].horse).toEqual({ id: 'badr', name: 'Badr' });
+	});
+
+	it('can take a placed rider back off their horse and arena', async () => {
+		const calls = stubApi(placed);
+		const placedSara = { ...sara, horse: { id: 'badr', name: 'Badr' }, arenaId: 'side' };
+		const screen = render(RiderSheet, {
+			session: session(),
+			rider: placedSara,
+			locale: 'en',
+			onclose: () => {},
+			onsession: () => {}
+		});
+
+		await screen.getByRole('radio', { name: 'No horse yet' }).click();
+		await screen.getByRole('radio', { name: 'No arena yet' }).click();
+		await screen.getByRole('button', { name: 'Save' }).click();
+
+		await vi.waitFor(() => expect(calls.some((c) => c.url.endsWith('/placement'))).toBe(true));
+		expect(calls.find((c) => c.url.endsWith('/placement'))?.body).toEqual({
+			horseId: null,
+			arenaId: null
+		});
 	});
 });

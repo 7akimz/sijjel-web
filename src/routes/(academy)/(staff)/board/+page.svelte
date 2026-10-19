@@ -1,29 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import BoardSessionView from '#lib/components/BoardSession.svelte';
-	import RiderSheet from '#lib/components/RiderSheet.svelte';
-	import SuggestHorses from '#lib/components/SuggestHorses.svelte';
-	import TrainerPicker from '#lib/components/TrainerPicker.svelte';
-	import type { BoardArena, BoardRider, BoardSession } from '#lib/api/board-types.js';
+	import BoardPlanner from '#lib/components/BoardPlanner.svelte';
+	import type { BoardSession } from '#lib/api/board-types.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner, EmptyState } from '#lib/ui/index.js';
+	import { EmptyState } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	let session = $derived<BoardSession>(data.session);
-	let rider = $state<BoardRider | null>(null);
-	let trainerArena = $state<BoardArena | null>(null);
-	let notice = $state('');
-	let unplaceable = $state<string[]>([]);
-
-	function applySession(next: BoardSession, stranded: string[]) {
-		session = next;
-		unplaceable = stranded;
-		notice = m.board_saved();
-	}
-
 	// The selected time can sit far along the row on a phone, so bring it into view.
 	function showCurrent(link: HTMLElement, current: boolean) {
 		if (current) link.scrollIntoView({ block: 'nearest', inline: 'center' });
@@ -70,49 +56,8 @@
 			{/each}
 		</nav>
 
-		{#key session.date + session.start}
-			<p class="sj-muted sj-small" dir="ltr">{session.start} – {session.end}</p>
-			<SuggestHorses {session} locale={data.locale} onsession={(next) => (session = next)} />
-			{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
-			{#if unplaceable.length > 0}
-				<Banner tone="pending" icon="warning"
-					>{m.board_unplaceable({ names: unplaceable.join(', ') })}</Banner
-				>
-			{/if}
-			<BoardSessionView
-				{session}
-				locale={data.locale}
-				onrider={(r) => {
-					notice = '';
-					rider = r;
-				}}
-				ontrainer={(a) => {
-					notice = '';
-					trainerArena = a;
-				}}
-			/>
-			{#if rider}
-				<RiderSheet
-					{session}
-					{rider}
-					locale={data.locale}
-					onclose={() => (rider = null)}
-					onsession={applySession}
-				/>
-			{/if}
-			{#if trainerArena}
-				<TrainerPicker
-					{session}
-					arena={trainerArena}
-					locale={data.locale}
-					onclose={() => (trainerArena = null)}
-					onsession={(next) => {
-						session = next;
-						trainerArena = null;
-					}}
-				/>
-			{/if}
-		{/key}
+		<p class="sj-muted sj-small" dir="ltr">{session.start} – {session.end}</p>
+		<BoardPlanner {session} locale={data.locale} onsession={(next) => (session = next)} />
 	{/if}
 </div>
 

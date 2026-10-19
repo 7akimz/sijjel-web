@@ -20,7 +20,7 @@
 		rider: BoardRider;
 		locale: Locale;
 		onclose: () => void;
-		onsession: (session: BoardSession, unplaceable: string[]) => void;
+		onsession: (session: BoardSession, unplaceable: string[], saved: boolean) => void;
 	};
 	let { session, rider, locale, onclose, onsession }: Props = $props();
 
@@ -55,22 +55,37 @@
 		}
 	});
 
+	function placementChanged() {
+		return session.editable && (horseId !== (rider.horse?.id ?? null) || arenaId !== rider.arenaId);
+	}
+
+	// A refused save means the board moved under the sheet: reload both, and drop a choice the
+	// fresh data no longer allows.
+	async function refresh() {
+		await loadPicker();
+		const next = await api<BoardSession>(
+			`/board?date=${encodeURIComponent(session.date)}&start=${encodeURIComponent(session.start)}`
+		);
+		const horse = picker?.horses.find((h) => h.id === horseId);
+		if (horse && horse.state !== 'free' && horse.state !== 'current')
+			horseId = rider.horse?.id ?? null;
+		const arena = next.arenas.find((a) => a.id === arenaId);
+		if (arena && arena.placesLeft === 0 && arena.id !== rider.arenaId) arenaId = rider.arenaId;
+		onsession(next, [], false);
+	}
+
 	async function save() {
 		busy = true;
 		failure = '';
 		try {
 			let next = session;
-			let unplaceable: string[] = [];
-			if (
-				session.editable &&
-				(horseId !== (rider.horse?.id ?? null) || arenaId !== rider.arenaId)
-			) {
+			if (placementChanged()) {
 				const result = await api<PlacementResult>(
 					`/bookings/${encodeURIComponent(rider.bookingId)}/placement`,
 					{ method: 'PUT', body: { horseId, arenaId } }
 				);
 				next = result.session;
-				unplaceable = result.unplaceable;
+				onsession(next, result.unplaceable, true);
 			}
 			if (note.trim() !== (rider.note ?? '')) {
 				await api(`/bookings/${encodeURIComponent(rider.bookingId)}/note`, {
@@ -83,12 +98,12 @@
 						r.bookingId === rider.bookingId ? { ...r, note: note.trim() || null } : r
 					)
 				};
+				onsession(next, [], true);
 			}
-			onsession(next, unplaceable);
 			onclose();
 		} catch (e) {
 			failure = errorText(e instanceof ApiError ? e.code : 'internal_error', locale);
-			if (e instanceof ApiError && e.status === 409) await loadPicker().catch(() => {});
+			if (e instanceof ApiError && e.status === 409) await refresh().catch(() => {});
 		} finally {
 			busy = false;
 		}
@@ -168,6 +183,10 @@
 							<span class="sj-small state">{horseStateText(horse, locale)}</span>
 						</label>
 					{/each}
+					<label class="choice">
+						<input type="radio" name="horse" value={null} bind:group={horseId} />
+						<span class="main">{m.board_no_horse({}, { locale })}</span>
+					</label>
 				</fieldset>
 			{:else}
 				<p>{m.board_own_horse({ name: rider.ownHorseName ?? '' }, { locale })}</p>
@@ -191,6 +210,10 @@
 						>
 					</label>
 				{/each}
+				<label class="choice">
+					<input type="radio" name="arena" value={null} bind:group={arenaId} />
+					<span class="main">{m.board_no_arena({}, { locale })}</span>
+				</label>
 			</fieldset>
 		{/if}
 
