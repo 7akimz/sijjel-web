@@ -66,6 +66,28 @@ const academySetupErrors = [
 	'no_own_horse'
 ];
 
+const boardErrors = [
+	'session_past',
+	'session_not_found',
+	'own_horse_rider',
+	'horse_unavailable',
+	'horse_unsuitable',
+	'horse_taken',
+	'horse_resting',
+	'arena_full',
+	'trainer_not_found',
+	'note_too_long',
+	'date_invalid'
+];
+
+const boardProblems = [
+	'horse_unavailable',
+	'horse_unsuitable',
+	'arena_full',
+	'arena_inactive',
+	'no_workable_horse'
+];
+
 const slotReasons = [
 	'past',
 	'too_soon',
@@ -92,6 +114,17 @@ describe('messages', () => {
 		for (const reason of slotReasons) {
 			expect(en, reason).toHaveProperty(`slot_reason_${reason}`);
 			expect(ar, reason).toHaveProperty(`slot_reason_${reason}`);
+		}
+	});
+
+	it('translates every planning board error and problem in both languages', () => {
+		for (const code of boardErrors) {
+			expect(en, code).toHaveProperty(`error_${code}`);
+			expect(ar, code).toHaveProperty(`error_${code}`);
+		}
+		for (const problem of boardProblems) {
+			expect(en, problem).toHaveProperty(`board_problem_${problem}`);
+			expect(ar, problem).toHaveProperty(`board_problem_${problem}`);
 		}
 	});
 

@@ -59,6 +59,11 @@
 		if (tenant.kind === 'academy' && isAcademyAdmin(data.membership)) {
 			return [
 				{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' },
+				{
+					href: resolve('/(academy)/(staff)/board'),
+					label: m.nav_board({}, { locale }),
+					icon: 'view_agenda'
+				},
 				...bookNav,
 				{
 					href: resolve('/(academy)/(staff)/members'),
@@ -80,6 +85,11 @@
 		if (tenant.kind === 'academy' && isAcademyStaff(data.membership)) {
 			return [
 				{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' },
+				{
+					href: resolve('/(academy)/(staff)/board'),
+					label: m.nav_board({}, { locale }),
+					icon: 'view_agenda'
+				},
 				...bookNav,
 				{
 					href: resolve('/(academy)/(staff)/members'),
