@@ -1,4 +1,4 @@
-import type { Locale } from '#lib/api/types.js';
+import type { Discipline, Locale } from '#lib/api/types.js';
 import type { FieldErrors } from '#lib/api/errors.js';
 
 export interface AcademyForm {
@@ -30,4 +30,11 @@ export function academyFormErrors(form: AcademyForm): FieldErrors {
 	if (!request.nameAr) errors.nameAr = ['name_required'];
 	if (request.disciplineIds.length === 0) errors.disciplineIds = ['disciplines_required'];
 	return errors;
+}
+
+// Show jumping is the most common discipline in Egypt, so a new academy starts with it ticked.
+const DEFAULT_DISCIPLINE_KEY = 'show_jumping';
+
+export function initialDisciplinePicks(disciplines: Discipline[]): Record<string, boolean> {
+	return Object.fromEntries(disciplines.map((d) => [d.id, d.key === DEFAULT_DISCIPLINE_KEY]));
 }

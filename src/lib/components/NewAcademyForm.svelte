@@ -5,6 +5,7 @@
 	import type { AcademySummary, Discipline, Locale } from '#lib/api/types.js';
 	import {
 		academyFormErrors,
+		initialDisciplinePicks,
 		toCreateAcademyRequest,
 		type AcademyForm
 	} from '#lib/forms/academy.js';
@@ -40,9 +41,7 @@
 		disciplineIds: []
 	});
 	let language = $state<string>(initialLanguage);
-	let picked = $state<Record<string, boolean>>(
-		Object.fromEntries(untrack(() => disciplines).map((d) => [d.id, false]))
-	);
+	let picked = $state<Record<string, boolean>>(initialDisciplinePicks(untrack(() => disciplines)));
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let busy = $state(false);

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { academyFormErrors, toCreateAcademyRequest, type AcademyForm } from './academy';
+import {
+	academyFormErrors,
+	toCreateAcademyRequest,
+	type AcademyForm,
+	initialDisciplinePicks
+} from './academy';
 
 const form = (overrides: Partial<AcademyForm> = {}): AcademyForm => ({
 	slug: 'alfaris',
@@ -50,6 +55,25 @@ describe('academyFormErrors', () => {
 		expect(academyFormErrors(form({ nameEn: ' ', nameAr: '' }))).toEqual({
 			nameEn: ['name_required'],
 			nameAr: ['name_required']
+		});
+	});
+});
+
+describe('initialDisciplinePicks', () => {
+	it('ticks show jumping, the most common discipline in Egypt, and nothing else', () => {
+		const discipline = (id: string, key: string) => ({
+			id,
+			key,
+			nameEn: key,
+			nameAr: key,
+			levels: []
+		});
+
+		expect(
+			initialDisciplinePicks([discipline('d', 'dressage'), discipline('j', 'show_jumping')])
+		).toEqual({
+			d: false,
+			j: true
 		});
 	});
 });
