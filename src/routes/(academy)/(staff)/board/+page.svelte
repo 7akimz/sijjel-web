@@ -24,6 +24,16 @@
 		notice = m.board_saved();
 	}
 
+	// The selected time can sit far along the row on a phone, so bring it into view.
+	function showCurrent(link: HTMLElement, current: boolean) {
+		if (current) link.scrollIntoView({ block: 'nearest', inline: 'center' });
+		return {
+			update(now: boolean) {
+				if (now) link.scrollIntoView({ block: 'nearest', inline: 'center' });
+			}
+		};
+	}
+
 	function changeDate(event: Event) {
 		const value = (event.currentTarget as HTMLInputElement).value;
 		if (value) goto(resolve(`/(academy)/(staff)/board?date=${value}`));
@@ -52,6 +62,7 @@
 					class={['time', time.start === session.start && 'current']}
 					href={resolve(`/(academy)/(staff)/board?date=${session.date}&start=${time.start}`)}
 					aria-current={time.start === session.start ? 'true' : undefined}
+					use:showCurrent={time.start === session.start}
 				>
 					<span dir="ltr">{time.start}</span>
 					{#if time.hasProblem}<i class="dot" aria-hidden="true"></i>{/if}

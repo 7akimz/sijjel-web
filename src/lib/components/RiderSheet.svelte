@@ -141,7 +141,7 @@
 						{#if ride.arenaName}· {ride.arenaName}{/if}
 						{#if ride.trainerName}· {ride.trainerName}{/if}</span
 					>
-					{#if ride.note}<p class="note">{ride.note}</p>{/if}
+					{#if ride.note}<p class="note" dir="auto">{ride.note}</p>{/if}
 				</div>
 			{/each}
 		</section>
@@ -162,7 +162,8 @@
 							/>
 							<span class="main">
 								<strong>{horse.name}</strong>
-								{#if horse.notes}<span class="sj-small sj-muted">{horse.notes}</span>{/if}
+								{#if horse.notes}<span class="sj-small sj-muted" dir="auto">{horse.notes}</span
+									>{/if}
 							</span>
 							<span class="sj-small state">{horseStateText(horse, locale)}</span>
 						</label>
@@ -195,7 +196,7 @@
 
 		<label class="sj-field">
 			<span class="sj-label">{m.board_note({}, { locale })}</span>
-			<textarea class="sj-input" rows="3" maxlength="500" bind:value={note}></textarea>
+			<textarea class="sj-input" rows="3" maxlength="500" dir="auto" bind:value={note}></textarea>
 			<span class="sj-hint">{m.board_note_hint({}, { locale })}</span>
 		</label>
 	</div>

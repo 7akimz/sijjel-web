@@ -50,7 +50,7 @@
 			{#each group.riders as rider (rider.bookingId)}
 				<button type="button" class="row" onclick={() => onrider(rider)}>
 					<span class="sj-avatar" aria-hidden="true">{rider.name.slice(0, 1)}</span>
-					<span class="name">{rider.name}</span>
+					<span class="name" dir="auto">{rider.name}</span>
 					{#if rider.problems.length > 0}
 						<span
 							class="problem"

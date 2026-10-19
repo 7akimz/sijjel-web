@@ -44,6 +44,10 @@ Other visitors get a 403 page on these routes.
 - Admins and trainers get Members: `/members` (filter by riders, trainers or, for admins, unpaid this month, plus pending invitations) and `/members/{id}`, where admins edit the rider, mark this month paid, register an own horse and suspend or reactivate. Staff can cancel bookings there and book on the rider's behalf at `/members/{id}/book`, confirming past a weekly limit or an unpaid month.
 - Riders get Book: `/book` shows a week of sessions with places left and suitable horses free, and books after a confirmation. Riders cancel from their home until the academy's cancellation cutoff.
 
+### Planning board
+
+Admins and trainers get Board: `/board?date&start` shows one session at a time, opening on the session in progress or the next one. Riders are grouped by arena, with the trainer named once per arena and riders without an arena under "Not placed". Tapping a rider opens a sheet with their recent rides and notes, the horses that can take them (the others greyed out with the reason), the arenas with places left, and a note on this ride. "Suggest horses" fills riders who have no horse, preferring the horse each rode recently, and never moves a horse someone picked. Past sessions only take notes.
+
 ## Tests
 
 ```sh
@@ -61,7 +65,7 @@ The end-to-end suite builds the app, serves it on port 4173 and drives both host
 npx playwright test
 ```
 
-The suite runs the `sijjel-api-api` image, so rebuild it after API changes; the academy setup tests need the API from Milestone 3 onwards, and the booking test the API from Milestone 4. Set `E2E_API_IMAGE` to use another image, and `E2E_API_PORT` (default 18080) if that port is taken.
+The suite runs the `sijjel-api-api` image, so rebuild it after API changes; the academy setup tests need the API from Milestone 3 onwards, the booking test the API from Milestone 4, and the board test the API from Milestone 5. Set `E2E_API_IMAGE` to use another image, and `E2E_API_PORT` (default 18080) if that port is taken.
 
 ## Container
 
