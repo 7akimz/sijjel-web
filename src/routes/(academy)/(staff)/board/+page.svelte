@@ -2,14 +2,24 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import BoardSessionView from '#lib/components/BoardSession.svelte';
-	import type { BoardSession } from '#lib/api/board-types.js';
+	import RiderSheet from '#lib/components/RiderSheet.svelte';
+	import type { BoardRider, BoardSession } from '#lib/api/board-types.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { EmptyState } from '#lib/ui/index.js';
+	import { Banner, EmptyState } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	let session = $derived<BoardSession>(data.session);
+	let rider = $state<BoardRider | null>(null);
+	let notice = $state('');
+	let unplaceable = $state<string[]>([]);
+
+	function applySession(next: BoardSession, stranded: string[]) {
+		session = next;
+		unplaceable = stranded;
+		notice = m.board_saved();
+	}
 
 	function changeDate(event: Event) {
 		const value = (event.currentTarget as HTMLInputElement).value;
@@ -48,7 +58,30 @@
 
 		{#key session.date + session.start}
 			<p class="sj-muted sj-small" dir="ltr">{session.start} – {session.end}</p>
-			<BoardSessionView {session} locale={data.locale} onrider={() => {}} ontrainer={() => {}} />
+			{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
+			{#if unplaceable.length > 0}
+				<Banner tone="pending" icon="warning"
+					>{m.board_unplaceable({ names: unplaceable.join(', ') })}</Banner
+				>
+			{/if}
+			<BoardSessionView
+				{session}
+				locale={data.locale}
+				onrider={(r) => {
+					notice = '';
+					rider = r;
+				}}
+				ontrainer={() => {}}
+			/>
+			{#if rider}
+				<RiderSheet
+					{session}
+					{rider}
+					locale={data.locale}
+					onclose={() => (rider = null)}
+					onsession={applySession}
+				/>
+			{/if}
 		{/key}
 	{/if}
 </div>
