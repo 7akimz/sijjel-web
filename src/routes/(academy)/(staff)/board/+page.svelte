@@ -3,7 +3,9 @@
 	import { resolve } from '$app/paths';
 	import BoardSessionView from '#lib/components/BoardSession.svelte';
 	import RiderSheet from '#lib/components/RiderSheet.svelte';
-	import type { BoardRider, BoardSession } from '#lib/api/board-types.js';
+	import SuggestHorses from '#lib/components/SuggestHorses.svelte';
+	import TrainerPicker from '#lib/components/TrainerPicker.svelte';
+	import type { BoardArena, BoardRider, BoardSession } from '#lib/api/board-types.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, EmptyState } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -12,6 +14,7 @@
 
 	let session = $derived<BoardSession>(data.session);
 	let rider = $state<BoardRider | null>(null);
+	let trainerArena = $state<BoardArena | null>(null);
 	let notice = $state('');
 	let unplaceable = $state<string[]>([]);
 
@@ -58,6 +61,7 @@
 
 		{#key session.date + session.start}
 			<p class="sj-muted sj-small" dir="ltr">{session.start} – {session.end}</p>
+			<SuggestHorses {session} locale={data.locale} onsession={(next) => (session = next)} />
 			{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 			{#if unplaceable.length > 0}
 				<Banner tone="pending" icon="warning"
@@ -71,7 +75,10 @@
 					notice = '';
 					rider = r;
 				}}
-				ontrainer={() => {}}
+				ontrainer={(a) => {
+					notice = '';
+					trainerArena = a;
+				}}
 			/>
 			{#if rider}
 				<RiderSheet
@@ -80,6 +87,18 @@
 					locale={data.locale}
 					onclose={() => (rider = null)}
 					onsession={applySession}
+				/>
+			{/if}
+			{#if trainerArena}
+				<TrainerPicker
+					{session}
+					arena={trainerArena}
+					locale={data.locale}
+					onclose={() => (trainerArena = null)}
+					onsession={(next) => {
+						session = next;
+						trainerArena = null;
+					}}
 				/>
 			{/if}
 		{/key}
