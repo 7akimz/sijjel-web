@@ -60,7 +60,7 @@ describe('academyFormErrors', () => {
 });
 
 describe('initialDisciplinePicks', () => {
-	it('ticks show jumping, the most common discipline in Egypt, and nothing else', () => {
+	it('ticks show jumping and flatwork, and nothing else', () => {
 		const discipline = (id: string, key: string) => ({
 			id,
 			key,
@@ -70,10 +70,15 @@ describe('initialDisciplinePicks', () => {
 		});
 
 		expect(
-			initialDisciplinePicks([discipline('d', 'dressage'), discipline('j', 'show_jumping')])
+			initialDisciplinePicks([
+				discipline('d', 'dressage'),
+				discipline('j', 'show_jumping'),
+				discipline('f', 'flatwork')
+			])
 		).toEqual({
 			d: false,
-			j: true
+			j: true,
+			f: true
 		});
 	});
 });

@@ -32,9 +32,12 @@ export function academyFormErrors(form: AcademyForm): FieldErrors {
 	return errors;
 }
 
-// Show jumping is the most common discipline in Egypt, so a new academy starts with it ticked.
-const DEFAULT_DISCIPLINE_KEY = 'show_jumping';
+// Show jumping is the most common discipline in Egypt, and beginners start on flatwork before
+// they choose one, so a new academy starts with both ticked.
+const DEFAULT_DISCIPLINE_KEYS = ['show_jumping', 'flatwork'];
 
 export function initialDisciplinePicks(disciplines: Discipline[]): Record<string, boolean> {
-	return Object.fromEntries(disciplines.map((d) => [d.id, d.key === DEFAULT_DISCIPLINE_KEY]));
+	return Object.fromEntries(
+		disciplines.map((d) => [d.id, DEFAULT_DISCIPLINE_KEYS.includes(d.key)])
+	);
 }
