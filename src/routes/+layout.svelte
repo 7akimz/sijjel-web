@@ -5,6 +5,7 @@
 	import { academyMark, academyName } from '#lib/academy.js';
 	import { isAcademyAdmin } from '#lib/academy/admin.js';
 	import { isAcademyStaff } from '#lib/academy/staff.js';
+	import { forgetDevice } from '#lib/push/device.js';
 	import { isAcademyRider } from '#lib/academy/rider.js';
 	import LanguageSwitch from '#lib/components/LanguageSwitch.svelte';
 	import StatusPage from '#lib/components/StatusPage.svelte';
@@ -108,6 +109,7 @@
 
 	async function signOut() {
 		signOutFailure = undefined;
+		await forgetDevice();
 		try {
 			await api('/auth/logout', { method: 'POST', body: {} });
 		} catch (e) {
@@ -132,6 +134,14 @@
 		<ThemeSwitch theme={data.theme} {locale} />
 		{#if knownTenant}
 			{#if data.user}
+				{#if tenant.kind === 'academy' && isAcademyStaff(data.membership)}
+					<Button
+						variant="quiet"
+						icon="notifications"
+						href={resolve('/(academy)/(staff)/reminders')}
+						label={m.nav_reminders({}, { locale })}
+					/>
+				{/if}
 				<Button
 					variant="quiet"
 					icon="logout"
