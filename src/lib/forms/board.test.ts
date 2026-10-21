@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BoardSession, HorsePicker, PickerHorse } from '#lib/api/board-types.js';
-import { defaultArenaFor, groupByArena, horseStateText, problemText } from './board';
+import { defaultArenaFor, groupByArena, horseStateText, problemText, trainerGroups } from './board';
 
 const rider = (name: string, arenaId: string | null) => ({
 	bookingId: name,
@@ -12,7 +12,8 @@ const rider = (name: string, arenaId: string | null) => ({
 	ownHorseName: null,
 	arenaId,
 	note: null,
-	problems: []
+	problems: [],
+	trainer: null as { id: string; name: string } | null
 });
 
 const session = (riders: ReturnType<typeof rider>[]): BoardSession => ({
@@ -95,5 +96,59 @@ describe('defaultArenaFor', () => {
 describe('problemText', () => {
 	it('explains a problem in plain words', () => {
 		expect(problemText('horse_unavailable', 'en')).toBe('This horse is unavailable today.');
+	});
+});
+
+describe('trainerGroups', () => {
+	const omar = { id: 'omar', name: 'Omar' };
+	const ahmed = { id: 'ahmed', name: 'Ahmed' };
+	const arena = (trainer: typeof omar | null) => ({
+		id: 'main',
+		name: 'Main arena',
+		capacity: 4,
+		placesLeft: 0,
+		trainer
+	});
+	const withTrainer = (name: string, trainer: typeof omar | null) => ({
+		...rider(name, 'main'),
+		trainer
+	});
+	const summary = (groups: ReturnType<typeof trainerGroups>) =>
+		groups.map((g) => [g.trainer?.name ?? null, g.riders.map((r) => r.name)]);
+
+	it('keeps one group when every rider follows one trainer', () => {
+		expect(
+			summary(trainerGroups(arena(omar), [withTrainer('Layla', null), withTrainer('Sara', null)]))
+		).toEqual([['Omar', ['Layla', 'Sara']]]);
+	});
+
+	it('splits riders with their own trainer from those following the arena', () => {
+		expect(
+			summary(
+				trainerGroups(arena(omar), [
+					withTrainer('Layla', null),
+					withTrainer('Nour', ahmed),
+					withTrainer('Sara', null)
+				])
+			)
+		).toEqual([
+			['Omar', ['Layla', 'Sara']],
+			['Ahmed', ['Nour']]
+		]);
+	});
+
+	it('lists riders with no trainer last', () => {
+		expect(
+			summary(trainerGroups(arena(null), [withTrainer('Layla', null), withTrainer('Nour', ahmed)]))
+		).toEqual([
+			['Ahmed', ['Nour']],
+			[null, ['Layla']]
+		]);
+	});
+
+	it('keeps one group with no trainer when nobody is assigned', () => {
+		expect(
+			summary(trainerGroups(arena(null), [withTrainer('Layla', null), withTrainer('Sara', null)]))
+		).toEqual([[null, ['Layla', 'Sara']]]);
 	});
 });

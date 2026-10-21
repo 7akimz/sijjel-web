@@ -3,6 +3,7 @@ import type {
 	BoardRider,
 	BoardSession,
 	HorsePicker,
+	NamedRef,
 	PickerHorse
 } from '#lib/api/board-types.js';
 import type { Locale } from '#lib/api/types.js';
@@ -23,6 +24,21 @@ export function groupByArena(session: BoardSession): ArenaGroup[] {
 		(r) => !session.arenas.some((arena) => arena.id === r.arenaId)
 	);
 	return unplaced.length > 0 ? [{ arena: null, riders: unplaced }, ...groups] : groups;
+}
+
+export type TrainerGroup = { trainer: NamedRef | null; riders: BoardRider[] };
+
+// An arena's riders split by who teaches them: their own trainer, else the arena's. Riders with no
+// trainer come last.
+export function trainerGroups(arena: BoardArena, riders: BoardRider[]): TrainerGroup[] {
+	const groups: TrainerGroup[] = [];
+	for (const rider of riders) {
+		const trainer = rider.trainer ?? arena.trainer;
+		const group = groups.find((g) => g.trainer?.id === trainer?.id);
+		if (group) group.riders.push(rider);
+		else groups.push({ trainer, riders: [rider] });
+	}
+	return groups.sort((a, b) => Number(a.trainer === null) - Number(b.trainer === null));
 }
 
 export function problemText(code: string, locale?: Locale): string {

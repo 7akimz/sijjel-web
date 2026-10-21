@@ -77,7 +77,11 @@ const boardErrors = [
 	'arena_full',
 	'trainer_not_found',
 	'note_too_long',
-	'date_invalid'
+	'date_invalid',
+	'bookings_required',
+	'bookings_mixed_sessions',
+	'push_disabled',
+	'subscription_invalid'
 ];
 
 const boardProblems = [
@@ -102,7 +106,33 @@ const slotReasons = [
 	'no_own_horse'
 ];
 
+const reminderKeys = [
+	'board_select',
+	'board_select_done',
+	'board_selected_count',
+	'board_set_trainer',
+	'board_same_as_arena',
+	'reminders_title',
+	'reminders_intro',
+	'reminders_ios_install',
+	'reminders_unsupported',
+	'reminders_blocked',
+	'reminders_turn_on',
+	'reminders_on',
+	'reminders_test',
+	'reminders_test_sent',
+	'reminders_turn_off',
+	'reminders_battery_tip'
+];
+
 describe('messages', () => {
+	it('has every trainer group and reminders message in both languages', () => {
+		for (const key of reminderKeys) {
+			expect(en, key).toHaveProperty(key);
+			expect(ar, key).toHaveProperty(key);
+		}
+	});
+
 	it('translates every academy setup error code in both languages', () => {
 		for (const code of academySetupErrors) {
 			expect(en, code).toHaveProperty(`error_${code}`);

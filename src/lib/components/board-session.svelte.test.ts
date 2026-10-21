@@ -14,6 +14,7 @@ const rider = (name: string, extra: Partial<BoardRider> = {}): BoardRider => ({
 	arenaId: null,
 	note: null,
 	problems: [],
+	trainer: null,
 	...extra
 });
 

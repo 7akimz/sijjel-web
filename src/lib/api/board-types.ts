@@ -35,6 +35,8 @@ export interface BoardRider {
 	arenaId: string | null;
 	note: string | null;
 	problems: BoardProblem[];
+	/** The rider's own trainer; null when they follow the arena's trainer. */
+	trainer: NamedRef | null;
 }
 
 export interface BoardSession {

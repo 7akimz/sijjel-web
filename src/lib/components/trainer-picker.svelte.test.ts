@@ -26,7 +26,8 @@ const session: BoardSession = {
 			ownHorseName: null,
 			arenaId: null,
 			note: null,
-			problems: []
+			problems: [],
+			trainer: null
 		}
 	]
 };

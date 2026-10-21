@@ -13,7 +13,8 @@ const sara: BoardRider = {
 	ownHorseName: null,
 	arenaId: null,
 	note: null,
-	problems: []
+	problems: [],
+	trainer: null
 };
 
 const session = (editable = true): BoardSession => ({
