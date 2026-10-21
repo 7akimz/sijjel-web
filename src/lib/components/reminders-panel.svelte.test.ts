@@ -93,4 +93,19 @@ describe('RemindersPanel', () => {
 		const screen = render(RemindersPanel, { publicKey: null, locale: 'en', device: fakeDevice() });
 		await expect.element(screen.getByText(/aren't switched on for this server/)).toBeVisible();
 	});
+
+	it('says so when the test reached no device', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => Response.json({ sent: 0 }))
+		);
+		const screen = render(RemindersPanel, {
+			publicKey: 'key',
+			locale: 'en',
+			device: fakeDevice({ permission: 'granted', subscribed: true })
+		});
+		await screen.getByRole('button', { name: 'Send a test' }).click();
+		await expect.element(screen.getByText(/couldn't reach this phone/)).toBeVisible();
+		await expect.element(screen.getByText(/Test sent/)).not.toBeInTheDocument();
+	});
 });

@@ -1,7 +1,11 @@
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext" />
 /// <reference lib="webworker" />
-import { notificationOptions, pickClient, type PushMessage } from '#lib/push/sw-handlers.js';
+import {
+	notificationOptions,
+	openNotificationUrl,
+	type PushMessage
+} from '#lib/push/sw-handlers.js';
 
 // Only shows session reminders and opens the board when one is tapped; nothing is cached.
 const sw = self as unknown as ServiceWorkerGlobalScope;
@@ -12,6 +16,11 @@ sw.addEventListener('push', (event) => {
 	event.waitUntil(sw.registration.showNotification(message.title, notificationOptions(message)));
 });
 
+// Taking control of open tabs at once lets a tapped reminder reuse them.
+sw.addEventListener('activate', (event) => {
+	event.waitUntil(sw.clients.claim());
+});
+
 sw.addEventListener('notificationclick', (event) => {
 	event.notification.close();
 	const url = new URL(
@@ -19,15 +28,13 @@ sw.addEventListener('notificationclick', (event) => {
 		sw.location.origin
 	);
 	event.waitUntil(
-		(async () => {
-			const windows = await sw.clients.matchAll({ type: 'window', includeUncontrolled: true });
-			const open = pickClient(windows, sw.location.origin);
-			if (open) {
-				await open.navigate(url.href);
-				await open.focus();
-			} else {
-				await sw.clients.openWindow(url.href);
-			}
-		})()
+		openNotificationUrl(
+			{
+				matchAll: () => sw.clients.matchAll({ type: 'window', includeUncontrolled: true }),
+				openWindow: (href) => sw.clients.openWindow(href)
+			},
+			sw.location.origin,
+			url.href
+		)
 	);
 });

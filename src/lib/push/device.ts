@@ -40,10 +40,20 @@ function hasPush() {
 	return typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window;
 }
 
-async function currentSubscription(): Promise<PushSubscription | null> {
-	if (!hasPush()) return null;
-	const registration = await navigator.serviceWorker.ready;
-	return registration.pushManager.getSubscription();
+type ContainerLike<S> = {
+	getRegistration(): Promise<{ pushManager: { getSubscription(): Promise<S | null> } } | undefined>;
+};
+
+// Uses getRegistration rather than `ready`, which never settles when the worker fails to register
+// and would leave sign-out and the reminders page waiting forever.
+export async function currentSubscription<S = PushSubscription>(
+	container: ContainerLike<S> | null = hasPush()
+		? (navigator.serviceWorker as unknown as ContainerLike<S>)
+		: null
+): Promise<S | null> {
+	if (!container) return null;
+	const registration = await container.getRegistration();
+	return registration ? registration.pushManager.getSubscription() : null;
 }
 
 async function save(subscription: PushSubscription, locale: Locale) {
@@ -75,7 +85,8 @@ export const browserDevice = (locale: Locale): Device => ({
 	},
 	async subscribe(publicKey, language) {
 		if ((await Notification.requestPermission()) !== 'granted') return;
-		const registration = await navigator.serviceWorker.ready;
+		const registration = await navigator.serviceWorker.getRegistration();
+		if (!registration) throw new Error('no service worker');
 		const subscription =
 			(await registration.pushManager.getSubscription()) ??
 			(await registration.pushManager.subscribe({
@@ -100,7 +111,7 @@ type Unsubscribable = { endpoint: string; unsubscribe(): Promise<boolean> };
 // forgetDevice stops this phone's reminders before signing out, so a shared phone doesn't keep
 // getting the last trainer's. It never fails: signing out must still work offline.
 export async function forgetDevice(
-	find: () => Promise<Unsubscribable | null> = currentSubscription,
+	find: () => Promise<Unsubscribable | null> = () => currentSubscription(),
 	tell: (endpoint: string) => Promise<unknown> = (endpoint) =>
 		api('/push/subscriptions', { method: 'DELETE', body: { endpoint } })
 ): Promise<void> {

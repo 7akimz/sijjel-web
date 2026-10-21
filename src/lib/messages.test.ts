@@ -121,6 +121,7 @@ const reminderKeys = [
 	'reminders_on',
 	'reminders_test',
 	'reminders_test_sent',
+	'reminders_test_none',
 	'reminders_turn_off',
 	'reminders_battery_tip'
 ];

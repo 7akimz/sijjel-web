@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { notificationOptions, pickClient } from './sw-handlers';
+import { describe, expect, it, vi } from 'vitest';
+import { notificationOptions, openNotificationUrl, pickClient } from './sw-handlers';
 
 describe('notificationOptions', () => {
 	it('shows an Arabic reminder right to left and remembers where a tap goes', () => {
@@ -42,5 +42,35 @@ describe('pickClient', () => {
 		expect(
 			pickClient([client('https://other.example/')], 'https://alfaris.sijjel.app')
 		).toBeUndefined();
+	});
+});
+
+describe('openNotificationUrl', () => {
+	const origin = 'https://alfaris.sijjel.app';
+	const url = `${origin}/board?date=2026-10-19`;
+
+	it('opens a new window when the open tab is not controlled by the worker', async () => {
+		const focus = vi.fn(async () => undefined);
+		const tab = {
+			url: `${origin}/reminders`,
+			focused: true,
+			focus,
+			navigate: vi.fn(async () => {
+				throw new TypeError('not controlled');
+			})
+		};
+		const openWindow = vi.fn(async () => null);
+		await openNotificationUrl({ matchAll: async () => [tab], openWindow }, origin, url);
+		expect(openWindow).toHaveBeenCalledWith(url);
+	});
+
+	it('reuses a controlled tab', async () => {
+		const focus = vi.fn(async () => undefined);
+		const tab = { url: `${origin}/`, focused: false, focus, navigate: vi.fn(async () => null) };
+		const openWindow = vi.fn(async () => null);
+		await openNotificationUrl({ matchAll: async () => [tab], openWindow }, origin, url);
+		expect(tab.navigate).toHaveBeenCalledWith(url);
+		expect(focus).toHaveBeenCalled();
+		expect(openWindow).not.toHaveBeenCalled();
 	});
 });

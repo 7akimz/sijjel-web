@@ -62,8 +62,9 @@
 
 	const sendTest = () =>
 		run(async () => {
-			await api('/push/test', { method: 'POST', body: {} });
-			notice = m.reminders_test_sent({}, { locale });
+			const { sent } = await api<{ sent: number }>('/push/test', { method: 'POST', body: {} });
+			if (sent > 0) notice = m.reminders_test_sent({}, { locale });
+			else failure = m.reminders_test_none({}, { locale });
 		});
 </script>
 

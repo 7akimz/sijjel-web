@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { detectState, forgetDevice, isAndroid, keyBytes } from './device';
+import { currentSubscription, detectState, forgetDevice, isAndroid, keyBytes } from './device';
 
 const iphone =
 	'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
@@ -66,5 +66,24 @@ describe('forgetDevice', () => {
 		const tell = vi.fn();
 		await forgetDevice(async () => null, tell);
 		expect(tell).not.toHaveBeenCalled();
+	});
+});
+
+describe('currentSubscription', () => {
+	it('answers at once when no service worker is registered', async () => {
+		const container = {
+			getRegistration: async () => undefined,
+			ready: new Promise<never>(() => {})
+		};
+		await expect(currentSubscription(container)).resolves.toBeNull();
+	});
+
+	it('returns the registration’s subscription', async () => {
+		const subscription = { endpoint: 'https://push.example/x' };
+		const container = {
+			getRegistration: async () => ({ pushManager: { getSubscription: async () => subscription } }),
+			ready: new Promise<never>(() => {})
+		};
+		await expect(currentSubscription(container)).resolves.toBe(subscription);
 	});
 });

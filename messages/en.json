@@ -556,5 +556,6 @@
 	"error_bookings_required": "Choose at least one rider.",
 	"error_bookings_mixed_sessions": "Those riders are in different sessions.",
 	"error_push_disabled": "Session reminders aren't switched on for this server.",
-	"error_subscription_invalid": "This phone's reminder settings couldn't be saved. Try again."
+	"error_subscription_invalid": "This phone's reminder settings couldn't be saved. Try again.",
+	"reminders_test_none": "The test couldn't reach this phone. Turn reminders off and on again, then try another test."
 }

@@ -38,7 +38,7 @@
 	{#each groups as group (group.arena?.id ?? 'unplaced')}
 		{@const subgroups = trainerGroups(group.arena, group.riders)}
 		{@const split =
-			subgroups.length > 1 || (group.arena === null && subgroups.some((g) => g.trainer))}
+			subgroups.length > 1 || subgroups.some((g) => g.trainer?.id !== group.arena?.trainer?.id)}
 		<section class="group">
 			<header>
 				<h2>

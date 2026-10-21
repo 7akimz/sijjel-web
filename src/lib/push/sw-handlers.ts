@@ -25,3 +25,32 @@ export function pickClient<T extends WindowLike>(
 	const ours = clients.filter((c) => new URL(c.url).origin === origin);
 	return ours.find((c) => c.focused) ?? ours[0];
 }
+
+type TabLike = WindowLike & {
+	focus(): Promise<unknown>;
+	navigate(url: string): Promise<unknown>;
+};
+type ClientsLike<T extends TabLike> = {
+	matchAll(): Promise<readonly T[]>;
+	openWindow(url: string): Promise<unknown>;
+};
+
+// Opens a tapped reminder's page, reusing a tab of the site when the worker controls it. A tab the
+// worker doesn't control yet can't be navigated, so a new window opens instead.
+export async function openNotificationUrl<T extends TabLike>(
+	clients: ClientsLike<T>,
+	origin: string,
+	url: string
+): Promise<void> {
+	const tab = pickClient(await clients.matchAll(), origin);
+	if (tab) {
+		try {
+			await tab.navigate(url);
+			await tab.focus();
+			return;
+		} catch {
+			// Fall through to a new window.
+		}
+	}
+	await clients.openWindow(url);
+}

@@ -123,4 +123,23 @@ describe('BoardSession', () => {
 		const subgroups = screen.container.querySelectorAll('h3');
 		expect([...subgroups].map((h) => h.textContent?.trim())).toEqual(['Ahmed · 1']);
 	});
+
+	it('names the trainer who teaches an arena when every rider has someone other than the arena trainer', async () => {
+		const ahmed = { id: 'a', name: 'Ahmed' };
+		const screen = render(BoardSession, {
+			session: {
+				...session,
+				riders: [
+					rider('Layla', { arenaId: 'main', trainer: ahmed }),
+					rider('Nour', { arenaId: 'main', trainer: ahmed })
+				]
+			},
+			locale: 'en',
+			onrider: () => {},
+			ontrainer: () => {}
+		});
+
+		const subgroups = screen.container.querySelectorAll('h3');
+		expect([...subgroups].map((h) => h.textContent?.trim())).toEqual(['Ahmed · 2']);
+	});
 });
