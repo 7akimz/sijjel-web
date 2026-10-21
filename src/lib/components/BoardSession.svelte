@@ -36,7 +36,9 @@
 	<EmptyState icon="event_available" title={m.board_no_riders({}, { locale })} />
 {:else}
 	{#each groups as group (group.arena?.id ?? 'unplaced')}
-		{@const subgroups = group.arena ? trainerGroups(group.arena, group.riders) : []}
+		{@const subgroups = trainerGroups(group.arena, group.riders)}
+		{@const split =
+			subgroups.length > 1 || (group.arena === null && subgroups.some((g) => g.trainer))}
 		<section class="group">
 			<header>
 				<h2>
@@ -59,10 +61,11 @@
 					</button>
 				{/if}
 			</header>
-			{#if subgroups.length > 1}
+			{#if split}
 				{#each subgroups as sub (sub.trainer?.id ?? 'none')}
 					<h3 class="subgroup sj-small">
-						{sub.trainer?.name ?? m.board_no_trainer({}, { locale })} · {sub.riders.length}
+						<bdi>{sub.trainer?.name ?? m.board_no_trainer({}, { locale })}</bdi> · {sub.riders
+							.length}
 					</h3>
 					{#each sub.riders as rider (rider.bookingId)}
 						{@render row(rider)}

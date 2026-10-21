@@ -18,7 +18,7 @@ async function signUpRider(page: Page, slug: string, invitePath: string, name: s
 	await expect(page).toHaveURL(academyUrl(slug, '/'));
 }
 
-test('staff plan a session: place a rider, suggest a horse, set a trainer and note the ride', async ({
+test('staff plan a session: place a rider, suggest a horse, set trainers and note the ride', async ({
 	page,
 	browser
 }) => {
@@ -45,6 +45,14 @@ test('staff plan a session: place a rider, suggest a horse, set a trainer and no
 	await owner.getByLabel('Monthly price').fill('1000');
 	await owner.getByRole('button', { name: 'Add plan' }).click();
 	await expect(owner.getByText('Plan saved.')).toBeVisible();
+
+	await owner.goto(academyUrl(slug, '/members/invite'));
+	await owner.getByLabel('Who are you inviting?').selectOption({ label: 'A trainer' });
+	await owner.getByLabel('Their name').fill('Omar');
+	await owner.getByRole('button', { name: 'Create invitation' }).click();
+	await expect(owner.getByText('Invitation ready')).toBeVisible();
+	const trainerInvite = new URL(await owner.getByLabel('Invitation link').inputValue()).pathname;
+	await signUpRider(await browser.newPage(), slug, trainerInvite, 'Omar');
 
 	const riders: Page[] = [];
 	for (const riderName of ['Layla', 'Sara']) {
@@ -99,4 +107,20 @@ test('staff plan a session: place a rider, suggest a horse, set a trainer and no
 	await expect(owner.getByText('Saved.')).toBeVisible();
 	await owner.getByRole('button', { name: /Layla.*Zahra/ }).click();
 	await expect(owner.getByLabel('Note on this ride')).toHaveValue('Leg kept coming out in canter.');
+
+	await owner.getByRole('button', { name: 'Close' }).click();
+	await owner.getByRole('button', { name: 'Select' }).click();
+	await owner.getByRole('button', { name: /Sara.*Badr/ }).click();
+	await expect(owner.getByText('1 selected')).toBeVisible();
+	await owner.getByRole('button', { name: 'Trainer…' }).click();
+	await owner
+		.getByRole('region', { name: 'Trainer…' })
+		.getByRole('button', { name: 'Omar' })
+		.click();
+	await expect(owner.getByRole('heading', { name: 'Omar · 1' })).toBeVisible();
+	await expect(owner.getByRole('button', { name: 'Select' })).toBeVisible();
+
+	await owner.reload();
+	await expect(owner.getByRole('heading', { name: 'Omar · 1' })).toBeVisible();
+	await expect(owner.getByRole('heading', { name: 'Main arena · Owner' })).toBeVisible();
 });

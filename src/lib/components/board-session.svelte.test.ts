@@ -111,4 +111,16 @@ describe('BoardSession', () => {
 		expect(ontoggle).toHaveBeenCalledWith('Layla');
 		expect(onrider).not.toHaveBeenCalled();
 	});
+
+	it('shows the trainer of riders who are not placed yet', async () => {
+		const screen = render(BoardSession, {
+			session: { ...session, riders: [rider('Sara', { trainer: { id: 'a', name: 'Ahmed' } })] },
+			locale: 'en',
+			onrider: () => {},
+			ontrainer: () => {}
+		});
+
+		const subgroups = screen.container.querySelectorAll('h3');
+		expect([...subgroups].map((h) => h.textContent?.trim())).toEqual(['Ahmed · 1']);
+	});
 });

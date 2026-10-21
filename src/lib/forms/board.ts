@@ -29,11 +29,11 @@ export function groupByArena(session: BoardSession): ArenaGroup[] {
 export type TrainerGroup = { trainer: NamedRef | null; riders: BoardRider[] };
 
 // An arena's riders split by who teaches them: their own trainer, else the arena's. Riders with no
-// trainer come last.
-export function trainerGroups(arena: BoardArena, riders: BoardRider[]): TrainerGroup[] {
+// trainer come last. Riders not placed yet have only their own trainers.
+export function trainerGroups(arena: BoardArena | null, riders: BoardRider[]): TrainerGroup[] {
 	const groups: TrainerGroup[] = [];
 	for (const rider of riders) {
-		const trainer = rider.trainer ?? arena.trainer;
+		const trainer = rider.trainer ?? arena?.trainer ?? null;
 		const group = groups.find((g) => g.trainer?.id === trainer?.id);
 		if (group) group.riders.push(rider);
 		else groups.push({ trainer, riders: [rider] });

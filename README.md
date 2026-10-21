@@ -48,6 +48,12 @@ Other visitors get a 403 page on these routes.
 
 Admins and trainers get Board: `/board?date&start` shows one session at a time, opening on the session in progress or the next one. Riders are grouped by arena, with the trainer named once per arena and riders without an arena under "Not placed". Tapping a rider opens a sheet with their recent rides and notes, the horses that can take them (the others greyed out with the reason), the arenas with places left, and a note on this ride. "Suggest horses" fills riders who have no horse, preferring the horse each rode recently, and never moves a horse someone picked. Past sessions only take notes.
 
+Trainers can also teach groups within one arena: tap Select, tick riders and choose "Trainer…", or set one rider's trainer in their sheet. When an arena's riders have more than one trainer, they are listed under each trainer's name.
+
+### Session reminders
+
+Staff get a bell in the app bar that opens `/reminders`, where they can turn on a "Time's up" notification for this phone. It arrives when a session they teach ends. On iPhone, sijjel has to be added to the home screen first, and the page explains how. The site ships a web app manifest (the academy's name and colour) and a service worker that only shows these notifications. Reminders need the API's VAPID keys. To try them on a real phone over HTTPS, see "Trying it on a phone" in the sijjel-api README.
+
 ## Tests
 
 ```sh
@@ -65,7 +71,7 @@ The end-to-end suite builds the app, serves it on port 4173 and drives both host
 npx playwright test
 ```
 
-The suite runs the `sijjel-api-api` image, so rebuild it after API changes; the academy setup tests need the API from Milestone 3 onwards, the booking test the API from Milestone 4, and the board test the API from Milestone 5. Set `E2E_API_IMAGE` to use another image, and `E2E_API_PORT` (default 18080) if that port is taken.
+The suite runs the `sijjel-api-api` image, so rebuild it after API changes; the academy setup tests need the API from Milestone 3 onwards, the booking test the API from Milestone 4, and the board test the API from Milestone 6 (trainer groups). Set `E2E_API_IMAGE` to use another image, and `E2E_API_PORT` (default 18080) if that port is taken.
 
 ## Container
 
