@@ -121,6 +121,9 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<link rel="manifest" href="/manifest.webmanifest" />
+	<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+	<meta name="mobile-web-app-capable" content="yes" />
 </svelte:head>
 
 <AppShell {brand} {nav} current={page.url.pathname} navLabel={m.nav_main({}, { locale })}>
