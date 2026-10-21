@@ -84,4 +84,87 @@ describe('BoardPlanner', () => {
 
 		await expect.element(screen.getByText('Saved.')).toBeVisible();
 	});
+
+	describe('giving a group a trainer', () => {
+		const group = (start = '18:00', editable = true): BoardSession => ({
+			...session(start),
+			editable,
+			staff: [{ id: 'o', name: 'Omar' }],
+			riders: ['Sara', 'Layla'].map((name) => ({
+				...session(start).riders[0]!,
+				bookingId: name,
+				name
+			}))
+		});
+		type Call = { url: string; body: unknown };
+		function stubTrainers(): Call[] {
+			const calls: Call[] = [];
+			vi.stubGlobal(
+				'fetch',
+				vi.fn(async (url: string, init: RequestInit = {}) => {
+					calls.push({ url, body: init.body ? JSON.parse(String(init.body)) : undefined });
+					return Response.json(group());
+				})
+			);
+			return calls;
+		}
+
+		it('gives the ticked riders one trainer in a single request', async () => {
+			const calls = stubTrainers();
+			const onsession = vi.fn();
+			const screen = render(BoardPlanner, { session: group(), locale: 'en', onsession });
+
+			await screen.getByRole('button', { name: 'Select' }).click();
+			await screen.getByRole('button', { name: /Sara/ }).click();
+			await screen.getByRole('button', { name: /Layla/ }).click();
+			await expect.element(screen.getByText('2 selected')).toBeVisible();
+			await screen.getByRole('button', { name: 'Trainer…' }).click();
+			await screen.getByRole('button', { name: 'Omar' }).click();
+
+			await vi.waitFor(() => expect(onsession).toHaveBeenCalled());
+			expect(calls).toEqual([
+				{
+					url: '/api/board/riders/trainer',
+					body: { bookingIds: ['Sara', 'Layla'], trainerId: 'o' }
+				}
+			]);
+			await expect.element(screen.getByRole('button', { name: 'Select' })).toBeVisible();
+		});
+
+		it('puts riders back with the arena trainer', async () => {
+			const calls = stubTrainers();
+			const screen = render(BoardPlanner, { session: group(), locale: 'en', onsession: () => {} });
+
+			await screen.getByRole('button', { name: 'Select' }).click();
+			await screen.getByRole('button', { name: /Sara/ }).click();
+			await screen.getByRole('button', { name: 'Trainer…' }).click();
+			await screen.getByRole('button', { name: 'Same as arena' }).click();
+
+			await vi.waitFor(() => expect(calls).toHaveLength(1));
+			expect(calls[0]!.body).toEqual({ bookingIds: ['Sara'], trainerId: null });
+		});
+
+		it('forgets the selection when the session changes', async () => {
+			const calls = stubTrainers();
+			const screen = render(BoardPlanner, { session: group(), locale: 'en', onsession: () => {} });
+
+			await screen.getByRole('button', { name: 'Select' }).click();
+			await screen.getByRole('button', { name: /Sara/ }).click();
+			await screen.rerender({ session: group('18:30'), locale: 'en', onsession: () => {} });
+
+			await expect.element(screen.getByText('1 selected')).not.toBeInTheDocument();
+			await expect.element(screen.getByRole('button', { name: 'Select' })).toBeVisible();
+			expect(calls).toHaveLength(0);
+		});
+
+		it('offers no selecting on a past session', async () => {
+			const screen = render(BoardPlanner, {
+				session: group('18:00', false),
+				locale: 'en',
+				onsession: () => {}
+			});
+			await expect.element(screen.getByRole('button', { name: /Sara/ })).toBeVisible();
+			await expect.element(screen.getByRole('button', { name: 'Select' })).not.toBeInTheDocument();
+		});
+	});
 });

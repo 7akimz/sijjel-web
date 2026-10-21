@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { BoardArena, BoardRider, BoardSession } from '#lib/api/board-types.js';
 	import type { Locale } from '#lib/api/types.js';
-	import { groupByArena, problemText } from '#lib/forms/board.js';
+	import { groupByArena, problemText, trainerGroups } from '#lib/forms/board.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { EmptyState, Icon } from '#lib/ui/index.js';
 
@@ -10,8 +10,19 @@
 		locale: Locale;
 		onrider: (rider: BoardRider) => void;
 		ontrainer: (arena: BoardArena) => void;
+		selecting?: boolean;
+		selected?: string[];
+		ontoggle?: (bookingId: string) => void;
 	};
-	let { session, locale, onrider, ontrainer }: Props = $props();
+	let {
+		session,
+		locale,
+		onrider,
+		ontrainer,
+		selecting = false,
+		selected = [],
+		ontoggle = () => {}
+	}: Props = $props();
 
 	const groups = $derived(groupByArena(session));
 
@@ -25,6 +36,7 @@
 	<EmptyState icon="event_available" title={m.board_no_riders({}, { locale })} />
 {:else}
 	{#each groups as group (group.arena?.id ?? 'unplaced')}
+		{@const subgroups = group.arena ? trainerGroups(group.arena, group.riders) : []}
 		<section class="group">
 			<header>
 				<h2>
@@ -47,27 +59,51 @@
 					</button>
 				{/if}
 			</header>
-			{#each group.riders as rider (rider.bookingId)}
-				<button type="button" class="row" onclick={() => onrider(rider)}>
-					<span class="sj-avatar" aria-hidden="true">{rider.name.slice(0, 1)}</span>
-					<span class="name" dir="auto">{rider.name}</span>
-					{#if rider.problems.length > 0}
-						<span
-							class="problem"
-							role="img"
-							aria-label={rider.problems.map((p) => problemText(p, locale)).join(' ')}
-						>
-							<Icon name="warning" size={20} filled />
-						</span>
-					{/if}
-					<span class={['horse', !rider.horse && rider.horseSource === 'school' && 'pick']}>
-						{horseLabel(rider)}
-					</span>
-				</button>
-			{/each}
+			{#if subgroups.length > 1}
+				{#each subgroups as sub (sub.trainer?.id ?? 'none')}
+					<h3 class="subgroup sj-small">
+						{sub.trainer?.name ?? m.board_no_trainer({}, { locale })} · {sub.riders.length}
+					</h3>
+					{#each sub.riders as rider (rider.bookingId)}
+						{@render row(rider)}
+					{/each}
+				{/each}
+			{:else}
+				{#each group.riders as rider (rider.bookingId)}
+					{@render row(rider)}
+				{/each}
+			{/if}
 		</section>
 	{/each}
 {/if}
+
+{#snippet row(rider: BoardRider)}
+	{@const ticked = selected.includes(rider.bookingId)}
+	<button
+		type="button"
+		class={['row', ticked && 'ticked']}
+		aria-pressed={selecting ? ticked : undefined}
+		onclick={() => (selecting ? ontoggle(rider.bookingId) : onrider(rider))}
+	>
+		{#if selecting}
+			<Icon name={ticked ? 'check_box' : 'check_box_outline_blank'} size={20} filled={ticked} />
+		{/if}
+		<span class="sj-avatar" aria-hidden="true">{rider.name.slice(0, 1)}</span>
+		<span class="name" dir="auto">{rider.name}</span>
+		{#if rider.problems.length > 0}
+			<span
+				class="problem"
+				role="img"
+				aria-label={rider.problems.map((p) => problemText(p, locale)).join(' ')}
+			>
+				<Icon name="warning" size={20} filled />
+			</span>
+		{/if}
+		<span class={['horse', !rider.horse && rider.horseSource === 'school' && 'pick']}>
+			{horseLabel(rider)}
+		</span>
+	</button>
+{/snippet}
 
 <style>
 	.group {
@@ -107,6 +143,16 @@
 	}
 	.row:hover {
 		background: var(--hover-veil);
+	}
+	.ticked {
+		background: var(--accent-soft);
+	}
+	.subgroup {
+		margin: 0;
+		padding: var(--space-2) var(--space-3) var(--space-1);
+		border-block-start: 1px solid var(--line);
+		color: var(--ink-muted);
+		font-weight: 600;
 	}
 	.name {
 		flex: 1;

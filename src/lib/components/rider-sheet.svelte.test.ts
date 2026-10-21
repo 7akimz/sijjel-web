@@ -245,4 +245,57 @@ describe('RiderSheet', () => {
 			arenaId: null
 		});
 	});
+
+	it('gives the rider their own trainer', async () => {
+		const calls = stubApi(placed);
+		vi.mocked(fetch).mockImplementation(async (input, init = {}) => {
+			const url = String(input);
+			calls.push({
+				method: init.method ?? 'GET',
+				url,
+				body: init.body ? JSON.parse(String(init.body)) : undefined
+			});
+			if (url.startsWith('/api/board/horses')) return Response.json(picker);
+			return Response.json(session());
+		});
+		const onsession = vi.fn();
+		const staffed = {
+			...session(),
+			staff: [
+				{ id: 'o', name: 'Omar' },
+				{ id: 'a', name: 'Ahmed' }
+			]
+		};
+		const screen = render(RiderSheet, {
+			session: staffed,
+			rider: { ...sara, trainer: { id: 'a', name: 'Ahmed' } },
+			locale: 'en',
+			onclose: () => {},
+			onsession
+		});
+
+		const trainer = screen.getByRole('combobox', { name: 'Trainer' });
+		await expect.element(trainer).toHaveValue('a');
+		await trainer.selectOptions('Omar');
+		await screen.getByRole('button', { name: 'Save' }).click();
+
+		await vi.waitFor(() => expect(onsession).toHaveBeenCalled());
+		expect(calls.find((c) => c.url === '/api/board/riders/trainer')?.body).toEqual({
+			bookingIds: ['b-sara'],
+			trainerId: 'o'
+		});
+	});
+
+	it('offers no trainer choice on a session that is over', async () => {
+		stubApi(placed);
+		const screen = render(RiderSheet, {
+			session: session(false),
+			rider: sara,
+			locale: 'en',
+			onclose: () => {},
+			onsession: () => {}
+		});
+		await expect.element(screen.getByRole('textbox')).toBeVisible();
+		await expect.element(screen.getByRole('combobox', { name: 'Trainer' })).not.toBeInTheDocument();
+	});
 });

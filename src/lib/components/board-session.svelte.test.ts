@@ -61,4 +61,54 @@ describe('BoardSession', () => {
 		await screen.getByRole('button', { name: /Layla.*Zahra/ }).click();
 		expect(onrider).toHaveBeenCalledWith(expect.objectContaining({ name: 'Layla' }));
 	});
+
+	it('splits an arena into trainer groups only when its riders have more than one trainer', async () => {
+		const screen = render(BoardSession, {
+			session: {
+				...session,
+				riders: [
+					rider('Layla', { arenaId: 'main' }),
+					rider('Nour', { arenaId: 'main', trainer: { id: 'a', name: 'Ahmed' } }),
+					rider('Sara', { arenaId: 'side' })
+				]
+			},
+			locale: 'en',
+			onrider: () => {},
+			ontrainer: () => {}
+		});
+
+		const subgroups = screen.container.querySelectorAll('h3');
+		expect([...subgroups].map((h) => h.textContent?.trim())).toEqual(['Omar · 1', 'Ahmed · 1']);
+	});
+
+	it('shows no trainer groups when everyone follows the arena trainer', async () => {
+		const screen = render(BoardSession, {
+			session,
+			locale: 'en',
+			onrider: () => {},
+			ontrainer: () => {}
+		});
+		expect(screen.container.querySelectorAll('h3')).toHaveLength(0);
+	});
+
+	it('ticks riders instead of opening them while selecting', async () => {
+		const onrider = vi.fn();
+		const ontoggle = vi.fn();
+		const screen = render(BoardSession, {
+			session,
+			locale: 'en',
+			onrider,
+			ontrainer: () => {},
+			selecting: true,
+			selected: ['Sara'],
+			ontoggle
+		});
+
+		await expect
+			.element(screen.getByRole('button', { name: /Sara/ }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await screen.getByRole('button', { name: /Layla/ }).click();
+		expect(ontoggle).toHaveBeenCalledWith('Layla');
+		expect(onrider).not.toHaveBeenCalled();
+	});
 });

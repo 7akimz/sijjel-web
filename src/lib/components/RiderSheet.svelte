@@ -30,6 +30,7 @@
 	let horseId = $state<string | null>(null);
 	let arenaId = $state<string | null>(null);
 	let note = $state('');
+	let trainerId = $state('');
 	let busy = $state(false);
 	let failure = $state('');
 
@@ -45,6 +46,7 @@
 		horseId = rider.horse?.id ?? null;
 		arenaId = rider.arenaId;
 		note = rider.note ?? '';
+		trainerId = rider.trainer?.id ?? '';
 		await tick();
 		heading?.focus();
 		try {
@@ -86,6 +88,13 @@
 				);
 				next = result.session;
 				onsession(next, result.unplaceable, true);
+			}
+			if (session.editable && trainerId !== (rider.trainer?.id ?? '')) {
+				next = await api<BoardSession>('/board/riders/trainer', {
+					method: 'PUT',
+					body: { bookingIds: [rider.bookingId], trainerId: trainerId || null }
+				});
+				onsession(next, [], true);
 			}
 			if (note.trim() !== (rider.note ?? '')) {
 				await api(`/bookings/${encodeURIComponent(rider.bookingId)}/note`, {
@@ -215,6 +224,16 @@
 					<span class="main">{m.board_no_arena({}, { locale })}</span>
 				</label>
 			</fieldset>
+
+			<label class="sj-field">
+				<span class="sj-label">{m.board_rider_trainer({}, { locale })}</span>
+				<select class="sj-select" bind:value={trainerId}>
+					<option value="">{m.board_same_as_arena({}, { locale })}</option>
+					{#each session.staff as person (person.id)}
+						<option value={person.id}>{person.name}</option>
+					{/each}
+				</select>
+			</label>
 		{/if}
 
 		<label class="sj-field">
