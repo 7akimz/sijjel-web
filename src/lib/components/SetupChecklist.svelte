@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import type { SetupState } from '#lib/api/academy-types.js';
 	import { m } from '#lib/paraglide/messages.js';
+	import { setupHref } from '#lib/setup.js';
 	import { Card, Icon, ProgressBar } from '#lib/ui/index.js';
 
 	let { state, academyName }: { state: SetupState; academyName: string } = $props();
@@ -9,19 +9,19 @@
 	const steps = $derived([
 		{
 			done: state.hours.done,
-			href: resolve('/(academy)/(admin)/settings/hours'),
+			href: setupHref('hours'),
 			title: m.setup_hours_title(),
 			body: m.setup_hours_body()
 		},
 		{
 			done: state.arenas.done,
-			href: resolve('/(academy)/(admin)/settings/arenas'),
+			href: setupHref('arenas'),
 			title: m.setup_arenas_title(),
 			body: m.setup_arenas_body()
 		},
 		{
 			done: state.horses.done,
-			href: resolve('/(academy)/(admin)/horses'),
+			href: setupHref('horses'),
 			title: m.setup_horses_title(),
 			body: m.setup_horses_body()
 		}

@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import { resolve } from '$app/paths';
 	import HorseForm from '#lib/components/HorseForm.svelte';
+	import SetupNext from '#lib/components/SetupNext.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
 	import type { Horse } from '#lib/api/academy-types.js';
@@ -82,6 +83,7 @@
 	</div>
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
+	{#if data.setup}<SetupNext state={data.setup} current="horses" />{/if}
 
 	<Card>
 		{#key horse.id}

@@ -14,10 +14,10 @@ describe('SetupChecklist', () => {
 		const arenas = screen.getByRole('link', { name: /Arenas/ });
 		await expect
 			.element(arenas)
-			.toHaveAttribute('href', expect.stringMatching(/\/settings\/arenas$/));
+			.toHaveAttribute('href', expect.stringMatching(/\/settings\/arenas\?setup$/));
 		await expect
 			.element(screen.getByRole('link', { name: /Horses/ }))
-			.toHaveAttribute('href', expect.stringMatching(/\/horses$/));
+			.toHaveAttribute('href', expect.stringMatching(/\/horses\/new\?setup$/));
 	});
 
 	it('renders nothing once every step is done', () => {

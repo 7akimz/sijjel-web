@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import HorseForm from '#lib/components/HorseForm.svelte';
 	import type { Horse } from '#lib/api/academy-types.js';
 	import { m } from '#lib/paraglide/messages.js';
@@ -10,7 +11,10 @@
 	let { data }: PageProps = $props();
 
 	const onSaved = (horse: Horse) =>
-		goto(resolve('/(academy)/(admin)/horses/[id]', { id: horse.id }));
+		goto(
+			resolve('/(academy)/(admin)/horses/[id]', { id: horse.id }) +
+				(page.url.searchParams.has('setup') ? '?setup' : '')
+		);
 </script>
 
 <svelte:head>

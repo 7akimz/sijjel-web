@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import ArenaForm from '#lib/components/ArenaForm.svelte';
+	import SetupNext from '#lib/components/SetupNext.svelte';
 	import type { Arena } from '#lib/api/academy-types.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, EmptyState, StatusChip } from '#lib/ui/index.js';
@@ -38,6 +39,9 @@
 	</div>
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
+	{#if data.setup && arenas.some((a) => a.isActive)}
+		<SetupNext state={data.setup} current="arenas" />
+	{/if}
 
 	<Card raised>
 		<h2 class="sj-heading">{m.arena_new()}</h2>

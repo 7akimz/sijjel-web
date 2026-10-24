@@ -29,24 +29,23 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	await expect(owner.getByText('Opening hours saved.')).toBeVisible();
 	await expect(owner.getByLabel('Saturday closes')).toHaveValue('00:00');
 
-	await owner.goto(academyUrl(slug, '/'));
-	await expect(checklist.getByText('1 of 3 done')).toBeVisible();
-	await checklist.getByRole('link', { name: /Arenas/ }).click();
+	await owner.getByRole('link', { name: 'Next: add your arenas' }).click();
+	await expect(owner.getByRole('heading', { name: 'Arenas', level: 1 })).toBeVisible();
 	await owner.getByLabel('Name').fill('Main arena');
 	await owner.getByLabel('Riders at once').fill('5');
 	await owner.getByRole('button', { name: 'Add arena' }).click();
 	await expect(owner.getByText('Arena saved.')).toBeVisible();
 
-	await owner.goto(academyUrl(slug, '/'));
-	await expect(checklist.getByText('2 of 3 done')).toBeVisible();
-	await checklist.getByRole('link', { name: /Horses/ }).click();
-	await owner.getByRole('link', { name: 'New horse' }).first().click();
+	await owner.getByRole('link', { name: 'Next: add your horses' }).click();
+	await expect(owner.getByRole('heading', { name: 'New horse', level: 1 })).toBeVisible();
 	await owner.getByLabel('Name').fill('Zahra');
 	await owner.getByLabel('Discipline').selectOption({ label: 'Dressage' });
 	await owner.getByLabel('Lowest rider level').selectOption({ label: 'Intro' });
 	await owner.getByLabel('Highest rider level').selectOption({ label: 'Novice' });
 	await owner.getByRole('button', { name: 'Add horse' }).click();
 	await expect(owner.getByRole('heading', { name: 'Zahra' })).toBeVisible();
+	await owner.getByRole('link', { name: 'Setup done: invite your riders' }).click();
+	await expect(owner).toHaveURL(academyUrl(slug, '/members/invite'));
 
 	await owner.goto(academyUrl(slug, '/'));
 	await expect(owner.getByText('ready for bookings')).toHaveCount(0);
