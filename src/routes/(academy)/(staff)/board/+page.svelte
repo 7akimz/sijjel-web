@@ -2,14 +2,15 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import BoardPlanner from '#lib/components/BoardPlanner.svelte';
+	import { isAcademyAdmin } from '#lib/academy/admin.js';
 	import type { BoardSession } from '#lib/api/board-types.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { EmptyState } from '#lib/ui/index.js';
+	import { Button, EmptyState } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
-	let session = $derived<BoardSession>(data.session);
+	let session = $derived<BoardSession | null>(data.session);
 	// The selected time can sit far along the row on a phone, so bring it into view.
 	function showCurrent(link: HTMLElement, current: boolean) {
 		if (current) link.scrollIntoView({ block: 'nearest', inline: 'center' });
@@ -31,33 +32,45 @@
 </svelte:head>
 
 <div class="sj-page">
-	<div class="top">
+	{#if !session}
 		<h1 class="sj-title">{m.board_title()}</h1>
-		<label class="date">
-			<span class="sj-label">{m.board_date()}</span>
-			<input class="sj-input" type="date" value={session.date} onchange={changeDate} />
-		</label>
-	</div>
-
-	{#if session.times.length === 0}
-		<EmptyState icon="event_busy" title={m.board_no_sessions()} />
+		<EmptyState icon="lock" title={m.board_setup_title()}>
+			{m.board_setup_body()}
+			{#snippet action()}
+				{#if isAcademyAdmin(data.membership)}
+					<Button href={resolve('/')}>{m.board_setup_action()}</Button>
+				{/if}
+			{/snippet}
+		</EmptyState>
 	{:else}
-		<nav class="times" aria-label={m.board_times()}>
-			{#each session.times as time (time.start)}
-				<a
-					class={['time', time.start === session.start && 'current']}
-					href={resolve(`/(academy)/(staff)/board?date=${session.date}&start=${time.start}`)}
-					aria-current={time.start === session.start ? 'true' : undefined}
-					use:showCurrent={time.start === session.start}
-				>
-					<span dir="ltr">{time.start}</span>
-					{#if time.hasProblem}<i class="dot" aria-hidden="true"></i>{/if}
-				</a>
-			{/each}
-		</nav>
+		<div class="top">
+			<h1 class="sj-title">{m.board_title()}</h1>
+			<label class="date">
+				<span class="sj-label">{m.board_date()}</span>
+				<input class="sj-input" type="date" value={session.date} onchange={changeDate} />
+			</label>
+		</div>
 
-		<p class="sj-muted sj-small" dir="ltr">{session.start} – {session.end}</p>
-		<BoardPlanner {session} locale={data.locale} onsession={(next) => (session = next)} />
+		{#if session.times.length === 0}
+			<EmptyState icon="event_busy" title={m.board_no_sessions()} />
+		{:else}
+			<nav class="times" aria-label={m.board_times()}>
+				{#each session.times as time (time.start)}
+					<a
+						class={['time', time.start === session.start && 'current']}
+						href={resolve(`/(academy)/(staff)/board?date=${session.date}&start=${time.start}`)}
+						aria-current={time.start === session.start ? 'true' : undefined}
+						use:showCurrent={time.start === session.start}
+					>
+						<span dir="ltr">{time.start}</span>
+						{#if time.hasProblem}<i class="dot" aria-hidden="true"></i>{/if}
+					</a>
+				{/each}
+			</nav>
+
+			<p class="sj-muted sj-small" dir="ltr">{session.start} – {session.end}</p>
+			<BoardPlanner {session} locale={data.locale} onsession={(next) => (session = next)} />
+		{/if}
 	{/if}
 </div>
 

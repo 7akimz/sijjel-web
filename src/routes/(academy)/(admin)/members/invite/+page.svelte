@@ -56,6 +56,7 @@
 					plans={data.plans}
 					rules={data.rules}
 					locale={data.locale}
+					ridersAllowed={data.membership?.setupDone ?? false}
 					oncreated={(invite, form) => (created = { invite, form })}
 				/>
 			{/key}

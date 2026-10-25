@@ -20,13 +20,14 @@
 		plans: Plan[];
 		rules: BookingRules;
 		locale: Locale;
+		ridersAllowed: boolean;
 		oncreated: (invite: CreatedAcademyInvite, form: InviteMemberForm) => void;
 	};
-	let { disciplines, plans, rules, locale, oncreated }: Props = $props();
+	let { disciplines, plans, rules, locale, ridersAllowed, oncreated }: Props = $props();
 
 	const first = untrack(() => disciplines.enabled[0]);
 	let form = $state<InviteMemberForm>({
-		role: 'rider',
+		role: untrack(() => (ridersAllowed ? 'rider' : 'trainer')),
 		name: '',
 		phone: '',
 		age: '',
@@ -42,7 +43,11 @@
 	let formElement = $state<HTMLFormElement>();
 
 	const roleOptions = [
-		{ value: 'rider', label: m.invite_role_rider_option() },
+		{
+			value: 'rider',
+			label: m.invite_role_rider_option(),
+			disabled: !untrack(() => ridersAllowed)
+		},
 		{ value: 'trainer', label: m.invite_role_trainer_option() },
 		{ value: 'admin', label: m.invite_role_admin_option() }
 	];
@@ -99,7 +104,12 @@
 
 <form class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
-	<SelectField label={m.invite_role()} options={roleOptions} bind:value={form.role as string} />
+	<SelectField
+		label={m.invite_role()}
+		options={roleOptions}
+		hint={ridersAllowed ? undefined : m.invite_riders_after_setup()}
+		bind:value={form.role as string}
+	/>
 	<TextField
 		label={m.invite_name()}
 		autocomplete="off"

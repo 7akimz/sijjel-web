@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
-import { Button, Icon, SessionSlot, StatusChip, TextField } from './index';
+import { AppShell, Button, Icon, SessionSlot, StatusChip, TextField } from './index';
 
 const text = (value: string) => createRawSnippet(() => ({ render: () => `<span>${value}</span>` }));
 
@@ -90,5 +90,24 @@ describe('Icon', () => {
 
 		const font = render(Icon, { name: 'home' });
 		expect(font.container.querySelector('.sj-icon')?.textContent).toBe('home');
+	});
+});
+
+describe('AppShell', () => {
+	it('shows a disabled nav item without making it a link', () => {
+		const { container } = render(AppShell, {
+			brand: { name: 'Al Faris', mark: 'A' },
+			nav: [
+				{ href: '/', label: 'Home', icon: 'home' },
+				{ href: '/board', label: 'Board', icon: 'view_agenda', disabled: true }
+			],
+			children: text('page')
+		});
+
+		expect(container.querySelectorAll('a[href="/board"]')).toHaveLength(0);
+		const disabled = container.querySelectorAll('[aria-disabled="true"]');
+		expect(disabled).toHaveLength(2);
+		expect(disabled[0].textContent).toContain('Board');
+		expect(container.querySelectorAll('a[href="/"]').length).toBeGreaterThan(0);
 	});
 });

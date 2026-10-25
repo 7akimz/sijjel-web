@@ -44,6 +44,7 @@ export interface Membership {
 	status: 'active' | 'suspended';
 	discipline: DisciplineRef | null;
 	level: NameRef | null;
+	setupDone: boolean;
 }
 
 export interface LevelName {

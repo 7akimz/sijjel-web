@@ -12,6 +12,17 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	const checklist = owner.locator('.sj-card', { hasText: 'ready for bookings' });
 	await expect(checklist.getByText('0 of 3 done')).toBeVisible();
 
+	const nav = owner.getByRole('navigation', { name: 'Main' }).first();
+	await expect(nav.getByRole('link', { name: 'Board' })).toHaveCount(0);
+	await expect(nav.getByText('Board')).toHaveAttribute('aria-disabled', 'true');
+	await owner.goto(academyUrl(slug, '/board'));
+	await expect(
+		owner.getByRole('heading', { name: 'The board opens once setup is finished' })
+	).toBeVisible();
+	await owner.goto(academyUrl(slug, '/members/invite'));
+	await expect(owner.getByLabel('Who are you inviting?')).toHaveValue('trainer');
+	await owner.goto(academyUrl(slug, '/'));
+
 	await checklist.getByRole('link', { name: /Opening hours/ }).click();
 	for (const day of ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday']) {
 		await owner.getByRole('checkbox', { name: `Open on ${day}` }).check();
@@ -43,12 +54,16 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	await owner.getByLabel('Lowest rider level').selectOption({ label: 'Intro' });
 	await owner.getByLabel('Highest rider level').selectOption({ label: 'Novice' });
 	await owner.getByRole('button', { name: 'Add horse' }).click();
-	await expect(owner.getByRole('heading', { name: 'Zahra' })).toBeVisible();
+	await expect(owner.getByText('Zahra added.')).toBeVisible();
+	await expect(owner.getByLabel('Name')).toHaveValue('');
 	await owner.getByRole('link', { name: 'Setup done: invite your riders' }).click();
 	await expect(owner).toHaveURL(academyUrl(slug, '/members/invite'));
+	await expect(owner.getByLabel('Who are you inviting?')).toHaveValue('rider');
+	await expect(nav.getByRole('link', { name: 'Board' })).toBeVisible();
 
 	await owner.goto(academyUrl(slug, '/'));
 	await expect(owner.getByText('ready for bookings')).toHaveCount(0);
+	await expect(nav.getByRole('link', { name: 'Board' })).toBeVisible();
 
 	const outsider = await browser.newPage();
 	await signInAsPlatformAdmin(outsider, academyUrl(slug, '/login'));

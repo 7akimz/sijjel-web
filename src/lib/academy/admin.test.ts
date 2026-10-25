@@ -7,6 +7,7 @@ const membership = (overrides: Partial<Membership>): Membership => ({
 	status: 'active',
 	discipline: null,
 	level: null,
+	setupDone: true,
 	...overrides
 });
 

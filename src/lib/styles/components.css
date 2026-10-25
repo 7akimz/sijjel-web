@@ -328,6 +328,11 @@
 	background: var(--accent-soft);
 	color: var(--on-accent-soft);
 }
+.sj-nav__item[aria-disabled='true'],
+.sj-bottombar__item[aria-disabled='true'] {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
 .sj-bottombar {
 	display: grid;
 	grid-auto-flow: column;

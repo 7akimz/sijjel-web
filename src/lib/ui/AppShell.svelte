@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import Icon from './Icon.svelte';
 
-	type NavItem = { href: string; label: string; icon: string };
+	type NavItem = { href: string; label: string; icon: string; disabled?: boolean };
 	type Props = {
 		brand: { name: string; mark: string; href?: string };
 		nav?: NavItem[];
@@ -28,13 +28,19 @@
 		{#if nav.length > 0}
 			<nav class="sj-nav desktop-nav" aria-label={navLabel}>
 				{#each nav as item (item.href)}
-					<a
-						class="sj-nav__item"
-						href={item.href}
-						aria-current={isCurrent(item.href) ? 'page' : undefined}
-					>
-						<Icon name={item.icon} size={20} />{item.label}
-					</a>
+					{#if item.disabled}
+						<span class="sj-nav__item" aria-disabled="true">
+							<Icon name={item.icon} size={20} />{item.label}
+						</span>
+					{:else}
+						<a
+							class="sj-nav__item"
+							href={item.href}
+							aria-current={isCurrent(item.href) ? 'page' : undefined}
+						>
+							<Icon name={item.icon} size={20} />{item.label}
+						</a>
+					{/if}
 				{/each}
 			</nav>
 		{/if}
@@ -49,10 +55,17 @@
 		<nav class="sj-bottombar mobile-nav" aria-label={navLabel}>
 			{#each nav as item (item.href)}
 				{@const active = isCurrent(item.href)}
-				<a class="sj-bottombar__item" href={item.href} aria-current={active ? 'page' : undefined}>
-					<span class="sj-bottombar__pill"><Icon name={item.icon} filled={active} /></span>
-					{item.label}
-				</a>
+				{#if item.disabled}
+					<span class="sj-bottombar__item" aria-disabled="true">
+						<span class="sj-bottombar__pill"><Icon name={item.icon} /></span>
+						{item.label}
+					</span>
+				{:else}
+					<a class="sj-bottombar__item" href={item.href} aria-current={active ? 'page' : undefined}>
+						<span class="sj-bottombar__pill"><Icon name={item.icon} filled={active} /></span>
+						{item.label}
+					</a>
+				{/if}
 			{/each}
 		</nav>
 	{/if}

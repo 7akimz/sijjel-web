@@ -5,10 +5,10 @@ import type { SetupStep } from '#lib/forms/setup.js';
 export function setupHref(step: SetupStep): string {
 	switch (step) {
 		case 'hours':
-			return resolve('/(academy)/(admin)/settings/hours') + '?setup';
+			return resolve('/(academy)/(admin)/settings/hours?setup');
 		case 'arenas':
-			return resolve('/(academy)/(admin)/settings/arenas') + '?setup';
+			return resolve('/(academy)/(admin)/settings/arenas?setup');
 		case 'horses':
-			return resolve('/(academy)/(admin)/horses/new') + '?setup';
+			return resolve('/(academy)/(admin)/horses/new?setup');
 	}
 }

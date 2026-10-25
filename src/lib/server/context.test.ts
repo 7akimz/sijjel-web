@@ -16,7 +16,13 @@ const me = {
 	preferredLanguage: null,
 	isPlatformAdmin: false
 };
-const membership = { roles: ['rider'], status: 'active', discipline: null, level: null };
+const membership = {
+	roles: ['rider'],
+	status: 'active',
+	discipline: null,
+	level: null,
+	setupDone: true
+};
 
 function fakeApi(routes: Record<string, Response | (() => Response)>) {
 	const calls: string[] = [];

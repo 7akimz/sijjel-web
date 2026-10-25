@@ -63,7 +63,8 @@
 				{
 					href: resolve('/(academy)/(staff)/board'),
 					label: m.nav_board({}, { locale }),
-					icon: 'view_agenda'
+					icon: 'view_agenda',
+					disabled: !data.membership?.setupDone
 				},
 				...bookNav,
 				{
@@ -89,7 +90,8 @@
 				{
 					href: resolve('/(academy)/(staff)/board'),
 					label: m.nav_board({}, { locale }),
-					icon: 'view_agenda'
+					icon: 'view_agenda',
+					disabled: !data.membership?.setupDone
 				},
 				...bookNav,
 				{
