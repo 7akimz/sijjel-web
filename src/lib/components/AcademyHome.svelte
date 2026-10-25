@@ -2,7 +2,7 @@
 	import { localName, roleName } from '#lib/academy.js';
 	import type { Locale, Membership } from '#lib/api/types.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Card, EmptyState, StatusChip } from '#lib/ui/index.js';
+	import { Card, StatusChip } from '#lib/ui/index.js';
 
 	let { membership, locale }: { membership: Membership; locale: Locale } = $props();
 </script>
@@ -28,7 +28,3 @@
 		</div>
 	</div>
 </Card>
-
-<EmptyState icon="event_upcoming" title={m.home_booking_soon_title()}>
-	{m.home_booking_soon_body()}
-</EmptyState>

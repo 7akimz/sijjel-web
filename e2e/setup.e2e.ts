@@ -76,6 +76,9 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 
 	await owner.goto(academyUrl(slug, '/'));
 	await expect(owner.getByText('ready for bookings')).toHaveCount(0);
+	await expect(owner.getByText('No riders booked today.')).toBeVisible();
+	await expect(owner.getByRole('link', { name: 'Open the board' })).toBeVisible();
+	await expect(owner.getByText('Booking opens soon')).toHaveCount(0);
 	await expect(nav.getByRole('link', { name: 'Board' })).toBeVisible();
 
 	const outsider = await browser.newPage();

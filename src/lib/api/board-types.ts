@@ -10,6 +10,8 @@ export interface BoardTime {
 	start: string;
 	end: string;
 	riders: number;
+	/** Riders not yet placed in an arena. */
+	unplaced: number;
 	hasProblem: boolean;
 }
 

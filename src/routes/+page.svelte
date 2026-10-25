@@ -5,6 +5,8 @@
 	import AcademyHome from '#lib/components/AcademyHome.svelte';
 	import RiderHome from '#lib/components/RiderHome.svelte';
 	import SetupChecklist from '#lib/components/SetupChecklist.svelte';
+	import StaffToday from '#lib/components/StaffToday.svelte';
+	import { isAcademyAdmin } from '#lib/academy/admin.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, EmptyState } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -44,6 +46,11 @@
 		{#if data.rider}
 			<RiderHome summary={data.rider.plan} bookings={data.rider.bookings} locale={data.locale} />
 		{:else if data.membership}
+			<StaffToday
+				board={data.board}
+				setupDone={data.membership.setupDone}
+				admin={isAcademyAdmin(data.membership)}
+			/>
 			<AcademyHome membership={data.membership} locale={data.locale} />
 		{:else if data.user}
 			<EmptyState icon="lock" title={m.home_not_member()} />
