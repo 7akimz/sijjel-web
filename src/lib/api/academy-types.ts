@@ -6,6 +6,7 @@ export interface SetupState {
 	hours: StepState;
 	arenas: StepState;
 	horses: StepState;
+	plans: StepState;
 }
 
 export interface ScheduleDay {

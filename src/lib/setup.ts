@@ -10,5 +10,7 @@ export function setupHref(step: SetupStep): string {
 			return resolve('/(academy)/(admin)/settings/arenas?setup');
 		case 'horses':
 			return resolve('/(academy)/(admin)/horses/new?setup');
+		case 'plans':
+			return resolve('/(academy)/(admin)/settings/plans?setup');
 	}
 }

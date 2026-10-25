@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import PlanForm from '#lib/components/PlanForm.svelte';
+	import SetupNext from '#lib/components/SetupNext.svelte';
 	import { localName } from '#lib/academy.js';
 	import type { Plan } from '#lib/api/member-types.js';
 	import { formatMoney } from '#lib/money.js';
@@ -40,6 +41,9 @@
 	</div>
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
+	{#if data.setup && plans.some((p) => p.isActive)}
+		<SetupNext state={data.setup} current="plans" />
+	{/if}
 
 	<Card raised>
 		<h2 class="sj-heading">{m.plan_new()}</h2>

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { nextSetupStep } from './setup';
 
-const state = (hours: boolean, arenas: boolean, horses: boolean) => ({
+const state = (hours: boolean, arenas: boolean, horses: boolean, plans = false) => ({
 	hours: { done: hours },
 	arenas: { done: arenas },
-	horses: { done: horses }
+	horses: { done: horses },
+	plans: { done: plans }
 });
 
 describe('nextSetupStep', () => {
@@ -19,10 +20,11 @@ describe('nextSetupStep', () => {
 	});
 
 	it('counts the current step as done even before the state catches up', () => {
-		expect(nextSetupStep(state(true, true, false), 'horses')).toBe('invite');
+		expect(nextSetupStep(state(true, true, true), 'plans')).toBe('invite');
+		expect(nextSetupStep(state(true, true, false), 'horses')).toBe('plans');
 	});
 
 	it('moves on to inviting riders once every step is done', () => {
-		expect(nextSetupStep(state(true, true, true), 'arenas')).toBe('invite');
+		expect(nextSetupStep(state(true, true, true, true), 'arenas')).toBe('invite');
 	});
 });

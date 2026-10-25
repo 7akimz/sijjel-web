@@ -49,8 +49,9 @@ export async function signUpOwner(
 	return owner;
 }
 
-// setUpAcademy expects the owner's page and completes the setup checklist: open every day around
-// the clock with 30-minute sessions, so a slot is always bookable, plus one arena and one horse.
+// setUpAcademy expects the owner's page and fills in the setup checklist up to plans: open every day
+// around the clock with 30-minute sessions, so a slot is always bookable, plus one arena and one horse.
+// Callers add the plan their riders need.
 export async function setUpAcademy(owner: Page, slug: string) {
 	await owner.goto(academyUrl(slug, '/settings/hours'));
 	for (const day of [

@@ -24,6 +24,12 @@
 			href: resolve('/(academy)/(admin)/horses/new?setup'),
 			title: m.setup_horses_title(),
 			body: m.setup_horses_body()
+		},
+		{
+			done: state.plans.done,
+			href: resolve('/(academy)/(admin)/settings/plans?setup'),
+			title: m.setup_plans_title(),
+			body: m.setup_plans_body()
 		}
 	]);
 	const doneCount = $derived(steps.filter((s) => s.done).length);

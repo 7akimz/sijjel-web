@@ -13,6 +13,7 @@
 		hours: m.setup_next_hours,
 		arenas: m.setup_next_arenas,
 		horses: m.setup_next_horses,
+		plans: m.setup_next_plans,
 		invite: m.setup_next_invite
 	};
 	const href = $derived(

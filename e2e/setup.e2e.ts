@@ -10,7 +10,7 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	const owner = await signUpOwner(browser, slug, await inviteOwner(page, name));
 
 	const checklist = owner.locator('.sj-card', { hasText: 'ready for bookings' });
-	await expect(checklist.getByText('0 of 3 done')).toBeVisible();
+	await expect(checklist.getByText('0 of 4 done')).toBeVisible();
 
 	const nav = owner.getByRole('navigation', { name: 'Main' }).first();
 	await expect(nav.getByRole('link', { name: 'Board' })).toHaveCount(0);
@@ -56,6 +56,14 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	await owner.getByRole('button', { name: 'Add horse' }).click();
 	await expect(owner.getByText('Zahra added.')).toBeVisible();
 	await expect(owner.getByLabel('Name')).toHaveValue('');
+	await owner.getByRole('link', { name: 'Next: add a plan' }).click();
+	await expect(owner.getByRole('heading', { name: 'Plans', level: 1 })).toBeVisible();
+	await owner.getByLabel('Name (English)').fill('Dressage, 2 a week');
+	await owner.getByLabel('Name (Arabic)').fill('ترويض، مرتان في الأسبوع');
+	await owner.getByLabel('Sessions a week').fill('2');
+	await owner.getByLabel('Monthly price').fill('1000');
+	await owner.getByRole('button', { name: 'Add plan' }).click();
+	await expect(owner.getByText('Plan saved.')).toBeVisible();
 	await owner.getByRole('link', { name: 'Setup done: invite your riders' }).click();
 	await expect(owner).toHaveURL(academyUrl(slug, '/members/invite'));
 	await expect(owner.getByLabel('Who are you inviting?')).toHaveValue('rider');

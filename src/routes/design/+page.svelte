@@ -197,7 +197,12 @@
 			</Card>
 
 			<SetupChecklist
-				state={{ hours: { done: true }, arenas: { done: false }, horses: { done: false } }}
+				state={{
+					hours: { done: true },
+					arenas: { done: false },
+					horses: { done: false },
+					plans: { done: false }
+				}}
 				academyName="Al Faris Academy"
 			/>
 

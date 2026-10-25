@@ -5,11 +5,16 @@ import SetupChecklist from './SetupChecklist.svelte';
 describe('SetupChecklist', () => {
 	it('shows progress and links to the open steps', async () => {
 		const screen = render(SetupChecklist, {
-			state: { hours: { done: true }, arenas: { done: false }, horses: { done: false } },
+			state: {
+				hours: { done: true },
+				arenas: { done: false },
+				horses: { done: false },
+				plans: { done: false }
+			},
 			academyName: 'Al Faris Academy'
 		});
 
-		await expect.element(screen.getByText('1 of 3 done')).toBeVisible();
+		await expect.element(screen.getByText('1 of 4 done')).toBeVisible();
 		await expect.element(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
 		const arenas = screen.getByRole('link', { name: /Arenas/ });
 		await expect
@@ -18,11 +23,19 @@ describe('SetupChecklist', () => {
 		await expect
 			.element(screen.getByRole('link', { name: /Horses/ }))
 			.toHaveAttribute('href', expect.stringMatching(/\/horses\/new\?setup$/));
+		await expect
+			.element(screen.getByRole('link', { name: /Plans/ }))
+			.toHaveAttribute('href', expect.stringMatching(/\/settings\/plans\?setup$/));
 	});
 
 	it('renders nothing once every step is done', () => {
 		const { container } = render(SetupChecklist, {
-			state: { hours: { done: true }, arenas: { done: true }, horses: { done: true } },
+			state: {
+				hours: { done: true },
+				arenas: { done: true },
+				horses: { done: true },
+				plans: { done: true }
+			},
 			academyName: 'Al Faris Academy'
 		});
 
