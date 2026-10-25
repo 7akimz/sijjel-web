@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
 	import SetupNext from '#lib/components/SetupNext.svelte';
+	import { reveal } from '#lib/reveal.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
 	import type { DayPreview, Schedule } from '#lib/api/academy-types.js';
@@ -46,6 +47,7 @@
 	let failure = $state<string>();
 	let affected = $state<AffectedBooking[]>();
 	let saved = $state(false);
+	let saves = $state(0);
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
@@ -113,6 +115,7 @@
 			});
 			preview = result.preview;
 			saved = true;
+			saves++;
 		} catch (e) {
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
@@ -138,8 +141,12 @@
 		<p class="sj-muted">{m.hours_intro()}</p>
 	</div>
 
-	{#if saved}<Banner icon="check_circle">{m.hours_saved()}</Banner>{/if}
-	{#if data.setup && (saved || data.setup.hours.done)}
+	{#if saved}
+		<div class="sj-stack" use:reveal={saves}>
+			<Banner icon="check_circle">{m.hours_saved()}</Banner>
+			{#if data.setup}<SetupNext state={data.setup} current="hours" />{/if}
+		</div>
+	{:else if data.setup?.hours.done}
 		<SetupNext state={data.setup} current="hours" />
 	{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}

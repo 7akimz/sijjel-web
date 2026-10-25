@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import PlanForm from '#lib/components/PlanForm.svelte';
 	import SetupNext from '#lib/components/SetupNext.svelte';
+	import { reveal } from '#lib/reveal.js';
 	import { localName } from '#lib/academy.js';
 	import type { Plan } from '#lib/api/member-types.js';
 	import { formatMoney } from '#lib/money.js';
@@ -14,6 +15,7 @@
 	let plans = $state<Plan[]>(untrack(() => data.plans));
 	let editing = $state<string>();
 	let notice = $state<string>();
+	let saves = $state(0);
 
 	const sorted = $derived(
 		[...plans].sort(
@@ -27,6 +29,7 @@
 			: [...plans, plan];
 		editing = undefined;
 		notice = m.plan_saved();
+		saves++;
 	}
 </script>
 
@@ -40,8 +43,14 @@
 		<p class="sj-muted">{m.plans_intro()}</p>
 	</div>
 
-	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
-	{#if data.setup && plans.some((p) => p.isActive)}
+	{#if notice}
+		<div class="sj-stack" use:reveal={saves}>
+			<Banner icon="check_circle">{notice}</Banner>
+			{#if data.setup && plans.some((p) => p.isActive)}
+				<SetupNext state={data.setup} current="plans" />
+			{/if}
+		</div>
+	{:else if data.setup && plans.some((p) => p.isActive)}
 		<SetupNext state={data.setup} current="plans" />
 	{/if}
 

@@ -40,6 +40,7 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	await expect(owner.getByText('Opening hours saved.')).toBeVisible();
 	await expect(owner.getByLabel('Saturday closes')).toHaveValue('00:00');
 
+	await expect(owner.getByRole('link', { name: 'Next: add your arenas' })).toBeInViewport();
 	await owner.getByRole('link', { name: 'Next: add your arenas' }).click();
 	await expect(owner.getByRole('heading', { name: 'Arenas', level: 1 })).toBeVisible();
 	await owner.getByLabel('Name').fill('Main arena');
@@ -56,6 +57,7 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	await owner.getByRole('button', { name: 'Add horse' }).click();
 	await expect(owner.getByText('Zahra added.')).toBeVisible();
 	await expect(owner.getByLabel('Name')).toHaveValue('');
+	await expect(owner.getByRole('link', { name: 'Next: add a plan' })).toBeInViewport();
 	await owner.getByRole('link', { name: 'Next: add a plan' }).click();
 	await expect(owner.getByRole('heading', { name: 'Plans', level: 1 })).toBeVisible();
 	await owner.getByLabel('Name (English)').fill('Dressage, 2 a week');
@@ -64,6 +66,9 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	await owner.getByLabel('Monthly price').fill('1000');
 	await owner.getByRole('button', { name: 'Add plan' }).click();
 	await expect(owner.getByText('Plan saved.')).toBeVisible();
+	await expect(
+		owner.getByRole('link', { name: 'Setup done: invite your riders' })
+	).toBeInViewport();
 	await owner.getByRole('link', { name: 'Setup done: invite your riders' }).click();
 	await expect(owner).toHaveURL(academyUrl(slug, '/members/invite'));
 	await expect(owner.getByLabel('Who are you inviting?')).toHaveValue('rider');

@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import ArenaForm from '#lib/components/ArenaForm.svelte';
 	import SetupNext from '#lib/components/SetupNext.svelte';
+	import { reveal } from '#lib/reveal.js';
 	import type { Arena } from '#lib/api/academy-types.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, EmptyState, StatusChip } from '#lib/ui/index.js';
@@ -12,6 +13,7 @@
 	let arenas = $state<Arena[]>(untrack(() => data.arenas));
 	let editing = $state<string>();
 	let notice = $state<string>();
+	let saves = $state(0);
 
 	const sorted = $derived(
 		[...arenas].sort(
@@ -25,6 +27,7 @@
 			: [...arenas, arena];
 		editing = undefined;
 		notice = m.arena_saved();
+		saves++;
 	}
 </script>
 
@@ -38,8 +41,14 @@
 		<p class="sj-muted">{m.arenas_intro()}</p>
 	</div>
 
-	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
-	{#if data.setup && arenas.some((a) => a.isActive)}
+	{#if notice}
+		<div class="sj-stack" use:reveal={saves}>
+			<Banner icon="check_circle">{notice}</Banner>
+			{#if data.setup && arenas.some((a) => a.isActive)}
+				<SetupNext state={data.setup} current="arenas" />
+			{/if}
+		</div>
+	{:else if data.setup && arenas.some((a) => a.isActive)}
 		<SetupNext state={data.setup} current="arenas" />
 	{/if}
 
