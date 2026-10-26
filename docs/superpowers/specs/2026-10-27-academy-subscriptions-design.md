@@ -13,16 +13,16 @@ the admin marks the month paid.
 
 ## Goals
 
-- **Platform plans.** The platform admin defines plans priced by rider count, for example "Up to
-  50 riders, EGP X a month". Each academy is on one plan.
+- **Packages.** The platform admin defines packages priced by rider count, for example "Up to
+  50 riders, EGP X a month". Each academy is on one package.
 - **Paid periods.** The admin records each payment, which covers one month. Each academy has a
   "paid until" date.
 - **Free time.** The admin can give an academy free time, for example 30 days when it is added.
 - **Grace, then blocking.** When paid or free time runs out, there are 7 days of grace. After
   that, new bookings are refused, while everything stays viewable.
 - **Rider limit.** The owner sees "Riders: 47 of 50". At the limit, new rider invites are refused
-  until the academy moves to a bigger plan. Existing riders are not affected.
-- **Platform list.** The platform admin sees every academy's plan, rider count, status and paid
+  until the academy moves to a bigger package. Existing riders are not affected.
+- **Platform list.** The platform admin sees every academy's package, rider count, status and paid
   until date, and can filter by status.
 
 ## Non-goals (later)
@@ -43,25 +43,35 @@ the admin marks the month paid.
 - A rider must never be blamed. The message riders see while booking is blocked doesn't mention
   payment.
 - Academies that existed before this feature must keep working exactly as today until the admin
-  puts them on a plan.
+  puts them on a package.
 
 ## Decisions
 
-### Plans (platform admin)
+### Naming
 
-- A platform plan has an English and an Arabic name, a maximum number of riders, a monthly price
+What academies pay sijjel for is a **package** ("باقة" in Arabic). "Plan" stays the word for
+what riders pay their academy for: the monthly lesson plans that already exist. The two never
+share a word in the app, the API or the code.
+
+### Packages (platform admin)
+
+- Packages are tiers. The platform admin defines as many as they like, for example "Starter: up
+  to 25 riders", "Growing: up to 60", "Large: up to 150" and "Unlimited". The app ships with none.
+
+- A package has an English and an Arabic name, a maximum number of riders, a monthly price
   in EGP (whole pounds), and active or retired. All prices are in EGP.
-- Plans are managed at `/platform/plans`, a list plus an add and edit form, like the academy's own
+- Packages are managed at `/platform/packages`, a list plus an add and edit form, like the academy's own
   plans page.
-- A retired plan can't be given to an academy. Academies already on it keep it.
-- *My call:* a plan's rider limit is required, and is at least 1.
+- A retired package can't be given to an academy. Academies already on it keep it.
+- A package's rider limit is at least 1, or empty for unlimited, which suits the top tier.
+- Packages are listed by rider limit, with unlimited last.
 
 ### An academy's subscription
 
-- An academy has an optional plan and a coverage end date, "paid until", which is the first day
+- An academy has an optional package and a coverage end date, "paid until", which is the first day
   not covered. It is a date on the academy's calendar (its time zone).
 - **Entries.** Coverage is built from entries the admin records, kept as history:
-  - **Paid month:** the amount (defaulting to the plan's price), the method (`instapay`, `cash`
+  - **Paid month:** the amount (defaulting to the package's price), the method (`instapay`, `cash`
     or `other`), an optional note, who recorded it and when. It moves "paid until" forward by one
     calendar month, to the academy's billing day (see below): 15 Nov becomes 15 Dec.
   - **Free time:** a number of days (1–366) and an optional note, such as "trial". It moves "paid
@@ -90,20 +100,20 @@ Status is computed from today (the academy's calendar) and "paid until":
 
 | Status | When |
 |---|---|
-| No plan | The academy has no plan. Nothing is limited or blocked, which is today's behaviour. |
+| No package | The academy has no package. Nothing is limited or blocked, which is today's behaviour. |
 | Free | Covered, and the most recent entry is free time. |
 | Paid | Covered, and the most recent entry is a paid month. |
 | Due soon | Covered, but "paid until" is 3 days away or less. *My call.* |
 | Grace | Not covered, and less than 7 days past "paid until". |
 | Blocked | 7 or more days past "paid until". |
 
-- An academy that is put on a plan but has no entries yet is **Blocked** from the start. *My
-  call:* the plan form therefore has an optional "Free days to start with" field, defaulting to
-  30, so putting an academy on a plan and giving its trial is one step.
+- An academy that is put on a package but has no entries yet is **Blocked** from the start. *My
+  call:* the package form therefore has an optional "Free days to start with" field, defaulting to
+  30, so putting an academy on a package and giving its trial is one step.
   - The field shows only while the academy has no entries. Moving an academy that already has
-    entries to another plan never adds free time.
-- **No going back to No plan.** *My call:* once an academy is on a plan, the select no longer
-  offers No plan. Otherwise taking an academy off its plan would be an easy way around
+    entries to another package never adds free time.
+- **No going back to No package.** *My call:* once an academy is on a package, the select no longer
+  offers No package. Otherwise taking an academy off its package would be an easy way around
   blocking. To pause charging an academy, the admin gives it free time.
 
 ### Blocked
@@ -136,25 +146,25 @@ cash and let us know." *My call:* this is one fixed message for now, not an edit
 - **Unaffected:** trainer and admin invites, and existing riders.
 - **Where the owner sees it:**
   - Members page: "Riders: 47 of 50".
-  - Invite page: the same line, and at the limit, "You've reached your plan's rider limit. Ask
-    sijjel to move you to a bigger plan." with the rider choice disabled.
-- **Moving to a smaller plan.** *My call:* the admin can move an academy to a plan whose limit is
+  - Invite page: the same line, and at the limit, "You've reached your package's rider limit. Ask
+    sijjel to move you to a bigger package." with the rider choice disabled.
+- **Moving to a smaller package.** *My call:* the admin can move an academy to a package whose limit is
   below its current riders. Nothing is removed. New riders are refused until the count is under
-  the limit. The platform form warns: "This academy has 63 riders, more than this plan's 50."
-- An academy with No plan has no limit.
+  the limit. The platform form warns: "This academy has 63 riders, more than this package's 50."
+- An academy with No package, or on an unlimited package, has no limit. Its count reads "Riders: 47".
 
 ### Platform academies list
 
 - Each row in `/platform/academies` shows, alongside today's columns:
-  - the plan name;
+  - the package name;
   - riders "47 of 50";
   - a status chip;
   - "Paid until 15 Nov".
-- A status filter offers: All, Due soon, Grace, Blocked, Free, Paid and No plan.
+- A status filter offers: All, Due soon, Grace, Blocked, Free, Paid and No package.
 - *My call:* the default sort is by most urgent status (Blocked, Grace, Due soon) and then by
   paid until.
 - The academy's own platform page, `/platform/academies/{id}`, shows:
-  - **Plan:** a select with the "Free days to start with" field.
+  - **Package:** a select with the "Free days to start with" field.
   - **Mark month paid:** amount, method and note, with "Start from today" when the academy isn't
     covered.
   - **Give free time:** days and a note.
@@ -164,7 +174,7 @@ cash and let us know." *My call:* this is one fixed message for now, not an edit
 
 - *My call:* academy admins get a Subscription page under settings,
   `/settings/subscription`, read-only. It shows:
-  - the plan and its price;
+  - the package and its price;
   - "Riders: 47 of 50";
   - the status, and "paid until";
   - the last 6 entries.
