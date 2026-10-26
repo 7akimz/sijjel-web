@@ -3,7 +3,7 @@
 The web app for sijjel, session planning for riding academies. It is a SvelteKit app rendered on the server (`adapter-node`). The browser only ever talks to this app: `/api/*` is proxied to [sijjel-api](../sijjel-api) on the same origin, so session cookies stay host-only and `SameSite=Strict`.
 
 - **Platform site** (`localhost`): platform admins sign in, manage the discipline catalogue, create academies and copy owner invitation links.
-- **Academy sites** (`{slug}.localhost`): invitees open their link, create an account or sign in, and land on the academy home. Riders see their plan, the sessions left this week and their bookings there, and book at `/book`.
+- **Academy sites** (`{slug}.localhost`): invitees open their link, create an account or sign in, and land on the academy home. Riders see their plan, the lessons left this month and their bookings there, and book at `/book`.
 
 The first HTML of every page already carries the academy accent colours, the theme (`sijjel_theme` cookie), `lang`/`dir` (`PARAGLIDE_LOCALE` cookie, else the academy's default language), and the link-preview tags.
 
@@ -35,13 +35,14 @@ An academy's active admins get Home, Horses and Settings in the navigation. Unti
 - `/settings/booking-rules`, `/settings/arenas`, `/settings/closed-dates`, `/settings/disciplines`
 - `/horses`, `/horses/new`, `/horses/{id}`: school horses, their level range, rider weight limit and unavailable dates
 
-Admins also get `/settings/plans` (weekly session limit and monthly price) and `/members/invite`, which makes an invitation link to send on WhatsApp or show as a QR code (drawn by the `qrcode` package). When an hours change or a closure would hit existing bookings, the page lists them; closing days can cancel them in the same step.
+Admins also get `/settings/plans` (lessons a month, monthly price, and optionally a discipline and the levels a plan is for) and `/members/invite`, which makes an invitation link to send on WhatsApp or show as a QR code (drawn by the `qrcode` package). When an hours change or a closure would hit existing bookings, the page lists them; closing days can cancel them in the same step.
 
 Other visitors get a 403 page on these routes.
 
 ### Members and booking
 
-- Admins and trainers get Members: `/members` (filter by riders, trainers or, for admins, unpaid this month, plus pending invitations) and `/members/{id}`, where admins edit the rider, mark this month paid, register an own horse and suspend or reactivate. Staff can cancel bookings there and book on the rider's behalf at `/members/{id}/book`, confirming past a weekly limit or an unpaid month.
+- Admins and trainers get Members: `/members` (filter by riders, trainers or, for admins, unpaid this month, plus pending invitations) and `/members/{id}`, where admins edit the rider, mark this month paid, register an own horse and suspend or reactivate. Staff can cancel bookings there and book on the rider's behalf at `/members/{id}/book`, confirming past a monthly limit or an unpaid month.
+- Levels: the rider's page shows their level, any coming move or plan change and their level history to all staff. Staff move a rider up, or to any level of a taught discipline, today or from the 1st of next month, and pick a new plan when the current one doesn't fit. A plan change always starts on the 1st, and the rider form only offers plans that fit the rider.
 - Riders get Book: `/book` shows a week of sessions with places left and suitable horses free, and books after a confirmation. Riders cancel from their home until the academy's cancellation cutoff.
 
 ### Planning board
