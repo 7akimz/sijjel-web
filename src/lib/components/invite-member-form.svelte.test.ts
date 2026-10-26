@@ -41,4 +41,46 @@ describe('InviteMemberForm', () => {
 			.element(screen.getByText('You can invite riders once opening hours', { exact: false }))
 			.not.toBeInTheDocument();
 	});
+
+	it("offers only plans that fit the rider's level", async () => {
+		const dressage = { id: 'd', key: 'dressage', nameEn: 'Dressage', nameAr: 'ترويض' };
+		const level = (id: string, position: number) => ({ id, nameEn: id, nameAr: id, position });
+		const plan = (id: string, levels: ReturnType<typeof level>[]) => ({
+			id,
+			nameEn: id,
+			nameAr: id,
+			lessonsPerMonth: 8,
+			monthlyPrice: 2200,
+			discipline: dressage,
+			levels,
+			isActive: true
+		});
+		const screen = render(InviteMemberForm, {
+			...props,
+			ridersAllowed: true,
+			disciplines: {
+				enabled: [
+					{
+						...dressage,
+						inUse: false,
+						levels: [
+							{ id: 'intro', nameEn: 'Intro', nameAr: 'تمهيدي', inUse: false },
+							{ id: 'prelim', nameEn: 'Preliminary', nameAr: 'أولي', inUse: false }
+						]
+					}
+				],
+				available: []
+			},
+			plans: [plan('Beginner', [level('intro', 1)]), plan('Prelim plan', [level('prelim', 2)])]
+		});
+
+		await screen.getByLabelText('Plan').selectOptions('Beginner');
+		await expect
+			.element(screen.getByRole('option', { name: 'Prelim plan' }))
+			.not.toBeInTheDocument();
+
+		await screen.getByLabelText('Level').selectOptions('Preliminary');
+		await expect.element(screen.getByLabelText('Plan')).toHaveValue('');
+		await expect.element(screen.getByRole('option', { name: 'Prelim plan' })).toBeInTheDocument();
+	});
 });

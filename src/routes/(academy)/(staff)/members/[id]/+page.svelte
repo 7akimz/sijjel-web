@@ -8,12 +8,14 @@
 	import type { AffectedBooking, BookingView, Member } from '#lib/api/member-types.js';
 	import { formatDate } from '#lib/format.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
+	import { firstOfNextMonth } from '#lib/forms/month.js';
 	import {
 		memberErrors,
 		memberFormFrom,
 		toMemberInput,
 		type MemberForm
 	} from '#lib/forms/member.js';
+	import { plansFor } from '#lib/forms/plans-fit.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import {
 		Banner,
@@ -42,6 +44,7 @@
 
 	const roles = ['rider', 'trainer', 'admin'] as const;
 	const isRider = $derived(form.roles.includes('rider'));
+	const wasRider = $derived(member.roles.includes('rider'));
 	const ladder = $derived(
 		data.disciplines?.enabled.find((d) => d.id === form.disciplineId)?.levels ?? []
 	);
@@ -56,10 +59,21 @@
 	);
 	const planOptions = $derived([
 		{ value: '', label: '—' },
-		...(data.plans ?? [])
-			.filter((p) => p.isActive && (!p.discipline || p.discipline.id === form.disciplineId))
-			.map((p) => ({ value: p.id, label: localName(p, data.locale) }))
+		...(wasRider
+			? plansFor(
+					data.plans ?? [],
+					member.discipline?.id ?? '',
+					member.level?.id ?? '',
+					member.plan?.id
+				)
+			: plansFor(data.plans ?? [], form.disciplineId, form.levelId)
+		).map((p) => ({ value: p.id, label: localName(p, data.locale) }))
 	]);
+	const planStarts = $derived(
+		wasRider && form.planId && form.planId !== (member.plan?.id ?? '')
+			? m.member_plan_from({ date: formatDate(firstOfNextMonth(data.today), data.locale) })
+			: undefined
+	);
 	const horseOptions = [
 		{ value: 'school', label: m.invite_horse_school() },
 		{ value: 'own', label: m.invite_horse_own() }
@@ -278,22 +292,25 @@
 							bind:value={form.weightKg}
 						/>
 					</div>
-					<SelectField
-						label={m.invite_discipline()}
-						options={disciplineOptions}
-						error={fieldText(errors, 'disciplineId')}
-						bind:value={form.disciplineId}
-					/>
-					<SelectField
-						label={m.invite_level()}
-						options={levelOptions}
-						error={fieldText(errors, 'levelId')}
-						bind:value={form.levelId}
-					/>
+					{#if !wasRider}
+						<SelectField
+							label={m.invite_discipline()}
+							options={disciplineOptions}
+							error={fieldText(errors, 'disciplineId')}
+							bind:value={form.disciplineId}
+						/>
+						<SelectField
+							label={m.invite_level()}
+							options={levelOptions}
+							error={fieldText(errors, 'levelId')}
+							bind:value={form.levelId}
+						/>
+					{/if}
 					<SelectField
 						label={m.invite_plan()}
 						options={planOptions}
 						error={fieldText(errors, 'planId')}
+						hint={planStarts}
 						bind:value={form.planId}
 					/>
 					<SelectField

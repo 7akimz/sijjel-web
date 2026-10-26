@@ -33,6 +33,8 @@ const academySetupErrors = [
 	'weight_range_invalid',
 	'plan_required',
 	'plan_not_found',
+	'plan_not_for_rider',
+	'level_moves_only',
 	'price_invalid',
 	'lessons_per_month_invalid',
 	'levels_need_discipline',

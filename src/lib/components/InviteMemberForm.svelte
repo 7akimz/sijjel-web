@@ -12,6 +12,7 @@
 		toInviteRequest,
 		type InviteMemberForm
 	} from '#lib/forms/invite-member.js';
+	import { plansFor } from '#lib/forms/plans-fit.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, SelectField, TextField } from '#lib/ui/index.js';
 
@@ -64,19 +65,21 @@
 			label: localName(l, locale)
 		}))
 	);
+	const fitting = $derived(plansFor(plans, form.disciplineId, form.levelId));
 	const planOptions = $derived([
 		{ value: '', label: '—' },
-		...plans
-			.filter((p) => !p.discipline || p.discipline.id === form.disciplineId)
-			.map((p) => ({ value: p.id, label: localName(p, locale) }))
+		...fitting.map((p) => ({ value: p.id, label: localName(p, locale) }))
 	]);
+
+	$effect(() => {
+		if (form.planId && !fitting.some((p) => p.id === form.planId)) form.planId = '';
+	});
 
 	let shownDiscipline = untrack(() => form.disciplineId);
 	$effect(() => {
 		if (form.disciplineId === shownDiscipline) return;
 		shownDiscipline = form.disciplineId;
 		form.levelId = disciplines.enabled.find((d) => d.id === form.disciplineId)?.levels[0]?.id ?? '';
-		form.planId = '';
 	});
 
 	async function submit(event: SubmitEvent) {
