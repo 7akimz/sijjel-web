@@ -48,6 +48,7 @@ A rider pays at the start of a calendar month for N lessons. Whatever is left at
 | History | Kept for every move, shown to staff. |
 | Who moves riders | Owners, admins and trainers. |
 | When a move starts | Today, or the 1st of next month. Next month is the default (the user's guess at how academies work). |
+| Plan changes | Never mid-month. A rider keeps the plan they paid for until the month ends; a new plan always starts on the 1st. A move "from today" changes the level now and the plan on the 1st. |
 
 ## Behaviour
 
@@ -58,7 +59,7 @@ A rider pays at the start of a calendar month for N lessons. Whatever is left at
 - **The limit:** a rider can't book past it. Staff booking for a rider get a warning they can confirm past, as with today's weekly limit.
 - **The rider's home** shows lessons left in the current month, for example "Left this month: 5 of 8". Avoid wording that needs plural forms; the app's messages have none.
 - **Existing plans** convert at 4× their weekly count, so "2 a week" becomes "8 a month".
-- **A plan change mid-month** (a move "from today", or editing the plan): the whole month's bookings count against the plan in force on the session's date. *(My call.)*
+- **Plans change only on the 1st.** Choosing a new plan for an existing rider, in a move or in the rider form, makes it the rider's coming plan from the 1st of next month. Until then they keep their current plan, even if it doesn't cover their new level. A month's lessons are always counted against one plan. The only plan that starts mid-month is a new rider's first plan, from the invite.
 
 ### Plan levels
 
@@ -74,12 +75,12 @@ A rider pays at the start of a calendar month for N lessons. Whatever is left at
   - **Move to <next level>**, when there is a next level on their ladder;
   - **Change level…**, to pick any level of any discipline the academy teaches.
 - **Start date:** "From 1 <next month>" (the default) or "From today", by the academy's calendar.
-- **The plan:** if the rider's plan doesn't fit the new level, staff pick one that does in the same step. If it fits, it stays, and staff may still change it.
-- **A move starting next month** shows on the rider's page as a coming move ("Moves to Show jumping · Level 1 on 1 Nov") with **Cancel**. A rider has at most one coming move; making another replaces it.
-- **On the start date** the rider's discipline, level and plan switch. Booking checks for sessions on or after the start date already use the coming level and plan before the switch. For example, a November session booked in October counts against the November plan's lessons and matches horses by the new level.
+- **The plan:** if the rider's plan doesn't fit the new level, staff pick one that does in the same step. If it fits, it stays, and staff may still change it. The chosen plan always starts on the 1st of next month. In a move "from today", the level changes now and the plan switch waits for the 1st.
+- **Coming changes** show on the rider's page with **Cancel**: a coming move ("Moves to Show jumping · Level 1 on 1 Nov") and a coming plan ("Plan changes to Jumping course, 8 a month on 1 Nov"). A rider has at most one of each; making another replaces it.
+- **On the start date** the rider's discipline and level switch, and on the 1st their coming plan takes over. Booking checks for sessions on or after those dates already use the coming level and plan before the switch. For example, a November session booked in October counts against the November plan's lessons and matches horses by the new level.
 - **Existing bookings are kept.** The board already flags a horse that no longer suits a rider's level.
 - **History:** one entry per move that took effect, with from, to, the plan change, the start date, who made the move and when. Accepting an invite records the starting discipline and level. Staff see it on the rider's page, newest first.
-- **The rider edit form** no longer edits discipline and level; those go through moves so the history stays complete. The plan stays in the form, and it must fit.
+- **The rider edit form** no longer edits discipline and level; those go through moves so the history stays complete. The plan stays in the form. It must fit, and a change becomes the coming plan from the 1st.
 - **Riders** can't move themselves.
 - **Trainers** can't open plan settings today. To pick a plan during a move, they need to see the plans that fit. *(My call: they see those, read-only.)*
 
