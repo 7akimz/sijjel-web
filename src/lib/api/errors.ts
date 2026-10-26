@@ -49,3 +49,9 @@ export function fieldText(fields: FieldErrors, field: string): string | undefine
 	const code = fields[field]?.[0];
 	return code ? errorText(code) : undefined;
 }
+
+/** The text of the first error on a field the form doesn't show, which would otherwise go unseen. */
+export function hiddenFieldText(fields: FieldErrors, shown: string[]): string | undefined {
+	const field = Object.keys(fields).find((f) => !shown.includes(f) && fields[f]?.length);
+	return field ? errorText(fields[field]![0]!) : undefined;
+}

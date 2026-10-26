@@ -82,9 +82,15 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 
 	await owner.goto(academyUrl(slug, '/members'));
 	await owner.getByRole('link', { name: /Layla/ }).click();
-	await expect(owner.getByText(comingMove)).toBeVisible();
-	await expect(owner.getByText(comingPlan)).toBeVisible();
-	await expect(owner.getByText(/^Started at Intro · /)).toBeVisible();
+	const levelCard = owner
+		.locator('section')
+		.filter({ has: owner.getByRole('heading', { name: 'Level', exact: true }) });
+	await expect(levelCard.getByText(comingMove)).toBeVisible();
+	await expect(levelCard.getByText(comingPlan)).toBeVisible();
+	await expect(levelCard.getByText(/^Started at Intro · /)).toBeVisible();
+	// The profile form still selects the current plan and names the saved change under it.
+	await expect(owner.getByLabel('Plan')).toHaveValue(/.+/);
+	await expect(owner.locator('.sj-hint').getByText(comingPlan)).toBeVisible();
 
 	await owner.getByRole('button', { name: 'Cancel move' }).click();
 	await expect(owner.getByText(comingMove)).toHaveCount(0);

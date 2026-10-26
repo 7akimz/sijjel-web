@@ -158,7 +158,7 @@
 	"error_last_discipline": "تحتاج الأكاديمية إلى تخصص واحد على الأقل.",
 	"error_discipline_already_enabled": "هذا التخصص مفعّل بالفعل.",
 	"error_level_in_use": "يستخدم حصان أو فارس أو خطة هذا المستوى، لذا لا يمكن حذفه.",
-	"error_level_moves_only": "غيّر مستوى الفارس من خلال النقل.",
+	"error_level_moves_only": "تغيّر مستوى هذا الفارس. أعد تحميل الصفحة وحاول مرة أخرى.",
 	"error_level_required": "اختر مستوى.",
 	"error_level_unchanged": "الفارس في هذا المستوى بالفعل.",
 	"error_level_range_inverted": "هذا الترتيب يجعل أدنى مستوى لحصان أعلى من أعلى مستوى له.",

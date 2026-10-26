@@ -5,7 +5,7 @@ import { disciplines, flatwork, layla, levelStep, plans } from './level-fixtures
 
 type Call = { method: string; url: string; body: unknown };
 
-function stubApi() {
+function stubApi(respond = () => Response.json({ ...layla })) {
 	const calls: Call[] = [];
 	vi.stubGlobal(
 		'fetch',
@@ -15,7 +15,7 @@ function stubApi() {
 				url,
 				body: init.body ? JSON.parse(String(init.body)) : undefined
 			});
-			return Response.json({ ...layla });
+			return respond();
 		})
 	);
 	return calls;
@@ -106,5 +106,22 @@ describe('MoveRider', () => {
 		await screen.getByLabelText('Discipline').selectOptions('Show jumping');
 		const levelOptions = screen.getByLabelText('Level').getByRole('option');
 		expect(levelOptions.elements().map((o) => o.textContent)).toEqual(['—', 'Level 1', 'Level 2']);
+	});
+
+	it('shows an error on a field the move form does not show', async () => {
+		stubApi(() =>
+			Response.json(
+				{ code: 'validation_failed', errors: { levelId: ['level_unchanged'] } },
+				{ status: 422 }
+			)
+		);
+		const member = { ...layla, plan: { ...plans[2]!, levels: undefined } };
+		const screen = render(MoveRider, {
+			props: { ...props, member, target: { disciplineId: 'flat', levelId: 'f2' } }
+		});
+
+		await screen.getByRole('button', { name: 'Move' }).click();
+
+		await expect.element(screen.getByText('The rider is already on this level.')).toBeVisible();
 	});
 });

@@ -3,7 +3,13 @@
 	import { localName } from '#lib/academy.js';
 	import type { AcademyDisciplines } from '#lib/api/academy-types.js';
 	import { api } from '#lib/api/client.js';
-	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
+	import {
+		ApiError,
+		errorText,
+		fieldText,
+		hiddenFieldText,
+		type FieldErrors
+	} from '#lib/api/errors.js';
 	import type { Member, MoveInput, Plan } from '#lib/api/member-types.js';
 	import type { Locale } from '#lib/api/types.js';
 	import { formatDate, formatMonth } from '#lib/format.js';
@@ -80,7 +86,11 @@
 		} catch (e) {
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
-			if (Object.keys(error.fields).length === 0) failure = errorText(error.code, locale);
+			const shown = target ? ['start', 'planId'] : ['disciplineId', 'levelId', 'start', 'planId'];
+			failure =
+				Object.keys(error.fields).length === 0
+					? errorText(error.code, locale)
+					: (hiddenFieldText(error.fields, shown) ?? '');
 		} finally {
 			busy = false;
 		}

@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Member } from '#lib/api/member-types.js';
-import { memberErrors, memberFormFrom, monthKey, nextMonth, toMemberInput } from './member';
+import {
+	memberErrors,
+	memberFormFrom,
+	monthKey,
+	nextMonth,
+	planHint,
+	toMemberInput
+} from './member';
 
 const rules = { minRiderAge: 6, maxRiderAge: null, maxRiderWeightKg: null };
 
@@ -68,5 +75,23 @@ describe('member form', () => {
 		const input = toMemberInput({ ...memberFormFrom(layla), roles: ['trainer'] });
 
 		expect(input).toEqual({ displayName: 'Layla', roles: ['trainer'], phone: '201012345678' });
+	});
+});
+
+describe('planHint', () => {
+	const improver = { ...layla.plan!, id: 'p2', nameEn: 'Improver' };
+
+	it('says when a newly picked plan starts', () => {
+		expect(planHint('p2', layla, '2026-10-27', 'en')).toBe('Starts on 1 November 2026');
+	});
+
+	it('shows a saved coming plan while the current one is selected', () => {
+		const coming = { ...layla, comingPlan: { plan: improver, from: '2026-11-01' } };
+
+		expect(planHint('p', coming, '2026-10-27', 'en')).toBe('Plan changes to Improver on 1 Nov');
+	});
+
+	it('says nothing when the plan stays', () => {
+		expect(planHint('p', layla, '2026-10-27', 'en')).toBeUndefined();
 	});
 });

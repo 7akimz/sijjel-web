@@ -5,14 +5,20 @@
 	import MemberLevel from '#lib/components/MemberLevel.svelte';
 	import { localName, roleName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
-	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
+	import {
+		ApiError,
+		errorText,
+		fieldText,
+		hiddenFieldText,
+		type FieldErrors
+	} from '#lib/api/errors.js';
 	import type { AffectedBooking, BookingView, Member } from '#lib/api/member-types.js';
 	import { formatDate } from '#lib/format.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
-	import { firstOfNextMonth } from '#lib/forms/month.js';
 	import {
 		memberErrors,
 		memberFormFrom,
+		planHint,
 		toMemberInput,
 		type MemberForm
 	} from '#lib/forms/member.js';
@@ -71,10 +77,10 @@
 		).map((p) => ({ value: p.id, label: localName(p, data.locale) }))
 	]);
 	const planStarts = $derived(
-		wasRider && form.planId && form.planId !== (member.plan?.id ?? '')
-			? m.member_plan_from({ date: formatDate(firstOfNextMonth(data.today), data.locale) })
-			: undefined
+		wasRider ? planHint(form.planId, member, data.today, data.locale) : undefined
 	);
+	// An existing rider's discipline and level change only through a move, so they have no fields.
+	const shownFields = ['displayName', 'phone', 'roles', 'age', 'weightKg', 'planId', 'horseSource'];
 	const horseOptions = [
 		{ value: 'school', label: m.invite_horse_school() },
 		{ value: 'own', label: m.invite_horse_own() }
@@ -93,7 +99,9 @@
 			return;
 		}
 		errors = error.fields;
+		const hidden = wasRider ? hiddenFieldText(error.fields, shownFields) : undefined;
 		if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
+		else if (hidden) failure = hidden;
 		else focusFirstInvalid(formElement);
 	}
 

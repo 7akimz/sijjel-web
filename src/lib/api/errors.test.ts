@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from './client';
-import { ApiError, errorText, fieldText } from './errors';
+import { ApiError, errorText, fieldText, hiddenFieldText } from './errors';
 
 const problem = (status: number, body: object) =>
 	new Response(JSON.stringify(body), {
@@ -120,5 +120,17 @@ describe('ApiError extra details', () => {
 		const error = await api('/academy/closed-dates', { method: 'POST', body: {} }).catch((e) => e);
 
 		expect(error.extra).toEqual({ bookings: [{ id: 'b1' }] });
+	});
+});
+
+describe('hiddenFieldText', () => {
+	it('gives the text of an error on a field the form does not show', () => {
+		const fields = { phone: ['phone_invalid'], levelId: ['level_unchanged'] };
+
+		expect(hiddenFieldText(fields, ['phone'])).toBe('The rider is already on this level.');
+	});
+
+	it('gives nothing when every field with an error is shown', () => {
+		expect(hiddenFieldText({ phone: ['phone_invalid'] }, ['phone'])).toBeUndefined();
 	});
 });
