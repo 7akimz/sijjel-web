@@ -17,7 +17,7 @@ const summary = (overrides: Partial<PlanSummary> = {}): PlanSummary => ({
 		id: 'p',
 		nameEn: 'Two',
 		nameAr: 'اثنتان',
-		sessionsPerWeek: 2,
+		lessonsPerMonth: 2,
 		monthlyPrice: 1000,
 		discipline: null,
 		isActive: true

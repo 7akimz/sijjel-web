@@ -19,7 +19,7 @@
 
 	const sorted = $derived(
 		[...plans].sort(
-			(a, b) => Number(b.isActive) - Number(a.isActive) || a.sessionsPerWeek - b.sessionsPerWeek
+			(a, b) => Number(b.isActive) - Number(a.isActive) || a.lessonsPerMonth - b.lessonsPerMonth
 		)
 	);
 
@@ -80,7 +80,7 @@
 								<span class="plan-name">{name}</span>
 								<span class="sj-row">
 									<StatusChip tone="neutral"
-										>{m.plan_per_week({ count: plan.sessionsPerWeek })}</StatusChip
+										>{m.plan_per_month({ count: plan.lessonsPerMonth })}</StatusChip
 									>
 									<StatusChip tone="neutral"
 										>{formatMoney(plan.monthlyPrice, data.currency, data.locale)}</StatusChip
@@ -90,6 +90,11 @@
 									{/if}
 									{#if !plan.isActive}<StatusChip tone="stone">{m.plan_retired()}</StatusChip>{/if}
 								</span>
+								{#if plan.levels?.length}
+									<span class="sj-hint"
+										>{plan.levels.map((l) => localName(l, data.locale)).join(' · ')}</span
+									>
+								{/if}
 							</div>
 							<Button
 								variant="quiet"

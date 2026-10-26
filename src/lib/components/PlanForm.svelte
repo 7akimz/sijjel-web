@@ -24,9 +24,10 @@
 	const initial = untrack(() => plan);
 	let nameEn = $state(initial?.nameEn ?? '');
 	let nameAr = $state(initial?.nameAr ?? '');
-	let sessions = $state<string | number | null>(initial?.sessionsPerWeek ?? 2);
+	let lessons = $state<string | number | null>(initial?.lessonsPerMonth ?? 8);
 	let price = $state<string | number | null>(initial?.monthlyPrice ?? '');
 	let disciplineId = $state(initial?.discipline?.id ?? '');
+	let levelIds = $state<string[]>(initial?.levels?.map((l) => l.id) ?? []);
 	let active = $state(initial?.isActive ?? true);
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
@@ -37,6 +38,20 @@
 		{ value: '', label: m.plan_any_discipline() },
 		...disciplines.enabled.map((d) => ({ value: d.id, label: localName(d, locale) }))
 	]);
+	const formId = $props.id();
+	const levelsHelp = $derived(
+		fieldText(errors, 'levelIds') ? `${formId}-levels-error` : `${formId}-levels-hint`
+	);
+	const ladder = $derived(disciplines.enabled.find((d) => d.id === disciplineId)?.levels ?? []);
+
+	function chooseDiscipline(id: string) {
+		disciplineId = id;
+		levelIds = [];
+	}
+
+	function tick(id: string, checked: boolean) {
+		levelIds = checked ? [...levelIds, id] : levelIds.filter((l) => l !== id);
+	}
 
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
@@ -44,9 +59,10 @@
 		const body = {
 			nameEn: nameEn.trim(),
 			nameAr: nameAr.trim(),
-			sessionsPerWeek: wholeNumber(sessions),
+			lessonsPerMonth: wholeNumber(lessons),
 			monthlyPrice: wholeNumber(price),
 			disciplineId: disciplineId || null,
+			levelIds: ladder.filter((l) => levelIds.includes(l.id)).map((l) => l.id),
 			isActive: active
 		};
 		errors = planErrors(body);
@@ -59,6 +75,7 @@
 			if (!initial) {
 				nameEn = nameAr = '';
 				price = '';
+				levelIds = [];
 			}
 			onsaved(saved);
 		} catch (e) {
@@ -88,11 +105,11 @@
 			bind:value={nameAr}
 		/>
 		<TextField
-			label={m.plan_sessions()}
+			label={m.plan_lessons()}
 			type="number"
 			dir="ltr"
-			error={fieldText(errors, 'sessionsPerWeek')}
-			bind:value={sessions}
+			error={fieldText(errors, 'lessonsPerMonth')}
+			bind:value={lessons}
 		/>
 		<TextField
 			label={m.plan_price()}
@@ -106,8 +123,28 @@
 		label={m.plan_discipline()}
 		options={disciplineOptions}
 		error={fieldText(errors, 'disciplineId')}
-		bind:value={disciplineId}
+		bind:value={() => disciplineId, chooseDiscipline}
 	/>
+	{#if ladder.length > 0}
+		<fieldset class="sj-field levels" aria-describedby={levelsHelp}>
+			<legend class="sj-label">{m.plan_levels()}</legend>
+			{#each ladder as level (level.id)}
+				<CheckboxField
+					label={localName(level, locale)}
+					checked={levelIds.includes(level.id)}
+					invalid={Boolean(fieldText(errors, 'levelIds'))}
+					onchange={(checked) => tick(level.id, checked)}
+				/>
+			{/each}
+			{#if fieldText(errors, 'levelIds')}
+				<span class="sj-field-error" id="{formId}-levels-error"
+					>{fieldText(errors, 'levelIds')}</span
+				>
+			{:else}
+				<span class="sj-hint" id="{formId}-levels-hint">{m.plan_levels_hint()}</span>
+			{/if}
+		</fieldset>
+	{/if}
 	{#if initial}<CheckboxField label={m.plan_active()} bind:checked={active} />{/if}
 	<div class="sj-row">
 		<Button type="submit" icon={initial ? undefined : 'add'} disabled={busy}>
@@ -121,6 +158,11 @@
 	.fields {
 		display: grid;
 		gap: var(--space-3);
+	}
+	.levels {
+		border: 0;
+		margin: 0;
+		padding: 0;
 	}
 	@media (min-width: 720px) {
 		.fields {

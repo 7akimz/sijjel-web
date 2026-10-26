@@ -1,21 +1,31 @@
 import type { CatalogueDiscipline } from './academy-types';
 
+export interface PlanLevel {
+	id: string;
+	nameEn: string;
+	nameAr: string;
+	position: number;
+}
+
 export interface Plan {
 	id: string;
 	nameEn: string;
 	nameAr: string;
-	sessionsPerWeek: number;
+	lessonsPerMonth: number;
 	monthlyPrice: number;
 	discipline: CatalogueDiscipline | null;
+	/** Absent or empty when the plan covers every level of its discipline. */
+	levels?: PlanLevel[];
 	isActive: boolean;
 }
 
 export interface PlanInput {
 	nameEn: string;
 	nameAr: string;
-	sessionsPerWeek: number;
+	lessonsPerMonth: number;
 	monthlyPrice: number;
 	disciplineId: string | null;
+	levelIds: string[];
 	isActive: boolean;
 }
 
