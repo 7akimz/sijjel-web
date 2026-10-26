@@ -38,6 +38,39 @@ export interface MemberLevel {
 	position: number;
 }
 
+export interface LevelStep {
+	discipline: CatalogueDiscipline;
+	level: MemberLevel;
+}
+
+/** A move staff made that takes effect on `from`. */
+export interface ComingMove extends LevelStep {
+	from: string;
+}
+
+/** The plan a rider changes to on `from`, always the 1st of a month. */
+export interface ComingPlan {
+	plan: Plan;
+	from: string;
+}
+
+/** One entry of a rider's level history; `from` is null where they started. */
+export interface LevelChange {
+	from: LevelStep | null;
+	to: LevelStep;
+	plan: Plan | null;
+	startsOn: string;
+	madeBy: string;
+	madeAt: string;
+}
+
+export interface MoveInput {
+	disciplineId: string;
+	levelId: string;
+	start: 'today' | 'next_month';
+	planId?: string;
+}
+
 export interface Member {
 	id: string;
 	displayName: string;
@@ -54,6 +87,10 @@ export interface Member {
 	privateHorse: { id: string; name: string; notes: string | null; isActive: boolean } | null;
 	paidThisMonth?: boolean;
 	upcomingBookings: number;
+	comingMove: ComingMove | null;
+	comingPlan: ComingPlan | null;
+	/** Only on a single member and on a move's response. */
+	levelHistory?: LevelChange[];
 }
 
 export interface RiderFieldsInput {

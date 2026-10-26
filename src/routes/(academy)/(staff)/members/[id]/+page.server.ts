@@ -14,8 +14,8 @@ export const load: PageServerLoad = async (event) => {
 	const [member, bookings, disciplines, plans, rules, schedule] = await Promise.all([
 		apiLoad<Member>(event, `/api/academy/members/${id}`),
 		apiLoad<BookingView[]>(event, `/api/academy/members/${id}/bookings`).catch(() => []),
-		admin ? apiLoad<AcademyDisciplines>(event, '/api/academy/disciplines') : null,
-		admin ? apiLoad<Plan[]>(event, '/api/academy/plans') : null,
+		apiLoad<AcademyDisciplines>(event, '/api/academy/disciplines'),
+		apiLoad<Plan[]>(event, '/api/academy/plans'),
 		admin ? apiLoad<BookingRules>(event, '/api/academy/booking-rules') : null,
 		admin ? apiLoad<Schedule>(event, '/api/academy/schedule') : null
 	]);

@@ -27,7 +27,9 @@ const layla: Member = {
 	horseSource: 'school',
 	privateHorse: null,
 	paidThisMonth: false,
-	upcomingBookings: 0
+	upcomingBookings: 0,
+	comingMove: null,
+	comingPlan: null
 };
 
 describe('months', () => {

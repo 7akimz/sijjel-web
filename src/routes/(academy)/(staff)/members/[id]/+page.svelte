@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import { resolve } from '$app/paths';
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
+	import MemberLevel from '#lib/components/MemberLevel.svelte';
 	import { localName, roleName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
@@ -46,10 +47,10 @@
 	const isRider = $derived(form.roles.includes('rider'));
 	const wasRider = $derived(member.roles.includes('rider'));
 	const ladder = $derived(
-		data.disciplines?.enabled.find((d) => d.id === form.disciplineId)?.levels ?? []
+		data.disciplines.enabled.find((d) => d.id === form.disciplineId)?.levels ?? []
 	);
 	const disciplineOptions = $derived(
-		(data.disciplines?.enabled ?? []).map((d) => ({
+		data.disciplines.enabled.map((d) => ({
 			value: d.id,
 			label: localName(d, data.locale)
 		}))
@@ -61,12 +62,12 @@
 		{ value: '', label: '—' },
 		...(wasRider
 			? plansFor(
-					data.plans ?? [],
-					member.discipline?.id ?? '',
-					member.level?.id ?? '',
+					data.plans,
+					member.comingMove?.discipline.id ?? member.discipline?.id ?? '',
+					member.comingMove?.level.id ?? member.level?.id ?? '',
 					member.plan?.id
 				)
-			: plansFor(data.plans ?? [], form.disciplineId, form.levelId)
+			: plansFor(data.plans, form.disciplineId, form.levelId)
 		).map((p) => ({ value: p.id, label: localName(p, data.locale) }))
 	]);
 	const planStarts = $derived(
@@ -94,6 +95,15 @@
 		errors = error.fields;
 		if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
 		else focusFirstInvalid(formElement);
+	}
+
+	// A move changes the rider's level and plan, so the profile form follows it and a later save
+	// never sends the old level back.
+	function levelChanged(updated: Member) {
+		member = updated;
+		form.disciplineId = updated.discipline?.id ?? '';
+		form.levelId = updated.level?.id ?? '';
+		form.planId = updated.plan?.id ?? '';
 	}
 
 	function toggleRole(role: (typeof roles)[number], on: boolean) {
@@ -390,6 +400,17 @@
 					>{/if}
 			</div>
 		</Card>
+	{/if}
+
+	{#if member.roles.includes('rider') && member.discipline && member.level}
+		<MemberLevel
+			{member}
+			disciplines={data.disciplines}
+			plans={data.plans}
+			today={data.today}
+			locale={data.locale}
+			onchange={levelChanged}
+		/>
 	{/if}
 
 	{#if member.roles.includes('rider')}
