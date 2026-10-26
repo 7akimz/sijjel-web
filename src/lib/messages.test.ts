@@ -34,6 +34,7 @@ const academySetupErrors = [
 	'plan_required',
 	'plan_not_found',
 	'plan_not_for_rider',
+	'plan_scheduled',
 	'level_moves_only',
 	'level_required',
 	'level_unchanged',

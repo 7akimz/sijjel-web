@@ -135,7 +135,9 @@
 			label={m.invite_plan({}, { locale })}
 			options={planOptions}
 			error={fieldText(errors, 'planId')}
-			hint={m.member_plan_from({ date: formatDate(first, locale) }, { locale })}
+			hint={fitting.length === 0
+				? m.member_move_no_plan({}, { locale })
+				: m.member_plan_from({ date: formatDate(first, locale) }, { locale })}
 			bind:value={planId}
 		/>
 	{/if}

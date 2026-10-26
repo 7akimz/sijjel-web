@@ -21,7 +21,8 @@ export function nextMonth(month: string): string {
 
 /**
  * The hint under a rider's plan select: when a newly picked plan starts, or the plan change
- * already saved while the select still shows the current plan.
+ * already saved while the select still shows the current plan. A rider with no plan yet starts
+ * the picked one at once, so it needs no hint.
  */
 export function planHint(
 	planId: string,
@@ -29,7 +30,7 @@ export function planHint(
 	today: string,
 	locale: Locale
 ): string | undefined {
-	if (planId && planId !== (member.plan?.id ?? '')) {
+	if (planId && member.plan && planId !== member.plan.id) {
 		const first = `${nextMonth(monthKey(today))}-01`;
 		return m.member_plan_from({ date: formatDate(first, locale) }, { locale });
 	}
@@ -41,6 +42,25 @@ export function planHint(
 		},
 		{ locale }
 	);
+}
+
+/** A rider staff can move: the rider role, with a discipline and a level to move from. */
+export function isLevelledRider(member: Member): boolean {
+	return member.roles.includes('rider') && member.discipline !== null && member.level !== null;
+}
+
+/**
+ * The profile form after a move: the rider's new discipline, level and plan, except a plan
+ * picked in the form and not saved yet, which stays picked.
+ */
+export function formAfterMove(form: MemberForm, before: Member, after: Member): MemberForm {
+	const picked = form.planId !== (before.plan?.id ?? '');
+	return {
+		...form,
+		disciplineId: after.discipline?.id ?? '',
+		levelId: after.level?.id ?? '',
+		planId: picked ? form.planId : (after.plan?.id ?? '')
+	};
 }
 
 export function memberFormFrom(m: Member): MemberForm {

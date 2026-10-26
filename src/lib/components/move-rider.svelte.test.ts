@@ -124,4 +124,14 @@ describe('MoveRider', () => {
 
 		await expect.element(screen.getByText('The rider is already on this level.')).toBeVisible();
 	});
+
+	it('says so when no active plan fits the new level', async () => {
+		const screen = render(MoveRider, {
+			props: { ...props, plans: [plans[0]!], target: { disciplineId: 'flat', levelId: 'f2' } }
+		});
+
+		await expect
+			.element(screen.getByText('No active plan fits this level. Add one under Plans.'))
+			.toBeVisible();
+	});
 });

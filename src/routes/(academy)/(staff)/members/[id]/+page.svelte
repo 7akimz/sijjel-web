@@ -17,6 +17,8 @@
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import {
 		memberErrors,
+		formAfterMove,
+		isLevelledRider,
 		memberFormFrom,
 		planHint,
 		toMemberInput,
@@ -51,7 +53,7 @@
 
 	const roles = ['rider', 'trainer', 'admin'] as const;
 	const isRider = $derived(form.roles.includes('rider'));
-	const wasRider = $derived(member.roles.includes('rider'));
+	const wasRider = $derived(isLevelledRider(member));
 	const ladder = $derived(
 		data.disciplines.enabled.find((d) => d.id === form.disciplineId)?.levels ?? []
 	);
@@ -108,10 +110,9 @@
 	// A move changes the rider's level and plan, so the profile form follows it and a later save
 	// never sends the old level back.
 	function levelChanged(updated: Member) {
+		form = formAfterMove(form, member, updated);
 		member = updated;
-		form.disciplineId = updated.discipline?.id ?? '';
-		form.levelId = updated.level?.id ?? '';
-		form.planId = updated.plan?.id ?? '';
+		errors = {};
 	}
 
 	function toggleRole(role: (typeof roles)[number], on: boolean) {
@@ -410,7 +411,7 @@
 		</Card>
 	{/if}
 
-	{#if member.roles.includes('rider') && member.discipline && member.level}
+	{#if wasRider}
 		<MemberLevel
 			{member}
 			disciplines={data.disciplines}

@@ -30,7 +30,7 @@ describe('ladderSaveError', () => {
 
 	it('falls back to the error text', () => {
 		expect(ladderSaveError(new ApiError(409, 'level_in_use'), 'en')).toBe(
-			"A horse, rider or plan uses this level, so it can't be removed."
+			"A horse, rider, plan or pending invitation uses this level, so it can't be removed."
 		);
 	});
 });
