@@ -6,7 +6,8 @@ sijjel is about to go online for a trial with real academies. Each academy will 
 monthly, priced by how many riders it has. The platform admin needs to:
 - see who has paid and who hasn't;
 - give a new academy a free period so it can try the app;
-- have booking stop on its own when an academy stops paying, without the academy losing its data.
+- see at a glance how long an academy has gone unpaid, and let that academy see it too;
+- stop booking at an academy that doesn't pay, by hand, without the academy losing its data.
 
 Payment happens outside the app for now. Academies pay the platform admin by InstaPay or cash, and
 the admin marks the month paid.
@@ -18,8 +19,10 @@ the admin marks the month paid.
 - **Paid periods.** The admin records each payment, which covers one month. Each academy has a
   "paid until" date.
 - **Free time.** The admin can give an academy free time, for example 30 days when it is added.
-- **Grace, then blocking.** When paid or free time runs out, there are 7 days of grace. After
-  that, new bookings are refused, while everything stays viewable.
+- **Unpaid, never blocked automatically.** When paid or free time runs out, the academy carries on
+  as normal. Its admins see how long it has gone unpaid, for example "Unpaid: 1 month".
+- **Manual blocking.** The platform admin can block an academy. New bookings are then refused,
+  while everything stays viewable. The admin can unblock it again.
 - **Rider limit.** The owner sees "Riders: 47 of 50". At the limit, new rider invites are refused
   until the academy moves to a bigger package. Existing riders are not affected.
 - **Platform list.** The platform admin sees every academy's package, rider count, status and paid
@@ -104,33 +107,42 @@ Status is computed from today (the academy's calendar) and "paid until":
 | Free | Covered, and the most recent entry is free time. |
 | Paid | Covered, and the most recent entry is a paid month. |
 | Due soon | Covered, but "paid until" is 3 days away or less. *My call.* |
-| Grace | Not covered, and less than 7 days past "paid until". |
-| Blocked | 7 or more days past "paid until". |
+| Unpaid | Not covered: today is on or after "paid until". |
 
-- An academy that is put on a package but has no entries yet is **Blocked** from the start. *My
+- **Blocked is separate from status.** It's a switch the platform admin turns on and off, not
+  something the dates decide. An academy can be Unpaid and not blocked (the usual case), or
+  blocked whatever its status.
+- **How long unpaid.** *My call:* for an Unpaid academy, the months owed are the billing months
+  that have started since "paid until": 1 on the due day, 2 once the next billing day passes, and
+  so on. Admins see "Unpaid: 2 months · EGP 3,000", the months times the package's price.
+- An academy that is put on a package but has no entries yet is **Unpaid** from the start. *My
   call:* the package form therefore has an optional "Free days to start with" field, defaulting to
   30, so putting an academy on a package and giving its trial is one step.
   - The field shows only while the academy has no entries. Moving an academy that already has
     entries to another package never adds free time.
 - **No going back to No package.** *My call:* once an academy is on a package, the select no longer
-  offers No package. Otherwise taking an academy off its package would be an easy way around
-  blocking. To pause charging an academy, the admin gives it free time.
+  offers No package, so an academy can't quietly drop out of paying. To pause charging an
+  academy, the admin gives it free time.
 
 ### Blocked
 
-While an academy is Blocked:
+- The platform admin blocks and unblocks an academy from its platform page, with a confirmation.
+- *My call:* recording a paid month unblocks a blocked academy automatically, so it isn't
+  forgotten. Free time doesn't unblock.
+
+While an academy is blocked:
 - **Refused:** new bookings, both a rider booking and staff booking for a rider. The API returns
   409 `academy_blocked`.
 - **Still works:** everything else, including viewing, cancelling, the planning board, settings,
   members and invites. Only new bookings stop.
 - **Riders** see on the booking page: "Booking is paused at this academy. Please contact the
   academy." The slot list still shows, with Book disabled.
-- **Owners and admins** see a banner on every academy page: "Your sijjel subscription is unpaid.
-  Booking is paused until it's paid."
+- **Owners and admins** see a banner on every academy page: "Booking is paused at your academy
+  until your sijjel subscription is paid."
 
-During Due soon and Grace, academy admins see a banner on every page:
+When not blocked, academy admins see a banner on every page:
 - Due soon: "Your sijjel subscription is due on {date}."
-- Grace: "Your sijjel subscription is overdue. Booking stops on {date}."
+- Unpaid: "Unpaid: {months} · {amount}. Your sijjel subscription was due on {date}."
 
 Trainers and riders don't see these banners. Every banner says how to pay: "Pay by InstaPay or
 cash and let us know." *My call:* this is one fixed message for now, not an editable setting.
@@ -160,15 +172,18 @@ cash and let us know." *My call:* this is one fixed message for now, not an edit
   - riders "47 of 50";
   - a status chip;
   - "Paid until 15 Nov".
-- A status filter offers: All, Due soon, Grace, Blocked, Free, Paid and No package.
-- *My call:* the default sort is by most urgent status (Blocked, Grace, Due soon) and then by
-  paid until.
+  - for an Unpaid academy, the months owed ("Unpaid: 2 months");
+  - a Blocked chip when blocked.
+- A filter offers: All, Unpaid, Due soon, Blocked, Free, Paid and No package.
+- *My call:* the default sort puts the most months owed first, then Due soon, then by paid
+  until.
 - The academy's own platform page, `/platform/academies/{id}`, shows:
   - **Package:** a select with the "Free days to start with" field.
   - **Mark month paid:** amount, method and note, with "Start from today" when the academy isn't
     covered.
   - **Give free time:** days and a note.
   - **Entries:** newest first, with Undo on the newest.
+  - **Block booking / Unblock**, with a confirmation.
 
 ### Owner's view
 
@@ -176,7 +191,7 @@ cash and let us know." *My call:* this is one fixed message for now, not an edit
   `/settings/subscription`, read-only. It shows:
   - the package and its price;
   - "Riders: 47 of 50";
-  - the status, and "paid until";
+  - the status, "paid until", and for an Unpaid academy the months and amount owed;
   - the last 6 entries.
 - Trainers and riders don't see this page.
 
@@ -187,9 +202,9 @@ cash and let us know." *My call:* this is one fixed message for now, not an edit
   - SvelteKit web: Paraglide EN/AR, RTL, the sijjel design system.
 - **Clock.** Status uses the academy's calendar and the API's injected clock, so tests can set the
   date.
-- **Race safety.** The rider-limit check and the booking check run inside the same transaction as
-  the write, with the academy row locked for the rider-limit check, so two invites can't both take
-  the last place.
+- **Race safety.** The rider-limit check and the blocked check run inside the same transaction as
+  the write. The academy row is locked for the rider-limit check, so two invites can't both take
+  the last place, and booking sees a block that just committed.
 - **Arabic.** Every new text has an Arabic version, and every new screen works right to left at
   390 px.
 - **Copy.** Plain, short and calm. No wording that shames the academy in front of riders.
