@@ -39,9 +39,9 @@ test('staff plan a session: place a rider, suggest a horse, set trainers and not
 	await expect(owner.getByRole('heading', { name: 'Badr' })).toBeVisible();
 
 	await owner.goto(academyUrl(slug, '/settings/plans'));
-	await owner.getByLabel('Name (English)').fill('Dressage, 2 a week');
-	await owner.getByLabel('Name (Arabic)').fill('ترويض، مرتان في الأسبوع');
-	await owner.getByLabel('Sessions a week').fill('2');
+	await owner.getByLabel('Name (English)').fill('Dressage, 8 a month');
+	await owner.getByLabel('Name (Arabic)').fill('ترويض، 8 في الشهر');
+	await owner.getByLabel('Lessons a month').fill('8');
 	await owner.getByLabel('Monthly price').fill('1000');
 	await owner.getByRole('button', { name: 'Add plan' }).click();
 	await expect(owner.getByText('Plan saved.')).toBeVisible();
@@ -59,7 +59,7 @@ test('staff plan a session: place a rider, suggest a horse, set trainers and not
 		const invitePath = await inviteRider(owner, slug, {
 			name: riderName,
 			age: 14,
-			plan: 'Dressage, 2 a week'
+			plan: 'Dressage, 8 a month'
 		});
 		const rider = await browser.newPage();
 		await signUpRider(rider, slug, invitePath, riderName);

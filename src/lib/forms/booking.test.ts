@@ -23,11 +23,11 @@ const summary = (overrides: Partial<PlanSummary> = {}): PlanSummary => ({
 		isActive: true
 	},
 	currency: 'EGP',
-	sessionsPerWeek: 2,
-	usedThisWeek: 0,
-	leftThisWeek: 2,
-	weekStart: '2026-10-17',
-	weekEnd: '2026-10-23',
+	lessonsPerMonth: 2,
+	usedThisMonth: 0,
+	leftThisMonth: 2,
+	monthStart: '2026-10-01',
+	monthEnd: '2026-10-31',
 	paidThisMonth: true,
 	unpaidBooking: 'allow',
 	horseSource: 'school',
@@ -72,7 +72,7 @@ describe('groupByDate', () => {
 
 describe('reasons', () => {
 	it('explains a slot in plain words and reuses that for booking errors', () => {
-		expect(slotReasonText('weekly_limit', 'en')).toBe('Weekly limit reached');
+		expect(slotReasonText('monthly_limit', 'en')).toBe('Monthly limit reached');
 		expect(bookingErrorText(new ApiError(409, 'no_suitable_school_horse'), 'en')).toBe(
 			'No suitable school horse is free at this time.'
 		);
@@ -101,10 +101,10 @@ describe('warningTexts', () => {
 			409,
 			'warning_required',
 			{},
-			{ warnings: ['weekly_limit', 'month_unpaid'] }
+			{ warnings: ['monthly_limit', 'month_unpaid'] }
 		);
 
-		expect(warningTexts(e, 'en')).toEqual(['Weekly limit reached', 'Month not paid']);
+		expect(warningTexts(e, 'en')).toEqual(['Monthly limit reached', 'Month not paid']);
 		expect(warningTexts(new ApiError(409, 'full'), 'en')).toBeNull();
 	});
 });

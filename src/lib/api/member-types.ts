@@ -122,11 +122,11 @@ export interface BookingView {
 export interface PlanSummary {
 	plan: Plan | null;
 	currency: string;
-	sessionsPerWeek: number;
-	usedThisWeek: number;
-	leftThisWeek: number;
-	weekStart: string;
-	weekEnd: string;
+	lessonsPerMonth: number;
+	usedThisMonth: number;
+	leftThisMonth: number;
+	monthStart: string;
+	monthEnd: string;
 	paidThisMonth: boolean;
 	unpaidBooking: 'allow' | 'block';
 	horseSource: HorseSource;

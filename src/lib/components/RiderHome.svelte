@@ -23,15 +23,15 @@
 	let bookings = $state(untrack(() => initial));
 	let notice = $state('');
 	let failure = $state('');
-	let usedThisWeek = $state(untrack(() => summary.usedThisWeek));
+	let usedThisMonth = $state(untrack(() => summary.usedThisMonth));
 
 	$effect(() => {
 		bookings = initial;
-		usedThisWeek = summary.usedThisWeek;
+		usedThisMonth = summary.usedThisMonth;
 	});
 
 	const blocked = $derived(riderBlockReason(summary));
-	const left = $derived(Math.max(summary.sessionsPerWeek - usedThisWeek, 0));
+	const left = $derived(Math.max(summary.lessonsPerMonth - usedThisMonth, 0));
 	const now = Date.now();
 	const upcoming = $derived(
 		bookings.filter(
@@ -57,7 +57,8 @@
 				method: 'POST'
 			});
 			bookings = bookings.map((b) => (b.id === cancelled.id ? cancelled : b));
-			if (booking.date >= summary.weekStart && booking.date <= summary.weekEnd) usedThisWeek -= 1;
+			if (booking.date >= summary.monthStart && booking.date <= summary.monthEnd)
+				usedThisMonth -= 1;
 			notice = m.booking_cancel_done();
 		} catch (e) {
 			failure = e instanceof ApiError ? bookingErrorText(e, locale) : errorText('internal_error');
@@ -82,10 +83,10 @@
 			</div>
 			<ProgressBar
 				value={left}
-				max={summary.sessionsPerWeek}
-				label={m.rider_plan_left({ left, perWeek: summary.sessionsPerWeek })}
+				max={summary.lessonsPerMonth}
+				label={m.rider_plan_left({ left, total: summary.lessonsPerMonth })}
 			/>
-			<p class="sj-small">{m.rider_plan_left({ left, perWeek: summary.sessionsPerWeek })}</p>
+			<p class="sj-small">{m.rider_plan_left({ left, total: summary.lessonsPerMonth })}</p>
 			{#if summary.paidThisMonth}
 				<StatusChip tone="active" dot>{m.rider_plan_paid()}</StatusChip>
 			{:else if summary.unpaidBooking === 'allow'}

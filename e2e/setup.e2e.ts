@@ -60,9 +60,9 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	await expect(owner.getByRole('link', { name: 'Next: add a plan' })).toBeInViewport();
 	await owner.getByRole('link', { name: 'Next: add a plan' }).click();
 	await expect(owner.getByRole('heading', { name: 'Plans', level: 1 })).toBeVisible();
-	await owner.getByLabel('Name (English)').fill('Dressage, 2 a week');
-	await owner.getByLabel('Name (Arabic)').fill('ترويض، مرتان في الأسبوع');
-	await owner.getByLabel('Sessions a week').fill('2');
+	await owner.getByLabel('Name (English)').fill('Dressage, 8 a month');
+	await owner.getByLabel('Name (Arabic)').fill('ترويض، 8 في الشهر');
+	await owner.getByLabel('Lessons a month').fill('8');
 	await owner.getByLabel('Monthly price').fill('1000');
 	await owner.getByRole('button', { name: 'Add plan' }).click();
 	await expect(owner.getByText('Plan saved.')).toBeVisible();

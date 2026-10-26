@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import type { BookingView, PlanSummary } from '#lib/api/member-types.js';
 import RiderHome from './RiderHome.svelte';
@@ -14,11 +14,11 @@ const summary: PlanSummary = {
 		isActive: true
 	},
 	currency: 'EGP',
-	sessionsPerWeek: 2,
-	usedThisWeek: 1,
-	leftThisWeek: 1,
-	weekStart: '2026-10-17',
-	weekEnd: '2026-10-23',
+	lessonsPerMonth: 2,
+	usedThisMonth: 1,
+	leftThisMonth: 1,
+	monthStart: '2099-01-01',
+	monthEnd: '2099-01-31',
 	paidThisMonth: true,
 	unpaidBooking: 'allow',
 	horseSource: 'school',
@@ -54,4 +54,20 @@ describe('RiderHome', () => {
 		await expect.element(past.getByText(/3 January 2099/)).not.toBeInTheDocument();
 		await expect.element(past.getByText('Ask the academy to cancel')).not.toBeInTheDocument();
 	});
+
+	it('shows lessons left this month and gives one back on cancel', async () => {
+		const upcoming = { ...booking('2099-01-03', '2099-01-03T15:00:00Z'), canCancel: true };
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => Response.json({ ...upcoming, status: 'cancelled' }))
+		);
+		const screen = render(RiderHome, { summary, locale: 'en', bookings: [upcoming] });
+		await expect.element(screen.getByText('Left this month: 1 of 2')).toBeVisible();
+
+		await screen.getByRole('button', { name: 'Cancel' }).click();
+
+		await expect.element(screen.getByText('Left this month: 2 of 2')).toBeVisible();
+	});
 });
+
+afterEach(() => vi.unstubAllGlobals());

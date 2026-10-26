@@ -59,8 +59,8 @@
 		<h1 class="sj-title">{m.book_title()}</h1>
 		<p class="sj-muted">
 			{m.rider_plan_left({
-				left: data.summary.leftThisWeek,
-				perWeek: data.summary.sessionsPerWeek
+				left: data.summary.leftThisMonth,
+				total: data.summary.lessonsPerMonth
 			})}
 		</p>
 	</div>
@@ -74,7 +74,7 @@
 	<WeekSlots
 		slots={data.slots}
 		week={data.week}
-		firstWeek={data.summary.weekStart}
+		firstWeek={data.firstWeek}
 		{school}
 		{busy}
 		locale={data.locale}
