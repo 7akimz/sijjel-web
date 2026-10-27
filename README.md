@@ -2,7 +2,7 @@
 
 The web app for sijjel, session planning for riding academies. It is a SvelteKit app rendered on the server (`adapter-node`). The browser only ever talks to this app: `/api/*` is proxied to [sijjel-api](../sijjel-api) on the same origin, so session cookies stay host-only and `SameSite=Strict`.
 
-- **Platform site** (`localhost`): platform admins sign in, manage the discipline catalogue, create academies and copy owner invitation links.
+- **Platform site** (`localhost`): platform admins sign in, manage the discipline catalogue and the packages academies pay for, create academies and copy owner invitation links, and keep each academy's subscription.
 - **Academy sites** (`{slug}.localhost`): invitees open their link, create an account or sign in, and land on the academy home. Riders see their plan, the lessons left this month and their bookings there, and book at `/book`.
 
 The first HTML of every page already carries the academy accent colours, the theme (`sijjel_theme` cookie), `lang`/`dir` (`PARAGLIDE_LOCALE` cookie, else the academy's default language), and the link-preview tags.
@@ -50,6 +50,16 @@ Other visitors get a 403 page on these routes.
 Admins and trainers get Board: `/board?date&start` shows one session at a time, opening on the session in progress or the next one. Riders are grouped by arena, with the trainer named once per arena and riders without an arena under "Not placed". Tapping a rider opens a sheet with their recent rides and notes, the horses that can take them (the others greyed out with the reason), the arenas with places left, and a note on this ride. "Suggest horses" fills riders who have no horse, preferring the horse each rode recently, and never moves a horse someone picked. Past sessions only take notes.
 
 Trainers can also teach groups within one arena: tap Select, tick riders and choose "Trainer…", or set one rider's trainer in their sheet. When an arena's riders have more than one trainer, they are listed under each trainer's name.
+
+### Subscriptions
+
+What academies pay sijjel for is a package; riders keep the word "plan".
+
+- `/platform/packages`: platform admins add and edit packages (a rider limit, empty for unlimited, and a monthly price in EGP) and retire them.
+- `/platform/academies` shows each academy's package, riders, status, paid until or months unpaid, and a Blocked chip. It lists the most months owed first and filters by status. Each row links to `/platform/academies/{id}`, where the admin picks the package (with "Free days to start with" until the academy has any entries), marks a month paid (amount, InstaPay, cash or other, a note, and "Start from today" for an unpaid academy), gives free time, undoes the newest entry, and blocks or unblocks booking.
+- Academy admins see a banner on every page when the subscription is due soon, unpaid ("Unpaid: 2 months · EGP 3,000") or blocked, with how to pay. `/settings/subscription` shows their package, riders, status and the last 6 entries.
+- While booking is blocked, riders and trainers only see "Booking is paused at this academy. Please contact the academy.", and Book is disabled.
+- Members and the invite page show "Riders: 47 of 50". At the limit the rider choice on the invite page is disabled.
 
 ### Session reminders
 
