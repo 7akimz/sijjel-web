@@ -9,6 +9,7 @@
 	import { isAcademyRider } from '#lib/academy/rider.js';
 	import LanguageSwitch from '#lib/components/LanguageSwitch.svelte';
 	import StatusPage from '#lib/components/StatusPage.svelte';
+	import SubscriptionBanner from '#lib/components/SubscriptionBanner.svelte';
 	import ThemeSwitch from '#lib/components/ThemeSwitch.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
@@ -181,6 +182,9 @@
 			body={m.status_unavailable_body({}, { locale })}
 		/>
 	{:else}
+		{#if tenant.kind === 'academy'}
+			<SubscriptionBanner membership={data.membership} {locale} />
+		{/if}
 		{@render children()}
 	{/if}
 
