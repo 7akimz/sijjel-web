@@ -1,5 +1,12 @@
-import type { Riders, SubscriptionStatus } from '#lib/api/subscription-types.js';
+import type {
+	PaymentMethod,
+	Riders,
+	SubscriptionEntry,
+	SubscriptionStatus
+} from '#lib/api/subscription-types.js';
 import type { AcademySummary, Locale } from '#lib/api/types.js';
+import { formatDayMonth } from '#lib/format.js';
+import { formatMoney } from '#lib/money.js';
 import { m } from '#lib/paraglide/messages.js';
 
 export type StatusTone = 'active' | 'pending' | 'danger' | 'stone' | 'neutral';
@@ -66,4 +73,34 @@ export function monthsText(n: number, locale: Locale): string {
 	if (n === 2) return m.subscription_months_two({}, { locale });
 	if (n <= 10) return m.subscription_months_few({ count: n }, { locale });
 	return m.subscription_months_many({ count: n }, { locale });
+}
+
+const methodTexts: Record<PaymentMethod, () => string> = {
+	instapay: () => m.subscription_method_instapay(),
+	cash: () => m.subscription_method_cash(),
+	other: () => m.subscription_method_other()
+};
+
+export const paymentMethods = Object.keys(methodTexts) as PaymentMethod[];
+
+export const methodText = (method: PaymentMethod) => methodTexts[method]();
+
+/** "Paid month · EGP 1,500 · InstaPay · 15 Nov → 15 Dec · Mona" */
+export function entryText(e: SubscriptionEntry, locale: Locale): string {
+	const parts =
+		e.kind === 'paid'
+			? [
+					m.subscription_entry_paid({}, { locale }),
+					formatMoney(e.amount ?? 0, 'EGP', locale),
+					e.method ? methodText(e.method) : ''
+				]
+			: [
+					m.subscription_entry_free({}, { locale }),
+					m.subscription_entry_days({ count: e.days ?? 0 }, { locale })
+				];
+	parts.push(
+		`${formatDayMonth(e.startsOn, locale)} → ${formatDayMonth(e.endsOn, locale)}`,
+		e.madeBy
+	);
+	return parts.filter(Boolean).join(' · ');
 }
