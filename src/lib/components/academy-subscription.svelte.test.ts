@@ -49,7 +49,7 @@ const none = subscription({
 	entries: []
 });
 
-function stubFetch() {
+function stubFetch(respond: () => Response = () => Response.json(subscription({}))) {
 	const calls: { url: string; method: string; body: unknown }[] = [];
 	vi.stubGlobal(
 		'fetch',
@@ -59,11 +59,20 @@ function stubFetch() {
 				method: init.method ?? 'GET',
 				body: init.body ? JSON.parse(String(init.body)) : undefined
 			});
-			return Response.json(subscription({}));
+			return respond();
 		})
 	);
 	return calls;
 }
+
+const fieldError = (field: string, code: string) => () =>
+	Response.json(
+		{ code: 'validation_failed', status: 400, errors: { [field]: [code] } },
+		{ status: 400, headers: { 'content-type': 'application/problem+json' } }
+	);
+
+const formOf = (screen: ReturnType<typeof render>, heading: string) =>
+	screen.getByRole('heading', { name: heading }).element().closest('form') as HTMLFormElement;
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -138,7 +147,7 @@ describe('AcademySubscription', () => {
 
 		await expect.poll(() => calls.length).toBe(1);
 		expect(calls[0]).toMatchObject({
-			url: '/api/platform/academies/a1/entries/latest',
+			url: '/api/platform/academies/a1/entries/e2',
 			method: 'DELETE'
 		});
 	});
@@ -167,5 +176,73 @@ describe('AcademySubscription', () => {
 		await expect
 			.element(screen.getByRole('button', { name: 'Give free time' }))
 			.not.toBeInTheDocument();
+	});
+
+	it('shows a free-time note error on the free-time card', async () => {
+		stubFetch(fieldError('note', 'note_too_long'));
+		const screen = render(AcademySubscription, props(subscription({})));
+
+		await screen.getByLabelText('Days').fill('7');
+		await screen.getByRole('button', { name: 'Give free time' }).click();
+
+		await expect.element(screen.getByText('Keep the note to 500 characters.')).toBeVisible();
+		expect(formOf(screen, 'Give free time').textContent).toContain(
+			'Keep the note to 500 characters.'
+		);
+		expect(formOf(screen, 'Mark month paid').textContent).not.toContain(
+			'Keep the note to 500 characters.'
+		);
+	});
+
+	it('checks amounts and days are whole numbers before sending', async () => {
+		const calls = stubFetch();
+		const screen = render(AcademySubscription, props(subscription({})));
+
+		await screen.getByLabelText('Amount').fill('');
+		await screen.getByRole('button', { name: 'Mark month paid' }).click();
+		await expect.element(screen.getByText('Enter an amount of 0 or more.')).toBeVisible();
+		await screen.getByLabelText('Amount').fill('1500.5');
+		await screen.getByRole('button', { name: 'Mark month paid' }).click();
+		await screen.getByLabelText('Days').fill('2.5');
+		await screen.getByRole('button', { name: 'Give free time' }).click();
+		await expect.element(screen.getByText('Days must be between 1 and 366.')).toBeVisible();
+		expect(calls).toHaveLength(0);
+	});
+
+	it('says Saved on the card that acted', async () => {
+		stubFetch();
+		const screen = render(
+			AcademySubscription,
+			props(subscription({ entries: [entry('e2', 'paid'), entry('e1', 'free')] }))
+		);
+
+		await screen.getByRole('button', { name: 'Undo' }).click();
+
+		await expect.element(screen.getByText('Saved.')).toBeVisible();
+		const card = screen
+			.getByRole('heading', { name: 'Payments and free time' })
+			.element().parentElement;
+		expect(card?.textContent).toContain('Saved.');
+	});
+
+	it('keeps a typed amount when giving free time', async () => {
+		stubFetch();
+		const screen = render(AcademySubscription, props(subscription({})));
+
+		await screen.getByLabelText('Amount').fill('1200');
+		await screen.getByLabelText('Days').fill('7');
+		await screen.getByRole('button', { name: 'Give free time' }).click();
+
+		await expect.element(screen.getByText('Saved.')).toBeVisible();
+		await expect.element(screen.getByLabelText('Amount')).toHaveValue(1200);
+	});
+
+	it('moves focus into the block confirmation and back on cancel', async () => {
+		const screen = render(AcademySubscription, props(subscription({})));
+
+		await screen.getByRole('button', { name: 'Block booking' }).click();
+		await expect.element(screen.getByRole('button', { name: 'Yes, block booking' })).toHaveFocus();
+		await screen.getByRole('button', { name: 'Cancel' }).click();
+		await expect.element(screen.getByRole('button', { name: 'Block booking' })).toHaveFocus();
 	});
 });

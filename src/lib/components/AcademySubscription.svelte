@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import { localName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
@@ -15,6 +15,7 @@
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, CheckboxField, SelectField, TextField } from '#lib/ui/index.js';
 
+	type Section = 'package' | 'paid' | 'free' | 'entries' | 'block';
 	type Props = {
 		academyId: string;
 		subscription: AcademySubscription;
@@ -37,9 +38,11 @@
 	let freeNote = $state('');
 	let confirming = $state(false);
 	let busy = $state(false);
+	let section = $state<Section>();
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let notice = $state<string>();
+	let blockCard = $state<HTMLElement>();
 
 	const packageOptions = $derived([
 		...(sub.package ? [] : [{ value: '', label: m.subscription_choose_package() }]),
@@ -53,16 +56,21 @@
 	);
 	const methodOptions = paymentMethods.map((value) => ({ value, label: methodText(value) }));
 
-	async function send(path: string, method: 'PUT' | 'POST' | 'DELETE', body?: unknown) {
-		busy = true;
+	const shown = (at: Section) => (section === at ? errors : {});
+
+	function start(at: Section) {
+		section = at;
 		failure = notice = undefined;
 		errors = {};
+	}
+
+	async function send(path: string, method: 'PUT' | 'POST' | 'DELETE', body?: unknown) {
+		busy = true;
 		try {
 			sub = await api<AcademySubscription>(`/platform/academies/${academyId}${path}`, {
 				method,
 				body
 			});
-			amount = sub.package?.monthlyPrice ?? '';
 			notice = m.subscription_saved();
 			onchange(sub);
 			return true;
@@ -76,51 +84,89 @@
 		}
 	}
 
-	function savePackage(event: SubmitEvent) {
+	const between = (n: number, min: number, max: number) =>
+		Number.isInteger(n) && n >= min && n <= max;
+
+	async function savePackage(event: SubmitEvent) {
 		event.preventDefault();
+		start('package');
+		const free = String(freeDays ?? '').trim() === '' ? 0 : wholeNumber(freeDays);
+		if (sub.entries.length === 0 && !between(free, 0, 366)) {
+			errors = { freeDays: ['days_invalid'] };
+			return;
+		}
 		const body =
 			sub.entries.length === 0
-				? { packageId: packageId || null, freeDays: wholeNumber(freeDays) || 0 }
+				? { packageId: packageId || null, freeDays: free }
 				: { packageId: packageId || null };
-		send('/package', 'PUT', body);
+		if (await send('/package', 'PUT', body)) amount = sub.package?.monthlyPrice ?? '';
 	}
 
 	async function markPaid(event: SubmitEvent) {
 		event.preventDefault();
+		start('paid');
+		const paid = wholeNumber(amount);
+		if (!between(paid, 0, Number.MAX_SAFE_INTEGER)) {
+			errors = { amount: ['amount_invalid'] };
+			return;
+		}
 		const body = {
-			amount: wholeNumber(amount),
+			amount: paid,
 			method,
 			note: paidNote.trim() || null,
 			fromToday: sub.status === 'unpaid' && fromToday
 		};
 		if (!(await send('/payments', 'POST', body))) return;
+		amount = sub.package?.monthlyPrice ?? '';
 		paidNote = '';
 		fromToday = false;
 	}
 
 	async function giveFree(event: SubmitEvent) {
 		event.preventDefault();
-		const body = { days: wholeNumber(days), note: freeNote.trim() || null };
-		if (!(await send('/free-time', 'POST', body))) return;
+		start('free');
+		const n = wholeNumber(days);
+		if (!between(n, 1, 366)) {
+			errors = { days: ['days_invalid'] };
+			return;
+		}
+		if (!(await send('/free-time', 'POST', { days: n, note: freeNote.trim() || null }))) return;
 		days = '';
 		freeNote = '';
 	}
 
+	function undo() {
+		start('entries');
+		send(`/entries/${sub.entries[0].id}`, 'DELETE');
+	}
+
+	async function confirm(open: boolean) {
+		confirming = open;
+		await tick();
+		blockCard?.querySelector('button')?.focus();
+	}
+
 	async function setBlocked(blocked: boolean) {
-		if (await send('/blocked', 'PUT', { blocked })) confirming = false;
+		start('block');
+		if (await send('/blocked', 'PUT', { blocked })) await confirm(false);
 	}
 </script>
 
-<div class="sj-stack">
-	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
-	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
+{#snippet status(at: Section)}
+	{#if section === at}
+		{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
+		{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
+	{/if}
+{/snippet}
 
+<div class="sj-stack">
 	<Card>
 		<form class="sj-stack" onsubmit={savePackage} novalidate>
+			{@render status('package')}
 			<SelectField
 				label={m.subscription_package()}
 				options={packageOptions}
-				error={fieldText(errors, 'packageId')}
+				error={fieldText(shown('package'), 'packageId')}
 				bind:value={packageId}
 			/>
 			{#if overLimit !== null}
@@ -136,7 +182,7 @@
 					label={m.subscription_free_days()}
 					type="number"
 					dir="ltr"
-					error={fieldText(errors, 'freeDays')}
+					error={fieldText(shown('package'), 'freeDays')}
 					bind:value={freeDays}
 				/>
 			{/if}
@@ -150,31 +196,32 @@
 		<Card>
 			<form class="sj-stack" onsubmit={markPaid} novalidate>
 				<h2 class="sj-heading">{m.subscription_mark_paid_title()}</h2>
+				{@render status('paid')}
 				<div class="fields">
 					<TextField
 						label={m.subscription_amount()}
 						type="number"
 						dir="ltr"
-						error={fieldText(errors, 'amount')}
+						error={fieldText(shown('paid'), 'amount')}
 						bind:value={amount}
 					/>
 					<SelectField
 						label={m.subscription_method()}
 						options={methodOptions}
-						error={fieldText(errors, 'method')}
+						error={fieldText(shown('paid'), 'method')}
 						bind:value={() => method, (v) => (method = v as PaymentMethod)}
 					/>
 				</div>
 				<TextField
 					label={m.subscription_note()}
-					error={fieldText(errors, 'note')}
+					error={fieldText(shown('paid'), 'note')}
 					bind:value={paidNote}
 				/>
 				{#if sub.status === 'unpaid'}
 					<CheckboxField label={m.subscription_from_today()} bind:checked={fromToday} />
 					<span class="sj-hint">{m.subscription_from_today_hint()}</span>
-					{#if fieldText(errors, 'fromToday')}
-						<span class="sj-field-error">{fieldText(errors, 'fromToday')}</span>
+					{#if fieldText(shown('paid'), 'fromToday')}
+						<span class="sj-field-error">{fieldText(shown('paid'), 'fromToday')}</span>
 					{/if}
 				{/if}
 				<div class="sj-row">
@@ -187,15 +234,20 @@
 		<Card>
 			<form class="sj-stack" onsubmit={giveFree} novalidate>
 				<h2 class="sj-heading">{m.subscription_free_title()}</h2>
+				{@render status('free')}
 				<div class="fields">
 					<TextField
 						label={m.subscription_days()}
 						type="number"
 						dir="ltr"
-						error={fieldText(errors, 'days')}
+						error={fieldText(shown('free'), 'days')}
 						bind:value={days}
 					/>
-					<TextField label={m.subscription_note()} bind:value={freeNote} />
+					<TextField
+						label={m.subscription_note()}
+						error={fieldText(shown('free'), 'note')}
+						bind:value={freeNote}
+					/>
 				</div>
 				<div class="sj-row">
 					<Button type="submit" variant="secondary" icon="redeem" disabled={busy}>
@@ -209,6 +261,7 @@
 	<Card>
 		<div class="sj-stack">
 			<h2 class="sj-heading">{m.subscription_entries()}</h2>
+			{@render status('entries')}
 			{#if sub.entries.length === 0}
 				<p class="sj-muted">{m.subscription_entries_empty()}</p>
 			{:else}
@@ -220,12 +273,7 @@
 								{#if e.note}<span class="sj-hint">{e.note}</span>{/if}
 							</div>
 							{#if i === 0}
-								<Button
-									variant="quiet"
-									icon="undo"
-									disabled={busy}
-									onclick={() => send('/entries/latest', 'DELETE')}
-								>
+								<Button variant="quiet" icon="undo" disabled={busy} onclick={undo}>
 									{m.subscription_undo()}
 								</Button>
 							{/if}
@@ -237,7 +285,8 @@
 	</Card>
 
 	<Card>
-		<div class="sj-stack">
+		<div class="sj-stack" bind:this={blockCard}>
+			{@render status('block')}
 			{#if confirming}
 				<p>{sub.blocked ? m.subscription_unblock_confirm() : m.subscription_block_confirm()}</p>
 				<div class="sj-row">
@@ -248,14 +297,14 @@
 					>
 						{sub.blocked ? m.subscription_unblock_yes() : m.subscription_block_yes()}
 					</Button>
-					<Button variant="quiet" onclick={() => (confirming = false)}>{m.action_cancel()}</Button>
+					<Button variant="quiet" onclick={() => confirm(false)}>{m.action_cancel()}</Button>
 				</div>
 			{:else}
 				<div class="sj-row">
 					<Button
 						variant={sub.blocked ? 'secondary' : 'danger'}
 						icon={sub.blocked ? 'lock_open' : 'block'}
-						onclick={() => (confirming = true)}
+						onclick={() => confirm(true)}
 					>
 						{sub.blocked ? m.subscription_unblock() : m.subscription_block()}
 					</Button>

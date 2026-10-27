@@ -41,7 +41,7 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	await layla.goto(academyUrl(slug, invitePath));
 	await layla.getByLabel('Your name').fill('Layla');
 	await layla.getByLabel('Email').fill(`layla-${slug}@example.test`);
-	await layla.getByLabel('Password').fill('RiderPassw0rd');
+	await layla.getByLabel('Password', { exact: true }).fill('RiderPassw0rd');
 	await layla.getByRole('button', { name: 'Create your account' }).click();
 	await expect(layla).toHaveURL(academyUrl(slug, '/'));
 	await expect(layla.getByText('Left this month: 8 of 8')).toBeVisible();

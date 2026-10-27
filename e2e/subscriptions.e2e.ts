@@ -35,7 +35,7 @@ test('a platform admin sets up a package, academies see what they owe, and block
 		await page
 			.getByRole('listitem')
 			.filter({ hasText: name })
-			.getByRole('link', { name: 'Subscription' })
+			.getByRole('link', { name: `Subscription for ${name}` })
 			.click();
 		await expect(page.getByRole('heading', { name, level: 1 })).toBeVisible();
 	};
@@ -78,7 +78,7 @@ test('a platform admin sets up a package, academies see what they owe, and block
 	await layla.goto(academyUrl(slug, laylaInvite));
 	await layla.getByLabel('Your name').fill('Layla');
 	await layla.getByLabel('Email').fill(`layla-${slug}@example.test`);
-	await layla.getByLabel('Password').fill('RiderPassw0rd');
+	await layla.getByLabel('Password', { exact: true }).fill('RiderPassw0rd');
 	await layla.getByRole('button', { name: 'Create your account' }).click();
 	await expect(layla).toHaveURL(academyUrl(slug, '/'));
 

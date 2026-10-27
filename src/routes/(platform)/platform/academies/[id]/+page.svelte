@@ -11,8 +11,8 @@
 
 	let { data }: PageProps = $props();
 
-	let current = $state<Subscription>();
-	const sub = $derived(current ?? data.subscription);
+	let current = $state<{ academyId: string; sub: Subscription }>();
+	const sub = $derived(current?.academyId === data.academy.id ? current.sub : data.subscription);
 	const name = $derived(academyName(data.academy, data.locale));
 </script>
 
@@ -38,11 +38,13 @@
 		{/if}
 	</div>
 
-	<AcademySubscription
-		academyId={data.academy.id}
-		subscription={data.subscription}
-		packages={data.packages}
-		locale={data.locale}
-		onchange={(s) => (current = s)}
-	/>
+	{#key data.academy.id}
+		<AcademySubscription
+			academyId={data.academy.id}
+			subscription={data.subscription}
+			packages={data.packages}
+			locale={data.locale}
+			onchange={(s) => (current = { academyId: data.academy.id, sub: s })}
+		/>
+	{/key}
 </div>

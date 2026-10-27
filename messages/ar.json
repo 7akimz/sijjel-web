@@ -699,5 +699,12 @@
 	"count_riders_one": "فارس واحد",
 	"count_riders_two": "فارسان",
 	"count_riders_few": "{count} فرسان",
-	"count_riders_many": "{count} فارسًا"
+	"count_riders_many": "{count} فارسًا",
+	"subscription_blocked_no_package": "الحجز متوقف في أكاديميتك. يُرجى التواصل مع سجل.",
+	"subscription_for": "اشتراك {name}",
+	"academies_filter_empty": "لا توجد أكاديميات مطابقة لهذه التصفية.",
+	"error_blocked_required": "حدّد ما إذا كان يجب إيقاف الحجز.",
+	"error_entry_not_latest": "يمكن التراجع عن أحدث سجل فقط. أعد تحميل الصفحة لرؤية الأحدث.",
+	"action_show_password": "إظهار كلمة المرور",
+	"action_hide_password": "إخفاء كلمة المرور"
 }

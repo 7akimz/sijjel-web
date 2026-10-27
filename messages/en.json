@@ -699,5 +699,12 @@
 	"count_riders_one": "1 rider",
 	"count_riders_two": "2 riders",
 	"count_riders_few": "{count} riders",
-	"count_riders_many": "{count} riders"
+	"count_riders_many": "{count} riders",
+	"subscription_blocked_no_package": "Booking is paused at your academy. Please contact sijjel.",
+	"subscription_for": "Subscription for {name}",
+	"academies_filter_empty": "No academies match this filter.",
+	"error_blocked_required": "Say whether booking should be blocked.",
+	"error_entry_not_latest": "Only the newest entry can be undone. Reload to see the latest.",
+	"action_show_password": "Show password",
+	"action_hide_password": "Hide password"
 }

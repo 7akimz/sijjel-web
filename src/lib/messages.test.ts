@@ -101,6 +101,8 @@ const boardProblems = [
 
 const subscriptionErrors = [
 	'academy_blocked',
+	'blocked_required',
+	'entry_not_latest',
 	'rider_limit_reached',
 	'package_required',
 	'package_not_found',

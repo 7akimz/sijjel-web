@@ -13,6 +13,8 @@
 	const due = $derived(notice?.paidUntil ? formatDate(notice.paidUntil, locale) : '');
 	const adminText = $derived.by(() => {
 		if (!notice) return undefined;
+		if (notice.blocked && notice.status === 'no_package')
+			return m.subscription_blocked_no_package({}, { locale });
 		if (notice.blocked) return m.subscription_blocked_admin({}, { locale });
 		if (notice.status === 'unpaid')
 			return m.subscription_unpaid(
@@ -36,7 +38,9 @@
 		>
 			<span class="lines">
 				<span>{adminText}</span>
-				<span>{m.subscription_how_to_pay({}, { locale })}</span>
+				{#if notice.status !== 'no_package'}
+					<span>{m.subscription_how_to_pay({}, { locale })}</span>
+				{/if}
 			</span>
 		</Banner>
 	</div>

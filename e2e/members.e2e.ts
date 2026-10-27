@@ -25,7 +25,7 @@ async function signUp(page: Page, slug: string, invitePath: string, name: string
 	await page.goto(academyUrl(slug, invitePath));
 	await page.getByLabel('Your name').fill(name);
 	await page.getByLabel('Email').fill(`${name.toLowerCase()}-${slug}@example.test`);
-	await page.getByLabel('Password').fill('RiderPassw0rd');
+	await page.getByLabel('Password', { exact: true }).fill('RiderPassw0rd');
 	await page.getByRole('button', { name: 'Create your account' }).click();
 	await expect(page).toHaveURL(academyUrl(slug, '/'));
 }

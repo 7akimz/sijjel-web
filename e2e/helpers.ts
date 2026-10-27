@@ -6,7 +6,7 @@ export const OWNER_PASSWORD = 'OwnerPassw0rd';
 export async function signInAsPlatformAdmin(page: Page, url = platformUrl('/login')) {
 	await page.goto(url);
 	await page.getByLabel('Email').fill(ADMIN_EMAIL);
-	await page.getByLabel('Password').fill(ADMIN_PASSWORD);
+	await page.getByLabel('Password', { exact: true }).fill(ADMIN_PASSWORD);
 	await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
 }
 
@@ -43,7 +43,7 @@ export async function signUpOwner(
 	await owner.goto(academyUrl(slug, invitePath));
 	await owner.getByLabel('Your name').fill('Owner');
 	await owner.getByLabel('Email').fill(`owner-${slug}@example.test`);
-	await owner.getByLabel('Password').fill(OWNER_PASSWORD);
+	await owner.getByLabel('Password', { exact: true }).fill(OWNER_PASSWORD);
 	await owner.getByRole('button', { name: 'Create your account' }).click();
 	await expect(owner).toHaveURL(academyUrl(slug, '/'));
 	return owner;

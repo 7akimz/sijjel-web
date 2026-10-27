@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import { DateRangeField, TimeRangeField } from './index';
+import { DateRangeField, TextField, TimeRangeField } from './index';
 
 describe('TimeRangeField', () => {
 	it('keeps 24-hour times left-to-right whatever the browser locale', () => {
@@ -38,5 +38,24 @@ describe('DateRangeField', () => {
 		await screen.getByLabelText('Closed from').fill('2026-04-01');
 
 		await expect.element(screen.getByLabelText('Closed to')).toHaveValue('2026-04-01');
+	});
+});
+
+describe('TextField', () => {
+	it('shows and hides a password', async () => {
+		const screen = render(TextField, { label: 'Password', type: 'password', value: 'secret' });
+		const input = screen.getByLabelText('Password', { exact: true });
+
+		await expect.element(input).toHaveAttribute('type', 'password');
+		await screen.getByRole('button', { name: 'Show password' }).click();
+		await expect.element(input).toHaveAttribute('type', 'text');
+		await screen.getByRole('button', { name: 'Hide password' }).click();
+		await expect.element(input).toHaveAttribute('type', 'password');
+		await expect.element(input).toHaveValue('secret');
+	});
+
+	it('has no show button on other fields', () => {
+		const screen = render(TextField, { label: 'Email', type: 'email' });
+		expect(screen.container.querySelector('button')).toBeNull();
 	});
 });

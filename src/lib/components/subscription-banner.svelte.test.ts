@@ -80,6 +80,26 @@ describe('SubscriptionBanner', () => {
 			.toBeVisible();
 	});
 
+	it('a blocked admin without a package is not told to pay', async () => {
+		const screen = render(SubscriptionBanner, {
+			membership: membership({
+				bookingPaused: true,
+				subscription: {
+					status: 'no_package',
+					paidUntil: null,
+					monthsUnpaid: 0,
+					amountUnpaid: 0,
+					blocked: true
+				}
+			}),
+			locale: 'en'
+		});
+		await expect
+			.element(screen.getByText('Booking is paused at your academy. Please contact sijjel.'))
+			.toBeVisible();
+		expect(screen.container.textContent).not.toMatch(/is paid|InstaPay/);
+	});
+
 	it('riders see only that booking is paused', async () => {
 		const screen = render(SubscriptionBanner, {
 			membership: membership({ roles: ['rider'], bookingPaused: true }),

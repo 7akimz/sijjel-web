@@ -118,6 +118,8 @@
 				{m.academies_empty_body()}
 			</EmptyState>
 		{/if}
+	{:else if academies.length === 0}
+		<p class="sj-muted">{m.academies_filter_empty()}</p>
 	{:else}
 		<ul class="sj-list" role="list">
 			{#each academies as academy (academy.id)}
@@ -180,6 +182,7 @@
 						<a
 							class="sj-small"
 							href={resolve('/(platform)/platform/academies/[id]', { id: academy.id })}
+							aria-label={m.subscription_for({ name })}
 						>
 							{m.subscription_title()}
 						</a>
