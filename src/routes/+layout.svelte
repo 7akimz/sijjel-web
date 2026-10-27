@@ -51,6 +51,11 @@
 					icon: 'domain'
 				},
 				{
+					href: resolve('/(platform)/platform/packages'),
+					label: m.nav_packages({}, { locale }),
+					icon: 'sell'
+				},
+				{
 					href: resolve('/(platform)/platform/disciplines'),
 					label: m.nav_disciplines({}, { locale }),
 					icon: 'format_list_numbered'
