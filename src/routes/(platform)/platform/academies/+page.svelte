@@ -1,13 +1,25 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { academyMark, academyName } from '#lib/academy.js';
+	import { academyMark, academyName, localName } from '#lib/academy.js';
 	import InviteLink from '#lib/components/InviteLink.svelte';
 	import NewAcademyForm from '#lib/components/NewAcademyForm.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { AcademySummary, CreatedInvite } from '#lib/api/types.js';
+	import { formatDayMonth } from '#lib/format.js';
+	import {
+		matchesFilter,
+		monthsText,
+		ridersText,
+		sortByUrgency,
+		statusFilters,
+		statusText,
+		statusTone,
+		type StatusFilter
+	} from '#lib/forms/subscription.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner, Button, EmptyState, ListRow, StatusChip } from '#lib/ui/index.js';
+	import { Banner, Button, EmptyState, ListRow, SelectField, StatusChip } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -18,11 +30,24 @@
 	let failure = $state<string>();
 	let invites = $state<Record<string, CreatedInvite>>({});
 	let inviting = $state<string>();
+	let filter = $state<StatusFilter>('all');
 
-	const academies = $derived([
+	const all = $derived([
 		...created,
-		...data.academies.filter((a) => !created.some((c) => c.id === a.id))
+		...sortByUrgency(data.academies.filter((a) => !created.some((c) => c.id === a.id)))
 	]);
+	const academies = $derived(all.filter((a) => matchesFilter(a, filter)));
+	const filterOptions = $derived(
+		statusFilters.map((f) => ({
+			value: f,
+			label:
+				f === 'all'
+					? m.subscription_filter_all()
+					: f === 'blocked'
+						? m.subscription_blocked()
+						: statusText(f, data.locale)
+		}))
+	);
 	const disciplineNames = $derived(
 		new Map(
 			data.disciplines.map((d) => [d.key, data.locale === 'ar' ? d.nameAr : d.nameEn] as const)
@@ -79,7 +104,15 @@
 		/>
 	{/if}
 
-	{#if academies.length === 0}
+	{#if all.length > 0}
+		<SelectField
+			label={m.subscription_filter()}
+			options={filterOptions}
+			bind:value={() => filter, (v) => (filter = v as StatusFilter)}
+		/>
+	{/if}
+
+	{#if all.length === 0}
 		{#if !creating}
 			<EmptyState icon="domain" title={m.academies_empty_title()}>
 				{m.academies_empty_body()}
@@ -120,6 +153,36 @@
 								<StatusChip tone="pending" dot>{m.academy_no_owner()}</StatusChip>
 							{/if}
 						</div>
+						<div class="sj-row">
+							{#if academy.package}
+								<StatusChip tone="neutral">{localName(academy.package, data.locale)}</StatusChip>
+							{/if}
+							<StatusChip tone={statusTone(academy.status, false)}>
+								{statusText(academy.status, data.locale)}
+							</StatusChip>
+							{#if academy.blocked}<StatusChip tone="danger">{m.subscription_blocked()}</StatusChip
+								>{/if}
+							<span class="sj-small sj-muted">{ridersText(academy.riders, data.locale)}</span>
+						</div>
+						{#if academy.monthsUnpaid > 0}
+							<span class="sj-small">
+								{m.subscription_unpaid_months({
+									months: monthsText(academy.monthsUnpaid, data.locale)
+								})}
+							</span>
+						{:else if academy.paidUntil}
+							<span class="sj-small sj-muted">
+								{m.subscription_paid_until({
+									date: formatDayMonth(academy.paidUntil, data.locale)
+								})}
+							</span>
+						{/if}
+						<a
+							class="sj-small"
+							href={resolve('/(platform)/platform/academies/[id]', { id: academy.id })}
+						>
+							{m.subscription_title()}
+						</a>
 						{#if invites[academy.id]}
 							<InviteLink invite={invites[academy.id]} locale={data.locale} />
 						{/if}

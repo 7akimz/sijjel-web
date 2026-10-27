@@ -88,15 +88,17 @@
 			note: paidNote.trim() || null,
 			fromToday: sub.status === 'unpaid' && fromToday
 		};
-		if (await send('/payments', 'POST', body)) ((paidNote = ''), (fromToday = false));
+		if (!(await send('/payments', 'POST', body))) return;
+		paidNote = '';
+		fromToday = false;
 	}
 
 	async function giveFree(event: SubmitEvent) {
 		event.preventDefault();
-		if (
-			await send('/free-time', 'POST', { days: wholeNumber(days), note: freeNote.trim() || null })
-		)
-			((days = ''), (freeNote = ''));
+		const body = { days: wholeNumber(days), note: freeNote.trim() || null };
+		if (!(await send('/free-time', 'POST', body))) return;
+		days = '';
+		freeNote = '';
 	}
 
 	async function setBlocked(blocked: boolean) {
