@@ -1,3 +1,5 @@
+import type { Package, Riders, SubscriptionNotice, SubscriptionStatus } from './subscription-types';
+
 export type Locale = 'en' | 'ar';
 
 export interface DisciplineRef {
@@ -45,6 +47,10 @@ export interface Membership {
 	discipline: DisciplineRef | null;
 	level: NameRef | null;
 	setupDone: boolean;
+	/** True while the platform has paused new bookings at the academy. */
+	bookingPaused: boolean;
+	/** Only for admins, and only when there is something to tell them. */
+	subscription?: SubscriptionNotice;
 }
 
 export interface LevelName {
@@ -68,6 +74,12 @@ export interface AcademySummary {
 	isActive: boolean;
 	disciplines: string[];
 	ownerCount: number;
+	package: Package | null;
+	riders: Riders;
+	status: SubscriptionStatus;
+	paidUntil: string | null;
+	monthsUnpaid: number;
+	blocked: boolean;
 }
 
 export interface CreatedInvite {

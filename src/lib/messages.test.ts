@@ -99,7 +99,24 @@ const boardProblems = [
 	'no_workable_horse'
 ];
 
+const subscriptionErrors = [
+	'academy_blocked',
+	'rider_limit_reached',
+	'package_required',
+	'package_not_found',
+	'max_riders_invalid',
+	'price_invalid',
+	'days_invalid',
+	'amount_invalid',
+	'method_invalid',
+	'note_too_long',
+	'from_today_invalid',
+	'entry_not_found',
+	'academy_not_found'
+];
+
 const slotReasons = [
+	'academy_blocked',
 	'past',
 	'too_soon',
 	'outside_window',
@@ -143,6 +160,13 @@ describe('messages', () => {
 
 	it('translates every academy setup error code in both languages', () => {
 		for (const code of academySetupErrors) {
+			expect(en, code).toHaveProperty(`error_${code}`);
+			expect(ar, code).toHaveProperty(`error_${code}`);
+		}
+	});
+
+	it('translates every subscription error code in both languages', () => {
+		for (const code of subscriptionErrors) {
 			expect(en, code).toHaveProperty(`error_${code}`);
 			expect(ar, code).toHaveProperty(`error_${code}`);
 		}
