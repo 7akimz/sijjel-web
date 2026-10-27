@@ -4,6 +4,7 @@
 	import { reveal } from '#lib/reveal.js';
 	import { localName } from '#lib/academy.js';
 	import type { Package } from '#lib/api/subscription-types.js';
+	import { riderCountText } from '#lib/forms/subscription.js';
 	import { formatMoney } from '#lib/money.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, EmptyState, StatusChip } from '#lib/ui/index.js';
@@ -76,7 +77,7 @@
 									<StatusChip tone="neutral">
 										{item.maxRiders === null
 											? m.package_unlimited()
-											: m.package_up_to({ count: item.maxRiders })}
+											: m.package_up_to({ riders: riderCountText(item.maxRiders, data.locale) })}
 									</StatusChip>
 									<StatusChip tone="neutral">
 										{m.package_per_month({

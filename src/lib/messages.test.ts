@@ -190,6 +190,10 @@ describe('messages', () => {
 		}
 	});
 
+	it('names a blocked academy calmly in Arabic', () => {
+		expect(ar.subscription_blocked).toBe('الحجز موقوف');
+	});
+
 	it('has the same keys in English and Arabic', () => {
 		expect(Object.keys(ar).sort()).toEqual(Object.keys(en).sort());
 	});

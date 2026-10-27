@@ -67,12 +67,45 @@ export function ridersText(r: Riders, locale: Locale): string {
 		: m.subscription_riders_of({ count: r.count, limit: r.limit }, { locale });
 }
 
+type CountForms = {
+	one: () => string;
+	two: () => string;
+	few: (count: number) => string;
+	many: (count: number) => string;
+};
+
 /** Arabic counts one, two, three to ten, and eleven up differently. */
+function countText(n: number, forms: CountForms): string {
+	if (n === 1) return forms.one();
+	if (n === 2) return forms.two();
+	return n <= 10 ? forms.few(n) : forms.many(n);
+}
+
 export function monthsText(n: number, locale: Locale): string {
-	if (n === 1) return m.subscription_months_one({}, { locale });
-	if (n === 2) return m.subscription_months_two({}, { locale });
-	if (n <= 10) return m.subscription_months_few({ count: n }, { locale });
-	return m.subscription_months_many({ count: n }, { locale });
+	return countText(n, {
+		one: () => m.subscription_months_one({}, { locale }),
+		two: () => m.subscription_months_two({}, { locale }),
+		few: (count) => m.subscription_months_few({ count }, { locale }),
+		many: (count) => m.subscription_months_many({ count }, { locale })
+	});
+}
+
+export function daysText(n: number, locale: Locale): string {
+	return countText(n, {
+		one: () => m.count_days_one({}, { locale }),
+		two: () => m.count_days_two({}, { locale }),
+		few: (count) => m.count_days_few({ count }, { locale }),
+		many: (count) => m.count_days_many({ count }, { locale })
+	});
+}
+
+export function riderCountText(n: number, locale: Locale): string {
+	return countText(n, {
+		one: () => m.count_riders_one({}, { locale }),
+		two: () => m.count_riders_two({}, { locale }),
+		few: (count) => m.count_riders_few({ count }, { locale }),
+		many: (count) => m.count_riders_many({ count }, { locale })
+	});
 }
 
 const methodTexts: Record<PaymentMethod, () => string> = {
@@ -85,8 +118,15 @@ export const paymentMethods = Object.keys(methodTexts) as PaymentMethod[];
 
 export const methodText = (method: PaymentMethod) => methodTexts[method]();
 
-/** "Paid month · EGP 1,500 · InstaPay · 15 Nov → 15 Dec · Mona" */
-export function entryText(e: SubscriptionEntry, locale: Locale): string {
+/**
+ * "Paid month · EGP 1,500 · InstaPay · 15 Nov → 15 Dec · Mona". Academies see their own entries
+ * without who recorded them, which would show a platform admin's email.
+ */
+export function entryText(
+	e: SubscriptionEntry,
+	locale: Locale,
+	{ withMadeBy = true }: { withMadeBy?: boolean } = {}
+): string {
 	const parts =
 		e.kind === 'paid'
 			? [
@@ -94,13 +134,10 @@ export function entryText(e: SubscriptionEntry, locale: Locale): string {
 					formatMoney(e.amount ?? 0, 'EGP', locale),
 					e.method ? methodText(e.method) : ''
 				]
-			: [
-					m.subscription_entry_free({}, { locale }),
-					m.subscription_entry_days({ count: e.days ?? 0 }, { locale })
-				];
-	parts.push(
-		`${formatDayMonth(e.startsOn, locale)} → ${formatDayMonth(e.endsOn, locale)}`,
-		e.madeBy
-	);
+			: [m.subscription_entry_free({}, { locale }), daysText(e.days ?? 0, locale)];
+	// The arrow points from the start date the way the language reads.
+	const arrow = locale === 'ar' ? '←' : '→';
+	parts.push(`${formatDayMonth(e.startsOn, locale)} ${arrow} ${formatDayMonth(e.endsOn, locale)}`);
+	if (withMadeBy) parts.push(e.madeBy);
 	return parts.filter(Boolean).join(' · ');
 }

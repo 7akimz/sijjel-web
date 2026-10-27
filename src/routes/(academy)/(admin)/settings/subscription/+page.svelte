@@ -68,7 +68,7 @@
 					<h2 class="sj-heading">{m.subscription_recent()}</h2>
 					<ul class="entries" role="list">
 						{#each sub.entries as e (e.id)}
-							<li>{entryText(e, data.locale)}</li>
+							<li>{entryText(e, data.locale, { withMadeBy: false })}</li>
 						{/each}
 					</ul>
 				</div>

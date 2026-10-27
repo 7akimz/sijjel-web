@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import type { AcademySummary } from '#lib/api/types.js';
-import { matchesFilter, monthsText, ridersText, sortByUrgency, statusTone } from './subscription';
+import type { SubscriptionEntry } from '#lib/api/subscription-types.js';
+import {
+	daysText,
+	entryText,
+	matchesFilter,
+	monthsText,
+	riderCountText,
+	ridersText,
+	sortByUrgency,
+	statusTone
+} from './subscription';
 
 const academy = (nameEn: string, extra: Partial<AcademySummary>): AcademySummary => ({
 	id: nameEn,
@@ -80,5 +90,43 @@ describe('statusTone', () => {
 		expect(statusTone('paid', false)).toBe('active');
 		expect(statusTone('free', false)).toBe('neutral');
 		expect(statusTone('no_package', false)).toBe('stone');
+	});
+});
+
+const free: SubscriptionEntry = {
+	id: 'e1',
+	kind: 'free',
+	amount: null,
+	method: null,
+	days: 7,
+	note: null,
+	startsOn: '2026-11-15',
+	endsOn: '2026-11-22',
+	madeBy: 'admin@sijjel.test',
+	madeAt: '2026-11-15T08:00:00Z'
+};
+
+describe('entryText', () => {
+	it('points the date arrow the way each language reads', () => {
+		expect(entryText(free, 'en')).toContain('15 Nov → 22 Nov');
+		expect(entryText(free, 'ar')).toContain('←');
+		expect(entryText(free, 'ar')).not.toContain('→');
+	});
+
+	it('can leave out who recorded the entry', () => {
+		expect(entryText(free, 'en')).toContain('admin@sijjel.test');
+		expect(entryText(free, 'en', { withMadeBy: false })).not.toContain('admin@sijjel.test');
+	});
+});
+
+describe('Arabic counts', () => {
+	it('agrees days and riders with the number', () => {
+		expect(daysText(7, 'ar')).toBe('7 أيام');
+		expect(daysText(30, 'ar')).toBe('30 يومًا');
+		expect(daysText(1, 'en')).toBe('1 day');
+		expect(daysText(7, 'en')).toBe('7 days');
+		expect(riderCountText(5, 'ar')).toBe('5 فرسان');
+		expect(riderCountText(25, 'ar')).toBe('25 فارسًا');
+		expect(riderCountText(25, 'en')).toBe('25 riders');
 	});
 });

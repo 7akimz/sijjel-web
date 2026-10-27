@@ -6,7 +6,12 @@
 	import type { AcademySubscription, Package, PaymentMethod } from '#lib/api/subscription-types.js';
 	import type { Locale } from '#lib/api/types.js';
 	import { wholeNumber } from '#lib/forms/booking-rules.js';
-	import { entryText, methodText, paymentMethods } from '#lib/forms/subscription.js';
+	import {
+		entryText,
+		methodText,
+		paymentMethods,
+		riderCountText
+	} from '#lib/forms/subscription.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, CheckboxField, SelectField, TextField } from '#lib/ui/index.js';
 
@@ -120,7 +125,10 @@
 			/>
 			{#if overLimit !== null}
 				<Banner tone="pending" icon="warning">
-					{m.subscription_over_limit({ count: sub.riders.count, limit: overLimit })}
+					{m.subscription_over_limit({
+						riders: riderCountText(sub.riders.count, locale),
+						limit: overLimit
+					})}
 				</Banner>
 			{/if}
 			{#if sub.entries.length === 0}
