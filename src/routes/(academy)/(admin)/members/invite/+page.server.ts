@@ -1,13 +1,20 @@
 import type { AcademyDisciplines, BookingRules } from '#lib/api/academy-types.js';
 import type { Plan } from '#lib/api/member-types.js';
+import type { AcademySubscription } from '#lib/api/subscription-types.js';
 import { apiLoad } from '#lib/server/api.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
-	const [disciplines, plans, rules] = await Promise.all([
+	const [disciplines, plans, rules, subscription] = await Promise.all([
 		apiLoad<AcademyDisciplines>(event, '/api/academy/disciplines'),
 		apiLoad<Plan[]>(event, '/api/academy/plans'),
-		apiLoad<BookingRules>(event, '/api/academy/booking-rules')
+		apiLoad<BookingRules>(event, '/api/academy/booking-rules'),
+		apiLoad<AcademySubscription>(event, '/api/academy/subscription')
 	]);
-	return { disciplines, plans: plans.filter((p) => p.isActive), rules };
+	return {
+		disciplines,
+		plans: plans.filter((p) => p.isActive),
+		rules,
+		riders: subscription.riders
+	};
 };

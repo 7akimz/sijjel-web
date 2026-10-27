@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
 	import InviteMemberForm from '#lib/components/InviteMemberForm.svelte';
+	import { ridersText } from '#lib/forms/subscription.js';
 	import InviteShareCard from '#lib/components/InviteShareCard.svelte';
 	import { academyName } from '#lib/academy.js';
 	import type { CreatedAcademyInvite } from '#lib/api/member-types.js';
@@ -30,7 +32,10 @@
 </svelte:head>
 
 <div class="sj-page narrow">
-	<h1 class="sj-title">{m.invite_page_title_new()}</h1>
+	<div class="sj-stack">
+		<h1 class="sj-title">{m.invite_page_title_new()}</h1>
+		<p class="sj-muted">{ridersText(data.riders, data.locale)}</p>
+	</div>
 	<Card raised>
 		{#if created}
 			<InviteShareCard
@@ -44,7 +49,11 @@
 				<Button
 					variant="secondary"
 					icon="person_add"
-					onclick={() => ((created = undefined), formKey++)}
+					onclick={async () => {
+						await invalidateAll();
+						created = undefined;
+						formKey++;
+					}}
 				>
 					{m.invite_another()}
 				</Button>
@@ -57,6 +66,7 @@
 					rules={data.rules}
 					locale={data.locale}
 					ridersAllowed={data.membership?.setupDone ?? false}
+					riderLimitReached={data.riders.limit !== null && data.riders.count >= data.riders.limit}
 					oncreated={(invite, form) => (created = { invite, form })}
 				/>
 			{/key}

@@ -39,6 +39,12 @@
 			icon: 'format_list_numbered',
 			title: m.settings_disciplines_title(),
 			body: m.settings_disciplines_body()
+		},
+		{
+			href: resolve('/(academy)/(admin)/settings/subscription'),
+			icon: 'receipt_long',
+			title: m.settings_subscription_title(),
+			body: m.settings_subscription_body()
 		}
 	];
 </script>

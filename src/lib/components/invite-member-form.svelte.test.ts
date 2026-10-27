@@ -33,6 +33,25 @@ describe('InviteMemberForm', () => {
 			.toBeVisible();
 	});
 
+	it("holds riders back at the package's rider limit", async () => {
+		const screen = render(InviteMemberForm, {
+			...props,
+			ridersAllowed: true,
+			riderLimitReached: true
+		});
+
+		await expect.element(screen.getByLabelText('Who are you inviting?')).toHaveValue('trainer');
+		await expect
+			.element(screen.getByRole('option', { name: 'A rider' }))
+			.toHaveAttribute('disabled');
+		await expect
+			.element(screen.getByRole('option', { name: 'A trainer' }))
+			.not.toHaveAttribute('disabled');
+		await expect
+			.element(screen.getByText("You've reached your package's rider limit.", { exact: false }))
+			.toBeVisible();
+	});
+
 	it('starts on a rider once setup is done', async () => {
 		const screen = render(InviteMemberForm, { ...props, ridersAllowed: true });
 

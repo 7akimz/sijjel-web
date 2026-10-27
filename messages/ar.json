@@ -688,5 +688,9 @@
 	"subscription_saved": "تم الحفظ.",
 	"subscription_title": "الاشتراك",
 	"subscription_filter": "عرض",
-	"subscription_filter_all": "الكل"
+	"subscription_filter_all": "الكل",
+	"settings_subscription_title": "الاشتراك",
+	"settings_subscription_body": "باقتك في سجل ومدفوعاتك",
+	"subscription_none": "لست على باقة في سجل بعد.",
+	"subscription_recent": "آخر المدفوعات والوقت المجاني"
 }

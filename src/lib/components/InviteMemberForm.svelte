@@ -22,13 +22,25 @@
 		rules: BookingRules;
 		locale: Locale;
 		ridersAllowed: boolean;
+		/** The academy's package has no rider place left. */
+		riderLimitReached?: boolean;
 		oncreated: (invite: CreatedAcademyInvite, form: InviteMemberForm) => void;
 	};
-	let { disciplines, plans, rules, locale, ridersAllowed, oncreated }: Props = $props();
+	let {
+		disciplines,
+		plans,
+		rules,
+		locale,
+		ridersAllowed,
+		riderLimitReached = false,
+		oncreated
+	}: Props = $props();
+
+	const canInviteRiders = untrack(() => ridersAllowed && !riderLimitReached);
 
 	const first = untrack(() => disciplines.enabled[0]);
 	let form = $state<InviteMemberForm>({
-		role: untrack(() => (ridersAllowed ? 'rider' : 'trainer')),
+		role: canInviteRiders ? 'rider' : 'trainer',
 		name: '',
 		phone: '',
 		age: '',
@@ -47,7 +59,7 @@
 		{
 			value: 'rider',
 			label: m.invite_role_rider_option(),
-			disabled: !untrack(() => ridersAllowed)
+			disabled: !canInviteRiders
 		},
 		{ value: 'trainer', label: m.invite_role_trainer_option() },
 		{ value: 'admin', label: m.invite_role_admin_option() }
@@ -110,7 +122,11 @@
 	<SelectField
 		label={m.invite_role()}
 		options={roleOptions}
-		hint={ridersAllowed ? undefined : m.invite_riders_after_setup()}
+		hint={!ridersAllowed
+			? m.invite_riders_after_setup()
+			: riderLimitReached
+				? m.subscription_rider_limit()
+				: undefined}
 		bind:value={form.role as string}
 	/>
 	<TextField

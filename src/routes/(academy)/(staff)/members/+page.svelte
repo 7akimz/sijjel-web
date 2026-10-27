@@ -7,6 +7,7 @@
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { CreatedAcademyInvite, PendingInvite } from '#lib/api/member-types.js';
 	import { formatDate } from '#lib/format.js';
+	import { ridersText } from '#lib/forms/subscription.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, EmptyState, StatusChip } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -91,6 +92,7 @@
 		<div class="sj-stack">
 			<h1 class="sj-title">{m.members_title()}</h1>
 			<p class="sj-muted">{m.members_intro()}</p>
+			{#if data.riders}<p class="sj-small">{ridersText(data.riders, data.locale)}</p>{/if}
 		</div>
 		{#if data.admin}
 			<Button icon="person_add" href={resolve('/(academy)/(admin)/members/invite')}>
