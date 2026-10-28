@@ -41,6 +41,12 @@
 			body: m.settings_disciplines_body()
 		},
 		{
+			href: resolve('/(academy)/(admin)/settings/branding'),
+			icon: 'palette',
+			title: m.settings_branding_title(),
+			body: m.settings_branding_body()
+		},
+		{
 			href: resolve('/(academy)/(admin)/settings/subscription'),
 			icon: 'receipt_long',
 			title: m.settings_subscription_title(),

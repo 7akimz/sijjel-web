@@ -152,7 +152,16 @@ const reminderKeys = [
 	'reminders_battery_tip'
 ];
 
+const brandingErrors = ['image_invalid', 'image_too_large', 'color_invalid', 'welcome_too_long'];
+
 describe('messages', () => {
+	it('translates every branding error code in both languages', () => {
+		for (const code of brandingErrors) {
+			expect(en, code).toHaveProperty(`error_${code}`);
+			expect(ar, code).toHaveProperty(`error_${code}`);
+		}
+	});
+
 	it('has every trainer group and reminders message in both languages', () => {
 		for (const key of reminderKeys) {
 			expect(en, key).toHaveProperty(key);
