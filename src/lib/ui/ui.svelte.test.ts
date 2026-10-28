@@ -94,6 +94,29 @@ describe('Icon', () => {
 });
 
 describe('AppShell', () => {
+	it('shows the academy logo instead of the initials', () => {
+		const { container } = render(AppShell, {
+			brand: { name: 'Orlando', mark: 'O', logo: '/api/files/x' },
+			children: text('page')
+		});
+
+		const brand = container.querySelector('a.brand');
+		const img = brand?.querySelector('img');
+		expect(img?.getAttribute('src')).toBe('/api/files/x');
+		expect(img?.getAttribute('alt')).toBe('');
+		expect(brand?.textContent?.trim()).toBe('Orlando');
+	});
+
+	it('shows the initials without a logo', () => {
+		const { container } = render(AppShell, {
+			brand: { name: 'Orlando', mark: 'O', logo: null },
+			children: text('page')
+		});
+
+		expect(container.querySelector('a.brand img')).toBeNull();
+		expect(container.querySelector('a.brand .sj-mark')?.textContent).toBe('O');
+	});
+
 	it('shows a disabled nav item without making it a link', () => {
 		const { container } = render(AppShell, {
 			brand: { name: 'Al Faris', mark: 'A' },

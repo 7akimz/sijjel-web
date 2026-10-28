@@ -303,6 +303,11 @@
 	font: 700 15px/1 var(--font-display);
 	flex: none;
 }
+.sj-mark--logo {
+	object-fit: cover;
+	background: var(--surface);
+	border: 1px solid var(--line);
+}
 .sj-appbar__name {
 	font: 600 18px/24px var(--font-display);
 }

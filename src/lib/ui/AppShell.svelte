@@ -4,7 +4,7 @@
 
 	type NavItem = { href: string; label: string; icon: string; disabled?: boolean };
 	type Props = {
-		brand: { name: string; mark: string; href?: string };
+		brand: { name: string; mark: string; href?: string; logo?: string | null };
 		nav?: NavItem[];
 		current?: string;
 		navLabel?: string;
@@ -21,7 +21,11 @@
 <div class="shell" class:has-bottombar={nav.length > 0}>
 	<header class="sj-appbar">
 		<a class="brand" href={brand.href ?? '/'}>
-			<span class="sj-mark" aria-hidden="true">{brand.mark}</span>
+			{#if brand.logo}
+				<img class="sj-mark sj-mark--logo" src={brand.logo} alt="" />
+			{:else}
+				<span class="sj-mark" aria-hidden="true">{brand.mark}</span>
+			{/if}
 			<span class="sj-appbar__name">{brand.name}</span>
 		</a>
 		<span class="sj-appbar__spacer"></span>

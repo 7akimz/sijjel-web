@@ -19,6 +19,8 @@ export interface AcademyTenant {
 	welcomeTextAr?: string | null;
 	houseRulesEn?: string | null;
 	houseRulesAr?: string | null;
+	logoUrl?: string | null;
+	coverUrl?: string | null;
 	disciplines: DisciplineRef[];
 }
 

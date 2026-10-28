@@ -30,7 +30,11 @@
 	const brand = $derived.by(() => {
 		if (tenant.kind !== 'academy') return { name: m.app_name({}, { locale }), mark: 'س' };
 		const name = academyName(tenant.academy, locale);
-		return { name, mark: academyMark(tenant.academy.nameEn) };
+		return {
+			name,
+			mark: academyMark(tenant.academy.nameEn),
+			logo: tenant.academy.logoUrl
+		};
 	});
 
 	const nav = $derived.by(() => {
