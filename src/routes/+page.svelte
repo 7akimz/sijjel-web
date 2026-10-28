@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { academyName } from '#lib/academy.js';
+	import AcademyCover from '#lib/components/AcademyCover.svelte';
 	import AcademyHome from '#lib/components/AcademyHome.svelte';
 	import RiderHome from '#lib/components/RiderHome.svelte';
 	import SetupChecklist from '#lib/components/SetupChecklist.svelte';
@@ -33,9 +34,16 @@
 	<title>{name}</title>
 	<meta property="og:title" content={name} />
 	<meta property="og:site_name" content={name} />
+	{#if academy?.coverUrl}
+		<meta property="og:image" content={new URL(academy.coverUrl, page.url.origin).href} />
+	{/if}
 </svelte:head>
 
 {#if academy}
+	{#if academy.coverUrl}<AcademyCover
+			cover={academy.coverUrl}
+			logo={academy.logoUrl ?? null}
+		/>{/if}
 	<div class="sj-page">
 		<div class="sj-stack">
 			<h1 class="sj-title">{m.home_welcome({ academy: name })}</h1>
