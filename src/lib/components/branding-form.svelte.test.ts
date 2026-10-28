@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import type { Branding } from '#lib/api/branding-types.js';
+import { imagePixels } from '#lib/forms/image.js';
 import BrandingForm from './BrandingForm.svelte';
 
 vi.mock('#lib/forms/image.js', () => {
@@ -149,6 +150,26 @@ describe('BrandingForm', () => {
 			.element(screen.getByText('Keep the welcome line to 200 characters.'))
 			.toBeVisible();
 		expect(calls).toHaveLength(0);
+	});
+
+	it('goes back to the current colour when a later logo has no colours', async () => {
+		stubFetch(() => Response.json(branding()));
+		const screen = render(BrandingForm, { branding: branding(), onsaved: () => {} });
+
+		await pick(screen, 'Upload logo');
+		await expect.element(screen.getByRole('radio', { name: 'Colour 1' })).toBeChecked();
+		const blackAndWhite = new Uint8ClampedArray(
+			Array.from({ length: 64 }, (_, i) => (i % 2 ? [0, 0, 0, 255] : [255, 255, 255, 255])).flat()
+		);
+		vi.mocked(imagePixels).mockReturnValueOnce(blackAndWhite);
+		await pick(screen, 'Change logo');
+
+		const brown = screen.getByRole('radio', { name: 'Colour 1' });
+		expect(brown.element().getAttribute('value')).toBe('#7A5230');
+		await expect.element(brown).toBeChecked();
+		await screen.getByRole('button', { name: 'Save' }).click();
+		await expect.element(screen.getByText('Saved.')).toBeVisible();
+		expect(calls.at(-1)?.body).toMatchObject({ primaryColor: '#7A5230' });
 	});
 
 	it('keeps the current colour selected when it is not a suggestion', async () => {

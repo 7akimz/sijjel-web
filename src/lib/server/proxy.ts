@@ -4,7 +4,8 @@ const RETURNED_RESPONSE_HEADERS = [
 	'cache-control',
 	'etag',
 	'last-modified',
-	'location'
+	'location',
+	'x-content-type-options'
 ];
 
 // url is SvelteKit's event.url, whose host honours adapter-node's HOST_HEADER behind a proxy.

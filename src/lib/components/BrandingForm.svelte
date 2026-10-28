@@ -73,6 +73,7 @@
 			if (slot === 'logo') {
 				suggested = await coloursOf(source);
 				if (suggested.length > 0) colour = suggested[0];
+				else if (!swatchesFor([], storedColour).includes(colour)) colour = storedColour;
 			}
 		} catch {
 			imageErrors[slot] = errorText('image_invalid');

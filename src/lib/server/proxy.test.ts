@@ -66,4 +66,19 @@ describe('toClientResponse', () => {
 		expect(response.headers.get('content-type')).toBe('application/problem+json');
 		expect(await response.text()).toBe('{"code":"x"}');
 	});
+
+	it('keeps the caching and no-sniff headers of a served image', () => {
+		const upstream = new Response(new Uint8Array([137, 80, 78, 71]), {
+			headers: {
+				'content-type': 'image/png',
+				'cache-control': 'public, max-age=31536000, immutable',
+				'x-content-type-options': 'nosniff'
+			}
+		});
+
+		const response = toClientResponse(upstream);
+
+		expect(response.headers.get('cache-control')).toBe('public, max-age=31536000, immutable');
+		expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+	});
 });
