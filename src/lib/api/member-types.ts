@@ -105,7 +105,6 @@ export interface RiderFieldsInput {
 export interface MemberInput extends RiderFieldsInput {
 	displayName: string;
 	roles: Member['roles'];
-	phone: string | null;
 }
 
 export interface PendingInvite {

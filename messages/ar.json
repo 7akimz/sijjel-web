@@ -449,6 +449,7 @@
 	"member_name": "الاسم",
 	"member_email": "البريد الإلكتروني",
 	"member_phone": "الهاتف",
+	"member_phone_hint": "يغيّر الفرسان أرقامهم من حساباتهم.",
 	"member_roles": "الأدوار",
 	"member_role_rider": "فارس",
 	"member_role_trainer": "مدرّب",

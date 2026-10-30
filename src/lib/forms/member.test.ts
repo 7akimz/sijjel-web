@@ -50,11 +50,17 @@ describe('months', () => {
 });
 
 describe('member form', () => {
+	it('never sends the phone, which riders change from their account', () => {
+		expect(toMemberInput(memberFormFrom(layla))).not.toHaveProperty('phone');
+		expect(toMemberInput({ ...memberFormFrom(layla), roles: ['trainer'] })).not.toHaveProperty(
+			'phone'
+		);
+	});
+
 	it('round-trips a rider', () => {
 		expect(toMemberInput(memberFormFrom(layla))).toEqual({
 			displayName: 'Layla',
 			roles: ['rider'],
-			phone: '201012345678',
 			age: 14,
 			weightKg: 52,
 			disciplineId: 'd',
@@ -76,7 +82,7 @@ describe('member form', () => {
 	it('sends no rider fields for staff', () => {
 		const input = toMemberInput({ ...memberFormFrom(layla), roles: ['trainer'] });
 
-		expect(input).toEqual({ displayName: 'Layla', roles: ['trainer'], phone: '201012345678' });
+		expect(input).toEqual({ displayName: 'Layla', roles: ['trainer'] });
 	});
 });
 

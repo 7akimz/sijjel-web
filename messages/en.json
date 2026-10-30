@@ -449,6 +449,7 @@
 	"member_name": "Name",
 	"member_email": "Email",
 	"member_phone": "Phone",
+	"member_phone_hint": "Riders change their number from their account.",
 	"member_roles": "Roles",
 	"member_role_rider": "Rider",
 	"member_role_trainer": "Trainer",

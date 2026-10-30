@@ -82,7 +82,7 @@
 		wasRider ? planHint(form.planId, member, data.today, data.locale) : undefined
 	);
 	// An existing rider's discipline and level change only through a move, so they have no fields.
-	const shownFields = ['displayName', 'phone', 'roles', 'age', 'weightKg', 'planId', 'horseSource'];
+	const shownFields = ['displayName', 'roles', 'age', 'weightKg', 'planId', 'horseSource'];
 	const horseOptions = [
 		{ value: 'school', label: m.invite_horse_school() },
 		{ value: 'own', label: m.invite_horse_own() }
@@ -260,13 +260,12 @@
 					bind:value={form.displayName}
 				/>
 				{#if member.email}<p class="sj-small sj-muted" dir="ltr">{member.email}</p>{/if}
-				<TextField
-					label={m.member_phone()}
-					dir="ltr"
-					error={fieldText(errors, 'phone')}
-					bind:value={form.phone}
-				/>
 				{#if member.phone}
+					<div class="phone">
+						<span class="sj-label">{m.member_phone()}</span>
+						<p dir="ltr">{member.phone}</p>
+						<span class="sj-small sj-muted">{m.member_phone_hint()}</span>
+					</div>
 					<!-- eslint-disable svelte/no-navigation-without-resolve -->
 					<a
 						class="sj-btn sj-btn--quiet wa"
@@ -466,6 +465,15 @@
 	}
 	.wa {
 		align-self: flex-start;
+	}
+	.phone {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+	}
+	.phone p {
+		margin: 0;
+		text-align: start;
 	}
 	.bookings {
 		margin: 0;

@@ -9,7 +9,6 @@ import { optionalNumber, riderErrors, type RiderForm, type RiderRules } from './
 export type MemberForm = RiderForm & {
 	displayName: string;
 	roles: Member['roles'];
-	phone: string;
 };
 
 export const monthKey = (date: string) => date.slice(0, 7);
@@ -67,7 +66,6 @@ export function memberFormFrom(m: Member): MemberForm {
 	return {
 		displayName: m.displayName,
 		roles: [...m.roles],
-		phone: m.phone ?? '',
 		age: m.age ?? '',
 		weightKg: m.weightKg ?? '',
 		disciplineId: m.discipline?.id ?? '',
@@ -85,8 +83,7 @@ export function memberErrors(f: MemberForm, rules: RiderRules): FieldErrors {
 }
 
 export function toMemberInput(f: MemberForm): MemberInput | Omit<MemberInput, keyof RiderForm> {
-	const phone = f.phone.trim();
-	const base = { displayName: f.displayName.trim(), roles: f.roles, phone: phone || null };
+	const base = { displayName: f.displayName.trim(), roles: f.roles };
 	if (!f.roles.includes('rider')) return base;
 	return {
 		...base,
