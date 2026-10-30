@@ -34,7 +34,7 @@
 	);
 	const title = $derived(m.invite_page_title({ academy }));
 	const signInAs = (identifier: string) => {
-		const query = identifier
+		const query: Record<string, string> = identifier
 			? { returnTo: page.url.pathname, identifier }
 			: { returnTo: page.url.pathname };
 		return resolve(`/login?${new URLSearchParams(query)}`);
