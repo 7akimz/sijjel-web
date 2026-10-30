@@ -101,5 +101,7 @@ export interface InvitePreview {
 	level: NameRef | null;
 	name: string | null;
 	email: string | null;
+	phone: string | null;
+	phoneLocked: boolean;
 	expiresAt: string;
 }

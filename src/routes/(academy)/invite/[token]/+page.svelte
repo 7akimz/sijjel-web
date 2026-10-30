@@ -8,7 +8,12 @@
 	import { ApiError, errorText, type FieldErrors } from '#lib/api/errors.js';
 	import { formatDate } from '#lib/format.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
-	import { inviteFormErrors, toSignUpRequest, type InviteSignUp } from '#lib/forms/invite.js';
+	import {
+		existingAccount,
+		inviteFormErrors,
+		toSignUpRequest,
+		type InviteSignUp
+	} from '#lib/forms/invite.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, StatusChip, TextField } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -28,16 +33,24 @@
 			: m.invite_og_description_staff({ academy, role: roles })
 	);
 	const title = $derived(m.invite_page_title({ academy }));
-	const signIn = $derived(resolve(`/login?returnTo=${encodeURIComponent(page.url.pathname)}`));
+	const signInAs = (identifier: string) => {
+		const query = identifier
+			? { returnTo: page.url.pathname, identifier }
+			: { returnTo: page.url.pathname };
+		return resolve(`/login?${new URLSearchParams(query)}`);
+	};
+	const signIn = $derived(signInAs(''));
 
 	const initial = untrack(() => data.preview);
 	let form = $state<InviteSignUp>({
 		displayName: initial.name ?? '',
+		phone: initial.phone ?? '',
 		email: initial.email ?? '',
 		password: ''
 	});
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
+	let hasAccount = $state<string | null>(null);
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
@@ -62,6 +75,8 @@
 				await goto(resolve('/?notice=already_member'), { replaceState: true });
 				return;
 			}
+			hasAccount = existingAccount(error, form);
+			if (hasAccount !== null) return;
 			errors = error.fields;
 			if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
 			else focusFirstInvalid(formElement);
@@ -72,7 +87,7 @@
 
 	function signUp(event: SubmitEvent) {
 		event.preventDefault();
-		errors = inviteFormErrors(form, preview.email);
+		errors = inviteFormErrors(form, preview);
 		if (Object.keys(errors).length === 0) accept(toSignUpRequest(form));
 		else focusFirstInvalid(formElement);
 	}
@@ -108,7 +123,10 @@
 			</p>
 			{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 
-			{#if data.user}
+			{#if hasAccount !== null}
+				<Banner icon="account_circle">{m.invite_has_account({ academy })}</Banner>
+				<Button block href={signInAs(hasAccount)}>{m.action_sign_in()}</Button>
+			{:else if data.user}
 				<Button block disabled={busy} onclick={() => accept({})}>{m.invite_accept()}</Button>
 			{:else}
 				<form class="sj-stack" bind:this={formElement} onsubmit={signUp} novalidate>
@@ -121,13 +139,22 @@
 						bind:value={form.displayName}
 					/>
 					<TextField
-						label={m.field_email()}
+						label={m.field_phone()}
+						type="tel"
+						autocomplete="tel"
+						dir="ltr"
+						error={fieldError('phone')}
+						readonly={preview.phoneLocked}
+						required
+						bind:value={form.phone}
+					/>
+					<TextField
+						label={m.field_email_optional()}
 						type="email"
 						autocomplete="email"
 						dir="ltr"
 						error={fieldError('email')}
 						readonly={!!preview.email}
-						required
 						bind:value={form.email}
 					/>
 					<TextField

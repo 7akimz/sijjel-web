@@ -75,6 +75,7 @@
 	"invite_sign_up": "أنشئ حسابك",
 	"invite_accept": "قبول الدعوة",
 	"invite_have_account": "لديك حساب؟ سجّل الدخول",
+	"invite_has_account": "لديك حساب في سجل بالفعل. سجّل الدخول للانضمام إلى {academy}.",
 	"invite_invalid_title": "لا يمكن استخدام هذه الدعوة",
 	"invite_invalid_body": "ربما انتهت صلاحيتها أو استُخدمت أو أُلغيت. اطلب دعوة جديدة من الأكاديمية.",
 	"invite_already_member": "أنت عضو في هذه الأكاديمية بالفعل.",

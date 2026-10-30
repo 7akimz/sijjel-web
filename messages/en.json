@@ -75,6 +75,7 @@
 	"invite_sign_up": "Create your account",
 	"invite_accept": "Accept invitation",
 	"invite_have_account": "Already have an account? Sign in",
+	"invite_has_account": "You already have a sijjel account. Sign in to join {academy}.",
 	"invite_invalid_title": "This invitation can't be used",
 	"invite_invalid_body": "It may have expired, been used already, or been cancelled. Ask the academy for a new one.",
 	"invite_already_member": "You're already a member of this academy.",
