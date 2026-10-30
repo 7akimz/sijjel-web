@@ -259,7 +259,7 @@
 					error={fieldText(errors, 'displayName')}
 					bind:value={form.displayName}
 				/>
-				<p class="sj-small sj-muted" dir="ltr">{member.email}</p>
+				{#if member.email}<p class="sj-small sj-muted" dir="ltr">{member.email}</p>{/if}
 				<TextField
 					label={m.member_phone()}
 					dir="ltr"

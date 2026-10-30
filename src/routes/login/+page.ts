@@ -8,5 +8,6 @@ export const load: PageLoad = async ({ parent, url }) => {
 	if (tenant.kind === 'unknown') error(404, 'academy_not_found');
 	const returnTo = safeReturnTo(url.searchParams.get('returnTo'));
 	if (user) redirect(303, returnTo);
-	return { returnTo };
+	const identifier = (url.searchParams.get('identifier') ?? '').trim().slice(0, 254);
+	return { returnTo, identifier };
 };

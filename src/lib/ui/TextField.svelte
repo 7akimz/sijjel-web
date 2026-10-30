@@ -5,7 +5,7 @@
 	type Props = {
 		label: string;
 		value?: string | number | null;
-		type?: 'text' | 'email' | 'password' | 'time' | 'number' | 'url';
+		type?: 'text' | 'email' | 'password' | 'time' | 'number' | 'url' | 'tel';
 		hint?: string;
 		error?: string;
 		name?: string;
@@ -42,6 +42,7 @@
 			{id}
 			class={['sj-input', type === 'password' && 'secret']}
 			type={shownType}
+			inputmode={type === 'tel' ? 'tel' : undefined}
 			{name}
 			{autocomplete}
 			{required}

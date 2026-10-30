@@ -32,7 +32,8 @@ export type Tenant =
 
 export interface Me {
 	id: string;
-	email: string;
+	phone: string | null;
+	email: string | null;
 	displayName: string;
 	preferredLanguage: Locale | null;
 	isPlatformAdmin: boolean;

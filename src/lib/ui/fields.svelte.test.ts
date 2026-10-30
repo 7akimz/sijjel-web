@@ -58,4 +58,10 @@ describe('TextField', () => {
 		const screen = render(TextField, { label: 'Email', type: 'email' });
 		expect(screen.container.querySelector('button')).toBeNull();
 	});
+
+	it('gives a phone field the phone keypad and keeps it left to right', () => {
+		const { container } = render(TextField, { label: 'Phone', type: 'tel', dir: 'ltr' });
+
+		expect(container.querySelector('input[type=tel][inputmode=tel][dir=ltr]')).not.toBeNull();
+	});
 });

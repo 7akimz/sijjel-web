@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { academyName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
@@ -9,7 +10,7 @@
 
 	let { data }: PageProps = $props();
 
-	let email = $state('');
+	let identifier = $state(untrack(() => data.identifier));
 	let password = $state('');
 	let failure = $state<string>();
 	let busy = $state(false);
@@ -25,7 +26,10 @@
 		busy = true;
 		failure = undefined;
 		try {
-			await api('/auth/login', { method: 'POST', body: { email: email.trim(), password } });
+			await api('/auth/login', {
+				method: 'POST',
+				body: { identifier: identifier.trim(), password }
+			});
 			await invalidateAll();
 			// returnTo is a same-site path checked by safeReturnTo in the load function.
 			// eslint-disable-next-line svelte/no-navigation-without-resolve
@@ -49,13 +53,12 @@
 			<p class="sj-muted">{intro}</p>
 			{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 			<TextField
-				label={m.field_email()}
-				type="email"
-				name="email"
-				autocomplete="email"
+				label={m.field_identifier()}
+				name="identifier"
+				autocomplete="username"
 				dir="ltr"
 				required
-				bind:value={email}
+				bind:value={identifier}
 			/>
 			<TextField
 				label={m.field_password()}

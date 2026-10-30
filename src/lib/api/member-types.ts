@@ -74,7 +74,7 @@ export interface MoveInput {
 export interface Member {
 	id: string;
 	displayName: string;
-	email: string;
+	email: string | null;
 	roles: ('admin' | 'trainer' | 'rider')[];
 	status: 'active' | 'suspended';
 	phone?: string | null;

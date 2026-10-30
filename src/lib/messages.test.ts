@@ -154,7 +154,24 @@ const reminderKeys = [
 
 const brandingErrors = ['image_invalid', 'image_too_large', 'color_invalid', 'welcome_too_long'];
 
+const phoneIdentityKeys = [
+	'field_identifier',
+	'field_phone',
+	'field_email_optional',
+	'error_phone_taken',
+	'error_phone_invalid',
+	'error_phone_mismatch'
+];
+
 describe('messages', () => {
+	it('has every phone identity message in both languages', () => {
+		for (const key of phoneIdentityKeys) {
+			expect(en, key).toHaveProperty(key);
+			expect(ar, key).toHaveProperty(key);
+		}
+		expect(en.error_login_failed).toBe('The phone, email or password is wrong.');
+	});
+
 	it('translates every branding error code in both languages', () => {
 		for (const code of brandingErrors) {
 			expect(en, code).toHaveProperty(`error_${code}`);
