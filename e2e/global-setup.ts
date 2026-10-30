@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { ADMIN_EMAIL, ADMIN_PASSWORD, API_PORT } from './config';
+import { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_PHONE, API_PORT } from './config';
 
 const composeFile = fileURLToPath(new URL('./compose.yaml', import.meta.url));
 
@@ -37,7 +37,18 @@ export default async function globalSetup() {
 		compose(['up', '--detach', 'api']);
 		await waitUntilReady();
 		compose(
-			['exec', '-T', 'api', '/sijjel-api', 'admin', 'create', '--email', ADMIN_EMAIL],
+			[
+				'exec',
+				'-T',
+				'api',
+				'/sijjel-api',
+				'admin',
+				'create',
+				'--phone',
+				ADMIN_PHONE,
+				'--email',
+				ADMIN_EMAIL
+			],
 			`${ADMIN_PASSWORD}\n`
 		);
 	} catch (error) {

@@ -1,11 +1,18 @@
 import { expect, type Browser, type Page } from '@playwright/test';
-import { ADMIN_EMAIL, ADMIN_PASSWORD, academyUrl, platformUrl } from './config';
+import { ADMIN_PASSWORD, ADMIN_PHONE, academyUrl, platformUrl } from './config';
 
 export const OWNER_PASSWORD = 'OwnerPassw0rd';
 
+/** A local Egyptian mobile number unique to `seed`, so every person in a run has their own. */
+export function e2ePhone(seed: string): string {
+	let hash = 2166136261;
+	for (const char of seed) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619) >>> 0;
+	return `010${String(hash % 100_000_000).padStart(8, '0')}`;
+}
+
 export async function signInAsPlatformAdmin(page: Page, url = platformUrl('/login')) {
 	await page.goto(url);
-	await page.getByLabel('Email').fill(ADMIN_EMAIL);
+	await page.getByLabel('Phone or email').fill(ADMIN_PHONE);
 	await page.getByLabel('Password', { exact: true }).fill(ADMIN_PASSWORD);
 	await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
 }
@@ -42,6 +49,7 @@ export async function signUpOwner(
 	const owner = await browser.newPage();
 	await owner.goto(academyUrl(slug, invitePath));
 	await owner.getByLabel('Your name').fill('Owner');
+	await owner.getByLabel('Phone', { exact: true }).fill(e2ePhone(`owner-${slug}`));
 	await owner.getByLabel('Email').fill(`owner-${slug}@example.test`);
 	await owner.getByLabel('Password', { exact: true }).fill(OWNER_PASSWORD);
 	await owner.getByRole('button', { name: 'Create your account' }).click();

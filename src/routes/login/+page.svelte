@@ -25,6 +25,9 @@
 		event.preventDefault();
 		busy = true;
 		failure = undefined;
+		// Read before invalidating: the load then redirects the signed-in user away, and this page's
+		// data goes with it.
+		const returnTo = data.returnTo;
 		try {
 			await api('/auth/login', {
 				method: 'POST',
@@ -33,7 +36,7 @@
 			await invalidateAll();
 			// returnTo is a same-site path checked by safeReturnTo in the load function.
 			// eslint-disable-next-line svelte/no-navigation-without-resolve
-			await goto(data.returnTo, { replaceState: true });
+			await goto(returnTo, { replaceState: true });
 		} catch (e) {
 			failure = errorText(e instanceof ApiError ? e.code : 'internal_error');
 		} finally {
