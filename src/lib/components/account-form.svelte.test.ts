@@ -53,6 +53,16 @@ describe('AccountForm', () => {
 		expect(onsaved).toHaveBeenCalledWith(saved);
 	});
 
+	it('shows the stored number with its + so it saves back unchanged', async () => {
+		stubFetch(() => json(200, me));
+		const screen = render(AccountForm, { me: { ...me, phone: '447700900123' }, onsaved: vi.fn() });
+
+		await expect.element(screen.getByLabelText('Phone')).toHaveValue('+447700900123');
+		await screen.getByRole('button', { name: 'Save' }).click();
+
+		await expect.poll(() => calls[0]?.body).toMatchObject({ phone: '+447700900123' });
+	});
+
 	it('shows a taken phone under the phone field', async () => {
 		stubFetch(() => json(409, { status: 409, code: 'phone_taken' }, 'application/problem+json'));
 		const screen = render(AccountForm, { me, onsaved: vi.fn() });

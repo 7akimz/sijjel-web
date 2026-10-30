@@ -3,6 +3,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { shownPhone } from '#lib/account.js';
 	import { academyName, localName, roleName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, type FieldErrors } from '#lib/api/errors.js';
@@ -44,7 +45,7 @@
 	const initial = untrack(() => data.preview);
 	let form = $state<InviteSignUp>({
 		displayName: initial.name ?? '',
-		phone: initial.phone ?? '',
+		phone: shownPhone(initial.phone),
 		email: initial.email ?? '',
 		password: ''
 	});

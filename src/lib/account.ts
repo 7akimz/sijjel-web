@@ -8,3 +8,9 @@ export function needsPhone(user: Me | null, pathname: string): boolean {
 	if (pathname === '/account') return false;
 	return !EXEMPT_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
+
+/**
+ * A stored phone as people type it back: the API keeps international digits, and only a leading
+ * "+" tells it they already include the country code.
+ */
+export const shownPhone = (digits: string | null | undefined) => (digits ? `+${digits}` : '');

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { shownPhone } from '#lib/account.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
 	import type { Me } from '#lib/api/types.js';
@@ -13,7 +14,7 @@
 	const conflictFields: Record<string, string> = { phone_taken: 'phone', email_taken: 'email' };
 
 	let displayName = $state(untrack(() => me.displayName));
-	let phone = $state(untrack(() => me.phone ?? ''));
+	let phone = $state(untrack(() => shownPhone(me.phone)));
 	let email = $state(untrack(() => me.email ?? ''));
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
