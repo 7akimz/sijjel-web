@@ -732,5 +732,8 @@
 	"error_image_invalid": "تعذّر استخدام هذه الصورة. جرّب صورة JPEG أو PNG.",
 	"error_image_too_large": "هذه الصورة كبيرة جدًا.",
 	"error_color_invalid": "اختر لونًا.",
-	"error_welcome_too_long": "اجعل رسالة الترحيب 200 حرف على الأكثر."
+	"error_welcome_too_long": "اجعل رسالة الترحيب 200 حرف على الأكثر.",
+	"account_title": "حسابك",
+	"account_add_phone": "أضف رقم هاتفك للمتابعة.",
+	"account_saved": "تم الحفظ."
 }

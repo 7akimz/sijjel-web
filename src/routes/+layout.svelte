@@ -156,6 +156,12 @@
 				{/if}
 				<Button
 					variant="quiet"
+					icon="account_circle"
+					href={resolve('/account')}
+					label={m.account_title({}, { locale })}
+				/>
+				<Button
+					variant="quiet"
 					icon="logout"
 					label={m.action_sign_out({}, { locale })}
 					onclick={signOut}

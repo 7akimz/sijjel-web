@@ -732,5 +732,8 @@
 	"error_image_invalid": "This photo couldn't be used. Try a JPEG or PNG.",
 	"error_image_too_large": "This photo is too large.",
 	"error_color_invalid": "Pick a colour.",
-	"error_welcome_too_long": "Keep the welcome line to 200 characters."
+	"error_welcome_too_long": "Keep the welcome line to 200 characters.",
+	"account_title": "Your account",
+	"account_add_phone": "Add your phone number to continue.",
+	"account_saved": "Saved."
 }
