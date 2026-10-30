@@ -66,7 +66,10 @@ Success looks like this:
   - On an academy's address, a local number starting with `0` uses the academy's
     `country_calling_code`.
   - On the platform address, it uses a new `DEFAULT_CALLING_CODE` setting (default `20`).
-  - `+20…` and `0020…` work everywhere. Arabic-Indic digits work, as they do today.
+  - `+20…` and `0020…` work everywhere.
+  - Arabic-Indic digits (`٠١٠…`, which an iPhone set to Arabic types) and Persian digits work. They
+    match the same account as the number typed in English digits, at sign-up, at sign-in and on the
+    account page. A test pins this.
 - **Wrong details** still show the single "The phone, email or password is wrong." Nothing says which
   part was wrong.
 
