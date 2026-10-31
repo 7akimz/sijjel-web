@@ -8,6 +8,7 @@
 	import SetupChecklist from '#lib/components/SetupChecklist.svelte';
 	import StaffToday from '#lib/components/StaffToday.svelte';
 	import { isAcademyAdmin } from '#lib/academy/admin.js';
+	import { alreadyMemberText } from '#lib/forms/member.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, EmptyState } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -49,7 +50,9 @@
 			<h1 class="sj-title">{m.home_welcome({ academy: name })}</h1>
 			{#if welcome}<p class="sj-muted">{welcome}</p>{/if}
 		</div>
-		{#if alreadyMember}<Banner icon="info">{m.invite_accepted_already()}</Banner>{/if}
+		{#if alreadyMember && data.membership}
+			<Banner icon="info">{alreadyMemberText(data.membership.status)}</Banner>
+		{/if}
 		{#if data.setup}<SetupChecklist state={data.setup} academyName={name} />{/if}
 		{#if data.rider}
 			<RiderHome summary={data.rider.plan} bookings={data.rider.bookings} locale={data.locale} />

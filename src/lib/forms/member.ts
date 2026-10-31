@@ -102,3 +102,8 @@ export function inactiveLabel(status: Member['status']): string | null {
 	if (status === 'suspended') return m.member_suspended();
 	return null;
 }
+
+/** What a member hears after opening an invite to an academy they already belong to. */
+export function alreadyMemberText(status: Member['status']): string {
+	return status === 'active' ? m.invite_accepted_already() : m.invite_ask_reactivate();
+}

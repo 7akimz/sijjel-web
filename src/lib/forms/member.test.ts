@@ -9,7 +9,8 @@ import {
 	nextMonth,
 	planHint,
 	toMemberInput,
-	inactiveLabel
+	inactiveLabel,
+	alreadyMemberText
 } from './member';
 
 const rules = { minRiderAge: 6, maxRiderAge: null, maxRiderWeightKg: null };
@@ -144,5 +145,19 @@ describe('inactiveLabel', () => {
 		expect(inactiveLabel('left')).toBe('Left');
 		expect(inactiveLabel('suspended')).toBe('Suspended');
 		expect(inactiveLabel('active')).toBeNull();
+	});
+});
+
+describe('alreadyMemberText', () => {
+	it('points someone who left or was suspended to reactivation instead of saying all is well', () => {
+		expect(alreadyMemberText('active')).toBe(
+			"You're already a member, so the invitation wasn't needed."
+		);
+		expect(alreadyMemberText('left')).toBe(
+			'You already have a membership here. Ask the academy to reactivate it.'
+		);
+		expect(alreadyMemberText('suspended')).toBe(
+			'You already have a membership here. Ask the academy to reactivate it.'
+		);
 	});
 });

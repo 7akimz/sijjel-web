@@ -51,6 +51,7 @@ const academySetupErrors = [
 	'not_staff',
 	'not_a_member',
 	'member_suspended',
+	'member_left',
 	'role_invalid',
 	'horse_source_invalid',
 	'bookings_affected',

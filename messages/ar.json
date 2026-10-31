@@ -741,5 +741,7 @@
 	"member_mark_left": "تسجيل المغادرة",
 	"member_left_confirm": "تسجيل المغادرة وإلغاء هذه الحجوزات",
 	"member_left_notice": "تم تسجيل المغادرة.",
-	"membership_left": "لم تعد عضوًا هنا."
+	"membership_left": "لم تعد عضوًا هنا.",
+	"error_member_left": "غادر هذا العضو الأكاديمية.",
+	"invite_ask_reactivate": "لديك عضوية هنا بالفعل. اطلب من الأكاديمية إعادة تفعيلها."
 }

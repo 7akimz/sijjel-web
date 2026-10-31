@@ -741,5 +741,7 @@
 	"member_mark_left": "Mark as left",
 	"member_left_confirm": "Mark as left and cancel these bookings",
 	"member_left_notice": "Marked as left.",
-	"membership_left": "You're no longer a member here."
+	"membership_left": "You're no longer a member here.",
+	"error_member_left": "This member has left the academy.",
+	"invite_ask_reactivate": "You already have a membership here. Ask the academy to reactivate it."
 }
