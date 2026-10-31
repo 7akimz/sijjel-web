@@ -37,6 +37,8 @@ export async function createAcademy(page: Page, slug: string): Promise<{ name: s
 export async function inviteOwner(page: Page, academyName: string): Promise<string> {
 	const row = page.getByRole('listitem').filter({ hasText: academyName });
 	await row.getByRole('button', { name: 'Invite owner' }).click();
+	await row.getByLabel('Their name').fill('Owner');
+	await row.getByRole('button', { name: 'Create invitation' }).click();
 	const link = await row.getByLabel('Invitation link').inputValue();
 	return new URL(link).pathname;
 }

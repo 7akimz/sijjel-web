@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { academyUrl, platformUrl } from './config';
-import { createAcademy, inviteOwner, signInAsPlatformAdmin, signUpOwner } from './helpers';
+import {
+	createAcademy,
+	e2ePhone,
+	inviteOwner,
+	signInAsPlatformAdmin,
+	signUpOwner
+} from './helpers';
 
 test('a platform admin creates an academy and its owner joins through the invite', async ({
 	page,
@@ -52,6 +58,43 @@ test('a platform admin creates an academy and its owner joins through the invite
 
 	const reused = await request.get(academyUrl(slug, invitePath));
 	expect(reused.status()).toBe(404);
+});
+
+test('a platform admin invites an owner by phone, and the owner signs up with it locked', async ({
+	page,
+	browser
+}) => {
+	const slug = `own${Date.now().toString(36)}`;
+	const phone = e2ePhone(`mona-${slug}`);
+	await signInAsPlatformAdmin(page);
+	await expect(page).toHaveURL(platformUrl('/platform/academies'));
+	const { name: academy } = await createAcademy(page, slug);
+
+	const row = page.getByRole('listitem').filter({ hasText: academy });
+	await row.getByRole('button', { name: 'Invite owner' }).click();
+	await row.getByLabel('Their name').fill('Mona');
+	await row.getByLabel('Phone (optional)').fill(phone);
+	await row.getByLabel('Email (optional)').fill(`mona-${slug}@example.test`);
+	await row.getByRole('button', { name: 'Create invitation' }).click();
+
+	const whatsapp = row.getByRole('link', { name: 'Send on WhatsApp' });
+	await expect(whatsapp).toHaveAttribute(
+		'href',
+		new RegExp(`^https://wa\\.me/20${phone.slice(1)}\\?text=.*set%20up`)
+	);
+	await expect(row.getByRole('img', { name: 'Or let them scan this code' })).toBeVisible();
+	const invitePath = new URL(await row.getByLabel('Invitation link').inputValue()).pathname;
+
+	const owner = await browser.newPage();
+	await owner.goto(academyUrl(slug, invitePath));
+	await expect(owner.getByLabel('Your name')).toHaveValue('Mona');
+	const phoneField = owner.getByLabel('Phone', { exact: true });
+	await expect(phoneField).toHaveValue(`+20${phone.slice(1)}`);
+	await expect(phoneField).toHaveAttribute('readonly');
+	await expect(owner.getByLabel('Email (optional)')).toHaveAttribute('readonly');
+	await owner.getByLabel('Password', { exact: true }).fill('OwnerPassw0rd');
+	await owner.getByRole('button', { name: 'Create your account' }).click();
+	await expect(owner.getByRole('heading', { name: `Welcome to ${academy}` })).toBeVisible();
 });
 
 test('an unknown academy gets a branded 404 and no sign-in', async ({ page }) => {

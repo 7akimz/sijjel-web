@@ -2,10 +2,9 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { academyMark, academyName, localName } from '#lib/academy.js';
-	import InviteLink from '#lib/components/InviteLink.svelte';
+	import InviteShareCard from '#lib/components/InviteShareCard.svelte';
+	import OwnerInviteForm from '#lib/components/OwnerInviteForm.svelte';
 	import NewAcademyForm from '#lib/components/NewAcademyForm.svelte';
-	import { api } from '#lib/api/client.js';
-	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { AcademySummary, CreatedInvite } from '#lib/api/types.js';
 	import { formatDayMonth } from '#lib/format.js';
 	import {
@@ -27,8 +26,7 @@
 	let created = $state<AcademySummary[]>([]);
 	let creating = $state(false);
 	let notice = $state<string>();
-	let failure = $state<string>();
-	let invites = $state<Record<string, CreatedInvite>>({});
+	let invites = $state<Record<string, { invite: CreatedInvite; name: string }>>({});
 	let inviting = $state<string>();
 	let filter = $state<StatusFilter>('all');
 
@@ -60,20 +58,9 @@
 		notice = m.academy_created();
 	}
 
-	async function inviteOwner(academy: AcademySummary) {
-		inviting = academy.id;
-		failure = undefined;
-		try {
-			const invite = await api<CreatedInvite>(`/platform/academies/${academy.id}/owner-invites`, {
-				method: 'POST',
-				body: {}
-			});
-			invites = { ...invites, [academy.id]: invite };
-		} catch (e) {
-			failure = errorText(e instanceof ApiError ? e.code : 'internal_error');
-		} finally {
-			inviting = undefined;
-		}
+	function onInvited(academy: AcademySummary, invite: CreatedInvite, name: string) {
+		invites = { ...invites, [academy.id]: { invite, name } };
+		inviting = undefined;
 	}
 </script>
 
@@ -92,7 +79,6 @@
 	</div>
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
-	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 
 	{#if creating}
 		<NewAcademyForm
@@ -136,7 +122,7 @@
 								variant="secondary"
 								icon="person_add"
 								disabled={inviting === academy.id}
-								onclick={() => inviteOwner(academy)}
+								onclick={() => (inviting = academy.id)}
 							>
 								{m.academy_invite_owner()}
 							</Button>
@@ -186,8 +172,21 @@
 						>
 							{m.subscription_title()}
 						</a>
-						{#if invites[academy.id]}
-							<InviteLink invite={invites[academy.id]} locale={data.locale} />
+						{#if inviting === academy.id}
+							<OwnerInviteForm
+								academyId={academy.id}
+								oncreated={(invite, form) => onInvited(academy, invite, form.name.trim())}
+								oncancel={() => (inviting = undefined)}
+							/>
+						{:else if invites[academy.id]}
+							{@const sent = invites[academy.id]}
+							<InviteShareCard
+								invite={sent.invite}
+								name={sent.name}
+								message={m.invite_share_message_owner({ name: sent.name, academy: name })}
+								phone={sent.invite.phone}
+								locale={data.locale}
+							/>
 						{/if}
 					</div>
 				</li>

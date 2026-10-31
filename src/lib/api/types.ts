@@ -90,6 +90,8 @@ export interface CreatedInvite {
 	token: string;
 	expiresAt: string;
 	url: string;
+	/** The recipient's phone in international digits, when the invite has one. */
+	phone: string | null;
 }
 
 export type Role = Membership['roles'][number];

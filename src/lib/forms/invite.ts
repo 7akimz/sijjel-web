@@ -21,7 +21,7 @@ export interface Invited {
 	phoneLocked?: boolean;
 }
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 10;
 
 export function toSignUpRequest(form: InviteSignUp): SignUpRequest {
