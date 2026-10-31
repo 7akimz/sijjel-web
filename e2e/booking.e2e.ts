@@ -50,11 +50,13 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	await expect(layla.getByText('EGP 1,000 a month')).toBeVisible();
 
 	await layla.getByRole('link', { name: 'Book a session' }).click();
-	// Late on a Friday the current week may have nothing left. A session next week, or late in
-	// the month this week, may fall in next month and leave this month's count alone.
-	const bookThisWeek = (await layla.getByRole('button', { name: 'Book', exact: true }).count()) > 0;
-	if (!bookThisWeek) await layla.getByRole('link', { name: 'Next week' }).click();
-	await layla.getByRole('button', { name: 'Book', exact: true }).first().click();
+	await expect(layla.getByRole('heading', { name: 'Book a session' })).toBeVisible();
+	// The last session next week is at least six days away, well before the 12-hour cancellation
+	// cutoff and inside the 14-day booking window, whatever the time of week. It may fall in next
+	// month and leave this month's count alone.
+	await layla.getByRole('link', { name: 'Next week' }).click();
+	await expect(layla).toHaveURL(/[?&]week=/);
+	await layla.getByRole('button', { name: 'Book', exact: true }).last().click();
 	await layla.getByRole('button', { name: 'Yes, book it' }).click();
 	await expect(layla.getByText(/^Booked for/)).toBeVisible();
 
