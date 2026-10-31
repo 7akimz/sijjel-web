@@ -7,7 +7,6 @@
 	import type { CreatedAcademyInvite } from '#lib/api/member-types.js';
 	import type { InviteMemberForm as InviteForm } from '#lib/forms/invite-member.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { phoneDigits } from '#lib/share.js';
 	import { Button, Card } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
@@ -42,7 +41,7 @@
 				invite={created.invite}
 				name={created.form.name.trim()}
 				{message}
-				phone={phoneDigits(created.form.phone, data.rules.countryCallingCode)}
+				phone={created.invite.phone}
 				locale={data.locale}
 			/>
 			<div>

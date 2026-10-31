@@ -56,8 +56,13 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 	await owner.goto(academyUrl(slug, '/members/invite'));
 	await owner.getByLabel('Who are you inviting?').selectOption({ label: 'A trainer' });
 	await owner.getByLabel('Their name').fill('Omar');
+	await owner.getByLabel('Phone (optional)').fill('1012345678');
 	await owner.getByRole('button', { name: 'Create invitation' }).click();
 	await expect(owner.getByText('Invitation ready')).toBeVisible();
+	await expect(owner.getByRole('link', { name: 'Send on WhatsApp' })).toHaveAttribute(
+		'href',
+		/^https:\/\/wa\.me\/201012345678\?/
+	);
 	const omar = await browser.newPage();
 	await signUp(
 		omar,
