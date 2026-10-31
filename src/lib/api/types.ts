@@ -46,7 +46,7 @@ export interface NameRef {
 
 export interface Membership {
 	roles: ('admin' | 'trainer' | 'rider')[];
-	status: 'active' | 'suspended';
+	status: 'active' | 'suspended' | 'left';
 	discipline: DisciplineRef | null;
 	level: NameRef | null;
 	setupDone: boolean;

@@ -76,7 +76,7 @@ export interface Member {
 	displayName: string;
 	email: string | null;
 	roles: ('admin' | 'trainer' | 'rider')[];
-	status: 'active' | 'suspended';
+	status: 'active' | 'suspended' | 'left';
 	phone?: string | null;
 	age: number | null;
 	weightKg: number | null;

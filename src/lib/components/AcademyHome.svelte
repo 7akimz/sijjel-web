@@ -22,9 +22,10 @@
 			{/if}
 			{#if membership.status === 'suspended'}
 				<StatusChip tone="danger" dot>{m.membership_suspended()}</StatusChip>
-			{:else}
+			{:else if membership.status === 'active'}
 				<StatusChip tone="active" dot>{m.membership_active()}</StatusChip>
 			{/if}
 		</div>
+		{#if membership.status === 'left'}<p class="sj-muted">{m.membership_left()}</p>{/if}
 	</div>
 </Card>

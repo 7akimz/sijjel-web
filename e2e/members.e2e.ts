@@ -99,3 +99,39 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 	await expect(owner.getByText(comingPlan)).toHaveCount(0);
 	await expect(owner.getByRole('button', { name: 'Move to Preliminary' })).toBeVisible();
 });
+
+test('an owner marks a rider as left and can bring them back', async ({ page, browser }) => {
+	test.slow();
+	const slug = `left${Date.now().toString(36)}`;
+	await signInAsPlatformAdmin(page);
+	await expect(page).toHaveURL(platformUrl('/platform/academies'));
+	const { name } = await createAcademy(page, slug);
+	const owner = await signUpOwner(browser, slug, await inviteOwner(page, name));
+	await setUpAcademy(owner, slug);
+	await addDressagePlan(owner, slug, 'Beginner, 8 a month', 'Intro');
+	const laylaInvite = await inviteRider(owner, slug, {
+		name: 'Layla',
+		age: 14,
+		plan: 'Beginner, 8 a month'
+	});
+	const layla = await browser.newPage();
+	await signUp(layla, slug, laylaInvite, 'Layla');
+
+	await owner.goto(academyUrl(slug, '/members'));
+	await owner.getByRole('link', { name: /Layla/ }).click();
+	await owner.getByRole('button', { name: 'Mark as left' }).click();
+	await expect(owner.getByText('Marked as left.')).toBeVisible();
+	await owner.goto(academyUrl(slug, '/members'));
+	const row = owner.getByRole('listitem').filter({ hasText: 'Layla' });
+	await expect(row.getByText('Left', { exact: true })).toBeVisible();
+
+	await layla.reload();
+	await expect(layla.getByText("You're no longer a member here.")).toBeVisible();
+	await expect(layla.getByRole('link', { name: 'Book a session' })).toHaveCount(0);
+
+	await row.getByRole('link', { name: /Layla/ }).click();
+	await owner.getByRole('button', { name: 'Reactivate' }).click();
+	await expect(owner.getByText('Member reactivated.')).toBeVisible();
+	await layla.reload();
+	await expect(layla.getByRole('link', { name: 'Book a session' })).toBeVisible();
+});

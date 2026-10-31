@@ -736,5 +736,10 @@
 	"error_welcome_too_long": "اجعل رسالة الترحيب 200 حرف على الأكثر.",
 	"account_title": "حسابك",
 	"account_add_phone": "أضف رقم هاتفك للمتابعة.",
-	"account_saved": "تم الحفظ."
+	"account_saved": "تم الحفظ.",
+	"member_left": "غادر",
+	"member_mark_left": "تسجيل المغادرة",
+	"member_left_confirm": "تسجيل المغادرة وإلغاء هذه الحجوزات",
+	"member_left_notice": "تم تسجيل المغادرة.",
+	"membership_left": "لم تعد عضوًا هنا."
 }

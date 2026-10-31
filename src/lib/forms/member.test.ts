@@ -8,7 +8,8 @@ import {
 	monthKey,
 	nextMonth,
 	planHint,
-	toMemberInput
+	toMemberInput,
+	inactiveLabel
 } from './member';
 
 const rules = { minRiderAge: 6, maxRiderAge: null, maxRiderWeightKg: null };
@@ -135,5 +136,13 @@ describe('isLevelledRider', () => {
 		expect(isLevelledRider(layla)).toBe(true);
 		expect(isLevelledRider({ ...layla, level: null })).toBe(false);
 		expect(isLevelledRider({ ...layla, roles: ['trainer'] })).toBe(false);
+	});
+});
+
+describe('inactiveLabel', () => {
+	it('names a member who left apart from a suspended one, and says nothing for active members', () => {
+		expect(inactiveLabel('left')).toBe('Left');
+		expect(inactiveLabel('suspended')).toBe('Suspended');
+		expect(inactiveLabel('active')).toBeNull();
 	});
 });

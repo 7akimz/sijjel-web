@@ -16,9 +16,10 @@
 	import { formatDate } from '#lib/format.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import {
-		memberErrors,
 		formAfterMove,
+		inactiveLabel,
 		isLevelledRider,
+		memberErrors,
 		memberFormFrom,
 		planHint,
 		toMemberInput,
@@ -174,17 +175,25 @@
 		}
 	}
 
-	async function suspend(confirm = false) {
+	// Suspending and marking as left stop the member the same way; only the status differs.
+	const deactivations = {
+		suspend: { confirm: m.member_suspend_confirm, done: m.member_suspended_notice },
+		leave: { confirm: m.member_left_confirm, done: m.member_left_notice }
+	};
+	let deactivating = $state<keyof typeof deactivations>('suspend');
+
+	async function deactivate(action: keyof typeof deactivations, confirm = false) {
 		clear();
+		deactivating = action;
 		try {
-			member = await api<Member>(`/academy/members/${member.id}/suspend`, {
+			member = await api<Member>(`/academy/members/${member.id}/${action}`, {
 				method: 'POST',
 				body: { confirm }
 			});
-			notice = m.member_suspended_notice();
+			notice = deactivations[action].done();
 			bookings = await api<BookingView[]>(`/academy/members/${member.id}/bookings`);
 		} catch (e) {
-			handle(e, () => suspend(true));
+			handle(e, () => deactivate(action, true));
 		}
 	}
 
@@ -225,7 +234,8 @@
 	<div class="sj-page-head">
 		<div class="sj-row">
 			<h1 class="sj-title">{member.displayName}</h1>
-			{#if member.status === 'suspended'}<StatusChip tone="stone">{m.member_suspended()}</StatusChip
+			{#if inactiveLabel(member.status)}<StatusChip tone="stone"
+					>{inactiveLabel(member.status)}</StatusChip
 				>{/if}
 		</div>
 		{#if member.roles.includes('rider') && member.status === 'active'}
@@ -244,7 +254,7 @@
 		<AffectedBookings
 			bookings={affected.bookings}
 			locale={data.locale}
-			confirmLabel={affected.retry ? m.member_suspend_confirm() : undefined}
+			confirmLabel={affected.retry ? deactivations[deactivating].confirm() : undefined}
 			onconfirm={affected.retry}
 			oncancel={() => (affected = undefined)}
 		/>
@@ -380,9 +390,14 @@
 
 		<Card>
 			<h2 class="sj-heading">{m.member_status()}</h2>
-			<div>
+			<div class="sj-row">
 				{#if member.status === 'active'}
-					<Button variant="danger" onclick={() => suspend()}>{m.member_suspend()}</Button>
+					<Button variant="secondary" onclick={() => deactivate('leave')}
+						>{m.member_mark_left()}</Button
+					>
+					<Button variant="danger" onclick={() => deactivate('suspend')}
+						>{m.member_suspend()}</Button
+					>
 				{:else}
 					<Button variant="secondary" onclick={reactivate}>{m.member_reactivate()}</Button>
 				{/if}

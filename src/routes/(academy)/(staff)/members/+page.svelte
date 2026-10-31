@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import { resolve } from '$app/paths';
 	import InviteShareCard from '#lib/components/InviteShareCard.svelte';
+	import { inactiveLabel } from '#lib/forms/member.js';
 	import { academyMark, academyName, localName, roleName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
@@ -183,8 +184,8 @@
 								{#if member.paidThisMonth === false && member.roles.includes('rider')}
 									<StatusChip tone="danger" dot>{m.member_unpaid()}</StatusChip>
 								{/if}
-								{#if member.status === 'suspended'}
-									<StatusChip tone="stone">{m.member_suspended()}</StatusChip>
+								{#if inactiveLabel(member.status)}
+									<StatusChip tone="stone">{inactiveLabel(member.status)}</StatusChip>
 								{/if}
 							</span>
 							{#if member.age}

@@ -95,3 +95,10 @@ export function toMemberInput(f: MemberForm): MemberInput | Omit<MemberInput, ke
 		horseSource: f.horseSource
 	};
 }
+
+/** The chip shown for a member who no longer uses the academy, or null while they do. */
+export function inactiveLabel(status: Member['status']): string | null {
+	if (status === 'left') return m.member_left();
+	if (status === 'suspended') return m.member_suspended();
+	return null;
+}
