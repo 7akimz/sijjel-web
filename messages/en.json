@@ -76,6 +76,8 @@
 	"invite_title": "You're invited to {academy}",
 	"invite_grants": "This invitation makes you:",
 	"invite_sign_up": "Create your account",
+	"invite_account_question": "Do you have a sijjel account?",
+	"invite_choose_new": "Create an account",
 	"invite_accept": "Accept invitation",
 	"invite_have_account": "Already have an account? Sign in",
 	"invite_has_account": "You already have a sijjel account. Sign in to join {academy}.",

@@ -77,6 +77,7 @@ test('a platform admin sets up a package, academies see what they owe, and block
 
 	const layla = await browser.newPage();
 	await layla.goto(academyUrl(slug, laylaInvite));
+	await layla.getByRole('button', { name: 'Create an account' }).click();
 	await layla.getByLabel('Your name').fill('Layla');
 	await layla.getByLabel('Phone', { exact: true }).fill(e2ePhone(`layla-${slug}`));
 	await layla.getByLabel('Email').fill(`layla-${slug}@example.test`);
