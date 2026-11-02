@@ -504,6 +504,7 @@
 	"member_bookings_none": "No upcoming bookings.",
 	"member_book_for": "Book for this rider",
 	"member_whatsapp": "WhatsApp",
+	"member_whatsapp_to": "WhatsApp {name}",
 	"booking_cancel": "Cancel",
 	"booking_cancelled": "Cancelled",
 	"booking_cancelled_by_academy": "Cancelled by the academy",

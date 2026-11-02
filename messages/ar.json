@@ -504,6 +504,7 @@
 	"member_bookings_none": "لا توجد حجوزات قادمة.",
 	"member_book_for": "الحجز لهذا الفارس",
 	"member_whatsapp": "واتساب",
+	"member_whatsapp_to": "واتساب {name}",
 	"booking_cancel": "إلغاء",
 	"booking_cancelled": "ملغى",
 	"booking_cancelled_by_academy": "ألغته الأكاديمية",

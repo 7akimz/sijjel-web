@@ -72,7 +72,7 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	await owner.goto(academyUrl(slug, '/members'));
 	const row = owner.getByRole('listitem').filter({ hasText: 'Layla' });
 	await expect(row.getByText('Unpaid this month')).toBeVisible();
-	await row.getByRole('link', { name: /Layla/ }).click();
+	await row.getByRole('link', { name: /^Layla/ }).click();
 	await owner.getByRole('button', { name: 'Mark paid' }).click();
 	await expect(owner.getByText('Paid', { exact: true })).toBeVisible();
 	await owner.goto(academyUrl(slug, '/members'));

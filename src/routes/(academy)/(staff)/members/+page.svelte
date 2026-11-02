@@ -161,7 +161,7 @@
 	{:else}
 		<ul class="sj-list" role="list">
 			{#each data.members as member (member.id)}
-				<li>
+				<li class="member-row">
 					<a class="member" href={resolve('/(academy)/(staff)/members/[id]', { id: member.id })}>
 						<span class="sj-avatar" aria-hidden="true">{academyMark(member.displayName)}</span>
 						<span class="main">
@@ -193,6 +193,20 @@
 							{/if}
 						</span>
 					</a>
+					{#if member.phone}
+						<!-- wa.me is an external WhatsApp address, not a route of this app. -->
+						<!-- eslint-disable svelte/no-navigation-without-resolve -->
+						<a
+							class="sj-btn sj-btn--quiet whatsapp"
+							href="https://wa.me/{member.phone}"
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-label={m.member_whatsapp_to({ name: member.displayName })}
+						>
+							<span class="sj-icon" aria-hidden="true">chat</span>
+						</a>
+						<!-- eslint-enable svelte/no-navigation-without-resolve -->
+					{/if}
 				</li>
 			{/each}
 		</ul>
@@ -220,7 +234,16 @@
 		align-items: center;
 		gap: var(--space-2);
 	}
+	.member-row {
+		display: flex;
+		align-items: center;
+	}
+	.whatsapp {
+		margin-inline-end: var(--space-3);
+	}
 	.member {
+		flex: 1;
+		min-inline-size: 0;
 		display: flex;
 		align-items: flex-start;
 		gap: var(--space-3);

@@ -72,7 +72,8 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 	);
 
 	await omar.goto(academyUrl(slug, '/members'));
-	await omar.getByRole('link', { name: /Layla/ }).click();
+	await expect(omar.getByRole('link', { name: 'WhatsApp Layla' })).toHaveCount(0);
+	await omar.getByRole('link', { name: /^Layla/ }).click();
 	await expect(omar.getByRole('heading', { name: 'Layla' })).toBeVisible();
 	await expect(omar.getByRole('button', { name: 'Save', exact: true })).toHaveCount(0);
 	await expect(omar.getByText('Dressage · Intro', { exact: true }).last()).toBeVisible();
@@ -88,7 +89,11 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 	await expect(omar.getByText(comingPlan)).toBeVisible();
 
 	await owner.goto(academyUrl(slug, '/members'));
-	await owner.getByRole('link', { name: /Layla/ }).click();
+	await expect(owner.getByRole('link', { name: 'WhatsApp Layla' })).toHaveAttribute(
+		'href',
+		`https://wa.me/20${e2ePhone(`layla-${slug}`).slice(1)}`
+	);
+	await owner.getByRole('link', { name: /^Layla/ }).click();
 	const levelCard = owner
 		.locator('section')
 		.filter({ has: owner.getByRole('heading', { name: 'Level', exact: true }) });
@@ -123,7 +128,7 @@ test('an owner marks a rider as left and can bring them back', async ({ page, br
 	await signUp(layla, slug, laylaInvite, 'Layla');
 
 	await owner.goto(academyUrl(slug, '/members'));
-	await owner.getByRole('link', { name: /Layla/ }).click();
+	await owner.getByRole('link', { name: /^Layla/ }).click();
 	await owner.getByRole('button', { name: 'Mark as left' }).click();
 	await expect(owner.getByText('Marked as left.')).toBeVisible();
 	await owner.goto(academyUrl(slug, '/members'));
@@ -134,7 +139,7 @@ test('an owner marks a rider as left and can bring them back', async ({ page, br
 	await expect(layla.getByText("You're no longer a member here.")).toBeVisible();
 	await expect(layla.getByRole('link', { name: 'Book a session' })).toHaveCount(0);
 
-	await row.getByRole('link', { name: /Layla/ }).click();
+	await row.getByRole('link', { name: /^Layla/ }).click();
 	await owner.getByRole('button', { name: 'Reactivate' }).click();
 	await expect(owner.getByText('Member reactivated.')).toBeVisible();
 	await layla.reload();
