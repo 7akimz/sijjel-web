@@ -442,6 +442,7 @@
 	"invite_create": "Create invitation",
 	"invite_no_plans": "Add a plan in Settings before inviting riders.",
 	"invite_discipline_no_plan": "{name} (no plan yet)",
+	"invite_discipline_has_no_plan": "No plan for {discipline} yet.",
 	"invite_level_no_plan": "No plan for {discipline}, {level} yet.",
 	"invite_add_plan": "Add a plan",
 	"invite_ready": "Invitation ready",

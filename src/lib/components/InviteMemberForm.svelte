@@ -75,11 +75,7 @@
 		disciplines.enabled.map((d) =>
 			disciplineHasPlan(plans, d.id)
 				? { value: d.id, label: localName(d, locale) }
-				: {
-						value: d.id,
-						label: m.invite_discipline_no_plan({ name: localName(d, locale) }),
-						disabled: true
-					}
+				: { value: d.id, label: m.invite_discipline_no_plan({ name: localName(d, locale) }) }
 		)
 	);
 	const chosenDiscipline = $derived(disciplines.enabled.find((d) => d.id === form.disciplineId));
@@ -212,12 +208,14 @@
 			error={fieldText(errors, 'planId')}
 			bind:value={form.planId}
 		/>
-		{#if plans.length > 0 && fitting.length === 0 && chosenDiscipline && chosenLevel}
+		{#if plans.length > 0 && fitting.length === 0 && chosenDiscipline}
 			<p class="sj-small">
-				{m.invite_level_no_plan({
-					discipline: localName(chosenDiscipline, locale),
-					level: localName(chosenLevel, locale)
-				})}
+				{chosenLevel && disciplineHasPlan(plans, chosenDiscipline.id)
+					? m.invite_level_no_plan({
+							discipline: localName(chosenDiscipline, locale),
+							level: localName(chosenLevel, locale)
+						})
+					: m.invite_discipline_has_no_plan({ discipline: localName(chosenDiscipline, locale) })}
 				<a href={resolve(`/(academy)/(admin)/settings/plans?${addPlanQuery}`)}
 					>{m.invite_add_plan()}</a
 				>

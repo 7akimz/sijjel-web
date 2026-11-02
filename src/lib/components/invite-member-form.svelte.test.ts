@@ -128,7 +128,7 @@ describe('InviteMemberForm', () => {
 			isActive: true
 		};
 
-		it('disables a discipline with no plan and starts on one that has a plan', async () => {
+		it('starts on a discipline that has a plan', async () => {
 			const screen = render(InviteMemberForm, {
 				...props,
 				ridersAllowed: true,
@@ -136,10 +136,25 @@ describe('InviteMemberForm', () => {
 				plans: [prelimPlan]
 			});
 
-			await expect
-				.element(screen.getByRole('option', { name: 'Show jumping (no plan yet)' }))
-				.toHaveAttribute('disabled');
 			await expect.element(screen.getByLabelText('Discipline')).toHaveValue('d');
+		});
+
+		it('lets a discipline with no plan be chosen and links to adding one for it', async () => {
+			const screen = render(InviteMemberForm, {
+				...props,
+				ridersAllowed: true,
+				disciplines,
+				plans: [prelimPlan]
+			});
+			const noPlan = screen.getByRole('option', { name: 'Show jumping (no plan yet)' });
+			await expect.element(noPlan).not.toHaveAttribute('disabled');
+
+			await screen.getByLabelText('Discipline').selectOptions('j');
+
+			await expect.element(screen.getByText('No plan for Show jumping yet.')).toBeVisible();
+			await expect
+				.element(screen.getByRole('link', { name: 'Add a plan' }))
+				.toHaveAttribute('href', '/settings/plans?from=invite&discipline=j');
 		});
 
 		it('says a level has no plan and links to adding one for the discipline', async () => {

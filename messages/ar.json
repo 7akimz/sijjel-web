@@ -442,6 +442,7 @@
 	"invite_create": "إنشاء الدعوة",
 	"invite_no_plans": "أضف خطة من الإعدادات قبل دعوة الفرسان.",
 	"invite_discipline_no_plan": "{name} (لا توجد خطة بعد)",
+	"invite_discipline_has_no_plan": "لا توجد خطة لـ{discipline} بعد.",
 	"invite_level_no_plan": "لا توجد خطة لـ{discipline}، {level} بعد.",
 	"invite_add_plan": "إضافة خطة",
 	"invite_ready": "الدعوة جاهزة",
