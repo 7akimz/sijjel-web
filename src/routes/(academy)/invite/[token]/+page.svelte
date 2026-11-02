@@ -130,6 +130,7 @@
 			{:else if data.user}
 				<Button block disabled={busy} onclick={() => accept({})}>{m.invite_accept()}</Button>
 			{:else}
+				<Button variant="quiet" href={signIn}>{m.invite_have_account()}</Button>
 				<form class="sj-stack" bind:this={formElement} onsubmit={signUp} novalidate>
 					<h2 class="sj-heading">{m.invite_sign_up()}</h2>
 					<TextField
@@ -169,7 +170,6 @@
 						bind:value={form.password}
 					/>
 					<Button type="submit" block disabled={busy}>{m.invite_sign_up()}</Button>
-					<Button variant="quiet" href={signIn}>{m.invite_have_account()}</Button>
 				</form>
 			{/if}
 		</div>
