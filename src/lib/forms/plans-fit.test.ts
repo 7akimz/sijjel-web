@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Plan } from '#lib/api/member-types.js';
-import { planFits, plansFor } from './plans-fit';
+import { disciplineHasPlan, planFits, plansFor } from './plans-fit';
 
 const dressage = { id: 'dressage', key: 'dressage', nameEn: 'Dressage', nameAr: 'ترويض' };
 const jumping = { id: 'jumping', key: 'show_jumping', nameEn: 'Show jumping', nameAr: 'قفز' };
@@ -61,5 +61,18 @@ describe('plansFor', () => {
 		expect(
 			plansFor([anyone, retired], 'dressage', 'intro', 'prelim-only').map((p) => p.id)
 		).toEqual(['anyone', 'prelim-only']);
+	});
+});
+
+describe('disciplineHasPlan', () => {
+	it('is true when an active plan is for the discipline at any level, or for any discipline', () => {
+		expect(disciplineHasPlan([prelimOnly], 'dressage')).toBe(true);
+		expect(disciplineHasPlan([anyone], 'dressage')).toBe(true);
+	});
+
+	it('ignores inactive plans and plans for other disciplines', () => {
+		expect(disciplineHasPlan([jumpingPlan], 'dressage')).toBe(false);
+		expect(disciplineHasPlan([{ ...allDressage, isActive: false }], 'dressage')).toBe(false);
+		expect(disciplineHasPlan([], 'dressage')).toBe(false);
 	});
 });

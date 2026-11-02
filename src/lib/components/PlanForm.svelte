@@ -14,19 +14,27 @@
 
 	type Props = {
 		plan?: Plan;
+		/** The discipline a new plan starts on. */
+		discipline?: string;
 		disciplines: AcademyDisciplines;
 		locale: Locale;
 		onsaved: (plan: Plan) => void;
 		oncancel?: () => void;
 	};
-	let { plan, disciplines, locale, onsaved, oncancel }: Props = $props();
+	let { plan, discipline, disciplines, locale, onsaved, oncancel }: Props = $props();
 
 	const initial = untrack(() => plan);
 	let nameEn = $state(initial?.nameEn ?? '');
 	let nameAr = $state(initial?.nameAr ?? '');
 	let lessons = $state<string | number | null>(initial?.lessonsPerMonth ?? 8);
 	let price = $state<string | number | null>(initial?.monthlyPrice ?? '');
-	let disciplineId = $state(initial?.discipline?.id ?? '');
+	let disciplineId = $state(
+		untrack(
+			() =>
+				initial?.discipline?.id ??
+				(disciplines.enabled.some((d) => d.id === discipline) ? discipline! : '')
+		)
+	);
 	let levelIds = $state<string[]>(initial?.levels?.map((l) => l.id) ?? []);
 	let active = $state(initial?.isActive ?? true);
 	let errors = $state<FieldErrors>({});

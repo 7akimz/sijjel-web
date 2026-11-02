@@ -102,4 +102,76 @@ describe('InviteMemberForm', () => {
 		await expect.element(screen.getByLabelText('Plan')).toHaveValue('');
 		await expect.element(screen.getByRole('option', { name: 'Prelim plan' })).toBeInTheDocument();
 	});
+
+	describe('when a discipline or level has no plan', () => {
+		const dressage = { id: 'd', key: 'dressage', nameEn: 'Dressage', nameAr: 'ترويض' };
+		const jumping = { id: 'j', key: 'show_jumping', nameEn: 'Show jumping', nameAr: 'قفز' };
+		const ladder = [
+			{ id: 'intro', nameEn: 'Intro', nameAr: 'تمهيدي', inUse: false },
+			{ id: 'prelim', nameEn: 'Preliminary', nameAr: 'أولي', inUse: false }
+		];
+		const disciplines = {
+			enabled: [
+				{ ...jumping, inUse: false, levels: ladder },
+				{ ...dressage, inUse: false, levels: ladder }
+			],
+			available: []
+		};
+		const prelimPlan = {
+			id: 'p',
+			nameEn: 'Prelim plan',
+			nameAr: 'Prelim plan',
+			lessonsPerMonth: 8,
+			monthlyPrice: 2200,
+			discipline: dressage,
+			levels: [{ id: 'prelim', nameEn: 'Preliminary', nameAr: 'أولي', position: 2 }],
+			isActive: true
+		};
+
+		it('disables a discipline with no plan and starts on one that has a plan', async () => {
+			const screen = render(InviteMemberForm, {
+				...props,
+				ridersAllowed: true,
+				disciplines,
+				plans: [prelimPlan]
+			});
+
+			await expect
+				.element(screen.getByRole('option', { name: 'Show jumping (no plan yet)' }))
+				.toHaveAttribute('disabled');
+			await expect.element(screen.getByLabelText('Discipline')).toHaveValue('d');
+		});
+
+		it('says a level has no plan and links to adding one for the discipline', async () => {
+			const screen = render(InviteMemberForm, {
+				...props,
+				ridersAllowed: true,
+				disciplines,
+				plans: [prelimPlan]
+			});
+
+			await expect.element(screen.getByText('No plan for Dressage, Intro yet.')).toBeVisible();
+			await expect
+				.element(screen.getByRole('link', { name: 'Add a plan' }))
+				.toHaveAttribute('href', '/settings/plans?from=invite&discipline=d');
+
+			await screen.getByLabelText('Level').selectOptions('Preliminary');
+			await expect
+				.element(screen.getByText('No plan for Dressage, Preliminary yet.'))
+				.not.toBeInTheDocument();
+		});
+
+		it('links to adding a plan when the academy has none', async () => {
+			const screen = render(InviteMemberForm, {
+				...props,
+				ridersAllowed: true,
+				disciplines,
+				plans: []
+			});
+
+			await expect
+				.element(screen.getByRole('link', { name: 'Add a plan' }))
+				.toHaveAttribute('href', '/settings/plans?from=invite');
+		});
+	});
 });

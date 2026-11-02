@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import PlanForm from '#lib/components/PlanForm.svelte';
 	import SetupNext from '#lib/components/SetupNext.svelte';
 	import { reveal } from '#lib/reveal.js';
@@ -22,6 +25,13 @@
 			(a, b) => Number(b.isActive) - Number(a.isActive) || a.lessonsPerMonth - b.lessonsPerMonth
 		)
 	);
+
+	const fromInvite = page.url.searchParams.get('from') === 'invite';
+
+	async function onAdded(plan: Plan) {
+		if (fromInvite) return goto(resolve('/(academy)/(admin)/members/invite'));
+		onSaved(plan);
+	}
 
 	function onSaved(plan: Plan) {
 		plans = plans.some((p) => p.id === plan.id)
@@ -56,7 +66,12 @@
 
 	<Card raised>
 		<h2 class="sj-heading">{m.plan_new()}</h2>
-		<PlanForm disciplines={data.disciplines} locale={data.locale} onsaved={onSaved} />
+		<PlanForm
+			disciplines={data.disciplines}
+			discipline={page.url.searchParams.get('discipline') ?? undefined}
+			locale={data.locale}
+			onsaved={onAdded}
+		/>
 	</Card>
 
 	{#if sorted.length === 0}

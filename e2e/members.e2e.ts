@@ -140,3 +140,35 @@ test('an owner marks a rider as left and can bring them back', async ({ page, br
 	await layla.reload();
 	await expect(layla.getByRole('link', { name: 'Book a session' })).toBeVisible();
 });
+
+test('an owner adds a missing plan from the invite form and comes back to it', async ({
+	page,
+	browser
+}) => {
+	test.slow();
+	const slug = `plan${Date.now().toString(36)}`;
+	await signInAsPlatformAdmin(page);
+	await expect(page).toHaveURL(platformUrl('/platform/academies'));
+	const { name } = await createAcademy(page, slug);
+	const owner = await signUpOwner(browser, slug, await inviteOwner(page, name));
+	await setUpAcademy(owner, slug);
+	await addDressagePlan(owner, slug, 'Beginner, 8 a month', 'Intro');
+
+	await owner.goto(academyUrl(slug, '/members/invite'));
+	await owner.getByLabel('Level').selectOption({ label: 'Preliminary' });
+	await expect(owner.getByText('No plan for Dressage, Preliminary yet.')).toBeVisible();
+	await owner.getByRole('link', { name: 'Add a plan' }).click();
+
+	await expect(owner).toHaveURL(/\/settings\/plans\?from=invite&discipline=/);
+	await expect(owner.getByLabel('Discipline (optional)')).toHaveValue(/.+/);
+	await owner.getByLabel('Name (English)').fill('Preliminary, 8 a month');
+	await owner.getByLabel('Name (Arabic)').fill('Preliminary, 8 a month');
+	await owner.getByLabel('Monthly price').fill('1200');
+	await owner.getByLabel('Preliminary', { exact: true }).check();
+	await owner.getByRole('button', { name: 'Add plan' }).click();
+
+	await expect(owner).toHaveURL(academyUrl(slug, '/members/invite'));
+	await owner.getByLabel('Level').selectOption({ label: 'Preliminary' });
+	await expect(owner.getByText('No plan for Dressage, Preliminary yet.')).toHaveCount(0);
+	await owner.getByLabel('Plan').selectOption({ label: 'Preliminary, 8 a month' });
+});

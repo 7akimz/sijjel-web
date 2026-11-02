@@ -22,3 +22,8 @@ export function plansFor(
 ): Plan[] {
 	return plans.filter((p) => p.id === keep || (p.isActive && planFits(p, disciplineId, levelId)));
 }
+
+/** Whether some active plan takes riders in the discipline, at any of its levels. */
+export function disciplineHasPlan(plans: Plan[], disciplineId: string): boolean {
+	return plans.some((p) => p.isActive && (!p.discipline || p.discipline.id === disciplineId));
+}

@@ -81,4 +81,27 @@ describe('PlanForm', () => {
 		await vi.waitFor(() => expect(bodies).toHaveLength(1));
 		expect(bodies[0]).toMatchObject({ disciplineId: 'jumping', levelIds: [] });
 	});
+
+	it('starts a new plan on the discipline it was opened for', async () => {
+		const screen = render(PlanForm, {
+			disciplines,
+			locale: 'en',
+			discipline: 'jumping',
+			onsaved: () => {}
+		});
+
+		await expect.element(screen.getByLabelText('Discipline (optional)')).toHaveValue('jumping');
+		await expect.element(screen.getByLabelText('Poles')).toBeVisible();
+	});
+
+	it('ignores a discipline the academy does not teach', async () => {
+		const screen = render(PlanForm, {
+			disciplines,
+			locale: 'en',
+			discipline: 'polo',
+			onsaved: () => {}
+		});
+
+		await expect.element(screen.getByLabelText('Discipline (optional)')).toHaveValue('');
+	});
 });

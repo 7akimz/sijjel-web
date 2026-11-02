@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { resolve } from '$app/paths';
 	import { localName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
@@ -12,7 +13,7 @@
 		toInviteRequest,
 		type InviteMemberForm
 	} from '#lib/forms/invite-member.js';
-	import { plansFor } from '#lib/forms/plans-fit.js';
+	import { disciplineHasPlan, plansFor } from '#lib/forms/plans-fit.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, SelectField, TextField } from '#lib/ui/index.js';
 
@@ -38,7 +39,9 @@
 
 	const canInviteRiders = untrack(() => ridersAllowed && !riderLimitReached);
 
-	const first = untrack(() => disciplines.enabled[0]);
+	const first = untrack(
+		() => disciplines.enabled.find((d) => disciplineHasPlan(plans, d.id)) ?? disciplines.enabled[0]
+	);
 	let form = $state<InviteMemberForm>({
 		role: canInviteRiders ? 'rider' : 'trainer',
 		name: '',
@@ -69,7 +72,24 @@
 		{ value: 'own', label: m.invite_horse_own() }
 	];
 	const disciplineOptions = $derived(
-		disciplines.enabled.map((d) => ({ value: d.id, label: localName(d, locale) }))
+		disciplines.enabled.map((d) =>
+			disciplineHasPlan(plans, d.id)
+				? { value: d.id, label: localName(d, locale) }
+				: {
+						value: d.id,
+						label: m.invite_discipline_no_plan({ name: localName(d, locale) }),
+						disabled: true
+					}
+		)
+	);
+	const chosenDiscipline = $derived(disciplines.enabled.find((d) => d.id === form.disciplineId));
+	const chosenLevel = $derived(chosenDiscipline?.levels.find((l) => l.id === form.levelId));
+	const addPlanQuery = $derived(
+		new URLSearchParams(
+			plans.length > 0 && chosenDiscipline
+				? { from: 'invite', discipline: chosenDiscipline.id }
+				: { from: 'invite' }
+		).toString()
 	);
 	const levelOptions = $derived(
 		(disciplines.enabled.find((d) => d.id === form.disciplineId)?.levels ?? []).map((l) => ({
@@ -146,7 +166,12 @@
 	/>
 	{#if form.role === 'rider'}
 		{#if plans.length === 0}
-			<Banner tone="pending" icon="info">{m.invite_no_plans()}</Banner>
+			<Banner tone="pending" icon="info">
+				{m.invite_no_plans()}
+				<a href={resolve(`/(academy)/(admin)/settings/plans?${addPlanQuery}`)}
+					>{m.invite_add_plan()}</a
+				>
+			</Banner>
 		{/if}
 		<div class="pair">
 			<TextField
@@ -187,6 +212,17 @@
 			error={fieldText(errors, 'planId')}
 			bind:value={form.planId}
 		/>
+		{#if plans.length > 0 && fitting.length === 0 && chosenDiscipline && chosenLevel}
+			<p class="sj-small">
+				{m.invite_level_no_plan({
+					discipline: localName(chosenDiscipline, locale),
+					level: localName(chosenLevel, locale)
+				})}
+				<a href={resolve(`/(academy)/(admin)/settings/plans?${addPlanQuery}`)}
+					>{m.invite_add_plan()}</a
+				>
+			</p>
+		{/if}
 		<SelectField
 			label={m.invite_horse()}
 			options={horseOptions}
