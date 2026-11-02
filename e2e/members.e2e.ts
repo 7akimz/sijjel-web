@@ -24,7 +24,6 @@ async function addDressagePlan(owner: Page, slug: string, name: string, level: s
 
 async function signUp(page: Page, slug: string, invitePath: string, name: string) {
 	await page.goto(academyUrl(slug, invitePath));
-	await page.getByRole('button', { name: 'Create an account' }).click();
 	await page.getByLabel('Your name').fill(name);
 	await page.getByLabel('Phone', { exact: true }).fill(e2ePhone(`${name.toLowerCase()}-${slug}`));
 	await page.getByLabel('Email').fill(`${name.toLowerCase()}-${slug}@example.test`);

@@ -76,8 +76,6 @@
 	"invite_title": "أنت مدعو إلى {academy}",
 	"invite_grants": "هذه الدعوة تجعلك:",
 	"invite_sign_up": "أنشئ حسابك",
-	"invite_account_question": "هل لديك حساب على سجّل؟",
-	"invite_choose_new": "إنشاء حساب",
 	"invite_accept": "قبول الدعوة",
 	"invite_have_account": "لديك حساب؟ سجّل الدخول",
 	"invite_has_account": "لديك حساب في سجل بالفعل. سجّل الدخول للانضمام إلى {academy}.",

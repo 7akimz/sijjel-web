@@ -87,7 +87,6 @@ test('a platform admin invites an owner by phone, and the owner signs up with it
 
 	const owner = await browser.newPage();
 	await owner.goto(academyUrl(slug, invitePath));
-	await owner.getByRole('button', { name: 'Create an account' }).click();
 	await expect(owner.getByLabel('Your name')).toHaveValue('Mona');
 	const phoneField = owner.getByLabel('Phone', { exact: true });
 	await expect(phoneField).toHaveValue(`+20${phone.slice(1)}`);

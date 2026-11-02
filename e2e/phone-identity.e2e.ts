@@ -46,7 +46,6 @@ test('a rider joins a second academy by signing in with their phone in Arabic di
 
 	const atFirst = await browser.newPage();
 	await atFirst.goto(academyUrl(first, a.invitePath));
-	await atFirst.getByRole('button', { name: 'Create an account' }).click();
 	await atFirst.getByLabel('Your name').fill('Nour');
 	await atFirst.getByLabel('Phone', { exact: true }).fill(NOUR_PHONE);
 	await atFirst.getByLabel('Password', { exact: true }).fill(NOUR_PASSWORD);
@@ -55,9 +54,6 @@ test('a rider joins a second academy by signing in with their phone in Arabic di
 
 	const atSecond = await browser.newPage();
 	await atSecond.goto(academyUrl(second, b.invitePath));
-	await expect(atSecond.getByText('Do you have a sijjel account?')).toBeVisible();
-	await expect(atSecond.getByLabel('Your name')).toHaveCount(0);
-	await atSecond.getByRole('button', { name: 'Create an account' }).click();
 	await atSecond.getByLabel('Your name').fill('Nour');
 	await atSecond.getByLabel('Phone', { exact: true }).fill(NOUR_PHONE);
 	await atSecond.getByLabel('Password', { exact: true }).fill(NOUR_PASSWORD);
@@ -66,18 +62,15 @@ test('a rider joins a second academy by signing in with their phone in Arabic di
 		atSecond.getByText(`You already have a sijjel account. Sign in to join ${b.name}.`)
 	).toBeVisible();
 
-	await expect(atSecond.getByRole('main').getByRole('link', { name: 'Sign in' })).toBeVisible();
-
-	const returning = await browser.newPage();
-	await returning.goto(academyUrl(second, b.invitePath));
-	await returning.getByRole('main').getByRole('link', { name: 'Sign in' }).click();
-	const identifier = returning.getByLabel('Phone or email');
+	await atSecond.getByRole('main').getByRole('link', { name: 'Sign in' }).click();
+	const identifier = atSecond.getByLabel('Phone or email');
+	await expect(identifier).toHaveValue(NOUR_PHONE);
 	await identifier.fill('٠١٠٥٥٥٠٠٠١١');
-	await returning.getByLabel('Password', { exact: true }).fill(NOUR_PASSWORD);
-	await returning.locator('form').getByRole('button', { name: 'Sign in' }).click();
-	await expect(returning).toHaveURL(academyUrl(second, b.invitePath));
-	await returning.getByRole('button', { name: 'Accept invitation' }).click();
-	await expect(returning).toHaveURL(academyUrl(second, '/'));
+	await atSecond.getByLabel('Password', { exact: true }).fill(NOUR_PASSWORD);
+	await atSecond.locator('form').getByRole('button', { name: 'Sign in' }).click();
+	await expect(atSecond).toHaveURL(academyUrl(second, b.invitePath));
+	await atSecond.getByRole('button', { name: 'Accept invitation' }).click();
+	await expect(atSecond).toHaveURL(academyUrl(second, '/'));
 
 	const backAtFirst = await browser.newPage();
 	await backAtFirst.goto(academyUrl(first, '/login'));

@@ -50,7 +50,6 @@ export async function signUpOwner(
 ): Promise<Page> {
 	const owner = await browser.newPage();
 	await owner.goto(academyUrl(slug, invitePath));
-	await owner.getByRole('button', { name: 'Create an account' }).click();
 	await owner.getByLabel('Your name').fill('Owner');
 	await owner.getByLabel('Phone', { exact: true }).fill(e2ePhone(`owner-${slug}`));
 	await owner.getByLabel('Email').fill(`owner-${slug}@example.test`);

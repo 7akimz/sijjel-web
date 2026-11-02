@@ -40,7 +40,6 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 
 	const layla = await browser.newPage();
 	await layla.goto(academyUrl(slug, invitePath));
-	await layla.getByRole('button', { name: 'Create an account' }).click();
 	await layla.getByLabel('Your name').fill('Layla');
 	await layla.getByLabel('Phone', { exact: true }).fill(e2ePhone(`layla-${slug}`));
 	await layla.getByLabel('Email').fill(`layla-${slug}@example.test`);

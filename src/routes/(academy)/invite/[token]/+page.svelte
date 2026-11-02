@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tick, untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -52,7 +52,6 @@
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let hasAccount = $state<string | null>(null);
-	let signingUp = $state(false);
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
@@ -85,12 +84,6 @@
 		} finally {
 			busy = false;
 		}
-	}
-
-	async function startSignUp() {
-		signingUp = true;
-		await tick();
-		formElement?.querySelector('input')?.focus();
 	}
 
 	function signUp(event: SubmitEvent) {
@@ -136,12 +129,6 @@
 				<Button block href={signInAs(hasAccount)}>{m.action_sign_in()}</Button>
 			{:else if data.user}
 				<Button block disabled={busy} onclick={() => accept({})}>{m.invite_accept()}</Button>
-			{:else if !signingUp}
-				<div class="sj-stack">
-					<h2 class="sj-heading">{m.invite_account_question()}</h2>
-					<Button block onclick={startSignUp}>{m.invite_choose_new()}</Button>
-					<Button block variant="secondary" href={signIn}>{m.action_sign_in()}</Button>
-				</div>
 			{:else}
 				<form class="sj-stack" bind:this={formElement} onsubmit={signUp} novalidate>
 					<h2 class="sj-heading">{m.invite_sign_up()}</h2>
