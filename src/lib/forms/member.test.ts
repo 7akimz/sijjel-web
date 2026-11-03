@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Member } from '#lib/api/member-types.js';
 import {
-	formAfterMove,
 	isLevelledRider,
 	memberErrors,
 	memberFormFrom,
@@ -102,26 +101,6 @@ describe('planHint', () => {
 describe('planHint for a rider with no plan', () => {
 	it('says nothing, since the plan starts at once', () => {
 		expect(planHint('p', { ...layla, plan: null }, '2026-10-27', 'en')).toBeUndefined();
-	});
-});
-
-describe('formAfterMove', () => {
-	const moved: Member = {
-		...layla,
-		level: { id: 'l2', nameEn: 'Preliminary', nameAr: 'أولي', position: 2 }
-	};
-
-	it('takes the new level and keeps the plan the form had unchanged', () => {
-		const form = formAfterMove(memberFormFrom(layla), layla, moved);
-
-		expect(form.levelId).toBe('l2');
-		expect(form.planId).toBe('p');
-	});
-
-	it('keeps a plan picked but not saved yet', () => {
-		const form = formAfterMove({ ...memberFormFrom(layla), planId: 'p2' }, layla, moved);
-
-		expect(form.planId).toBe('p2');
 	});
 });
 

@@ -10,6 +10,10 @@ declare global {
 			theme: Theme;
 			locale: Locale;
 		}
+		interface PageState {
+			/** A message the next page shows once, such as after saving on another page. */
+			notice?: string;
+		}
 	}
 }
 

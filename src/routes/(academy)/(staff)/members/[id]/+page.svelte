@@ -1,94 +1,30 @@
 <script lang="ts">
-	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
 	import { untrack } from 'svelte';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
 	import MemberLevel from '#lib/components/MemberLevel.svelte';
+	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
 	import { localName, roleName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
-	import {
-		ApiError,
-		errorText,
-		fieldText,
-		hiddenFieldText,
-		type FieldErrors
-	} from '#lib/api/errors.js';
+	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { AffectedBooking, BookingView, Member } from '#lib/api/member-types.js';
 	import { formatDate } from '#lib/format.js';
-	import { focusFirstInvalid } from '#lib/forms/focus.js';
-	import {
-		formAfterMove,
-		inactiveLabel,
-		isLevelledRider,
-		memberErrors,
-		memberFormFrom,
-		planHint,
-		toMemberInput,
-		type MemberForm
-	} from '#lib/forms/member.js';
-	import { plansFor } from '#lib/forms/plans-fit.js';
+	import { inactiveLabel, isLevelledRider } from '#lib/forms/member.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import {
-		Banner,
-		Button,
-		Card,
-		CheckboxField,
-		SelectField,
-		StatusChip,
-		TextField
-	} from '#lib/ui/index.js';
+	import { Banner, Button, Card, MoreMenu, StatusChip, type MoreMenuItem } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	let member = $state<Member>(untrack(() => data.member));
 	let bookings = $state<BookingView[]>(untrack(() => data.bookings));
-	let form = $state<MemberForm>(memberFormFrom(untrack(() => data.member)));
-	let horseName = $state(untrack(() => data.member.privateHorse?.name ?? ''));
-	let horseNotes = $state(untrack(() => data.member.privateHorse?.notes ?? ''));
-	let errors = $state<FieldErrors>({});
-	let notice = $state<string>();
+	let notice = $state<string | undefined>(untrack(() => page.state.notice));
 	let failure = $state<string>();
 	let affected = $state<{ bookings: AffectedBooking[]; retry?: () => void }>();
-	let busy = $state(false);
-	let formElement = $state<HTMLFormElement>();
 
-	const roles = ['rider', 'trainer', 'admin'] as const;
-	const isRider = $derived(form.roles.includes('rider'));
+	const isRider = $derived(member.roles.includes('rider'));
 	const wasRider = $derived(isLevelledRider(member));
-	const ladder = $derived(
-		data.disciplines.enabled.find((d) => d.id === form.disciplineId)?.levels ?? []
-	);
-	const disciplineOptions = $derived(
-		data.disciplines.enabled.map((d) => ({
-			value: d.id,
-			label: localName(d, data.locale)
-		}))
-	);
-	const levelOptions = $derived(
-		ladder.map((l) => ({ value: l.id, label: localName(l, data.locale) }))
-	);
-	const planOptions = $derived([
-		{ value: '', label: '—' },
-		...(wasRider
-			? plansFor(
-					data.plans,
-					member.comingMove?.discipline.id ?? member.discipline?.id ?? '',
-					member.comingMove?.level.id ?? member.level?.id ?? '',
-					member.plan?.id
-				)
-			: plansFor(data.plans, form.disciplineId, form.levelId)
-		).map((p) => ({ value: p.id, label: localName(p, data.locale) }))
-	]);
-	const planStarts = $derived(
-		wasRider ? planHint(form.planId, member, data.today, data.locale) : undefined
-	);
-	// An existing rider's discipline and level change only through a move, so they have no fields.
-	const shownFields = ['roles', 'planId', 'horseSource'];
-	const horseOptions = [
-		{ value: 'school', label: m.invite_horse_school() },
-		{ value: 'own', label: m.invite_horse_own() }
-	];
 	const upcoming = $derived(bookings.filter((b) => b.status === 'active' && b.canCancel));
 
 	function clear() {
@@ -102,43 +38,7 @@
 			affected = { bookings: (error.extra.bookings as AffectedBooking[]) ?? [], retry };
 			return;
 		}
-		errors = error.fields;
-		const hidden = wasRider ? hiddenFieldText(error.fields, shownFields) : undefined;
-		if (Object.keys(error.fields).length === 0) failure = errorText(error.code);
-		else if (hidden) failure = hidden;
-		else focusFirstInvalid(formElement);
-	}
-
-	// A move changes the rider's level and plan, so the profile form follows it and a later save
-	// never sends the old level back.
-	function levelChanged(updated: Member) {
-		form = formAfterMove(form, member, updated);
-		member = updated;
-		errors = {};
-	}
-
-	function toggleRole(role: (typeof roles)[number], on: boolean) {
-		form.roles = on ? [...new Set([...form.roles, role])] : form.roles.filter((r) => r !== role);
-	}
-
-	async function save(event: SubmitEvent) {
-		event.preventDefault();
-		clear();
-		errors = memberErrors(form);
-		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
-		busy = true;
-		try {
-			member = await api<Member>(`/academy/members/${member.id}`, {
-				method: 'PUT',
-				body: toMemberInput(form)
-			});
-			form = memberFormFrom(member);
-			notice = m.member_saved();
-		} catch (e) {
-			handle(e);
-		} finally {
-			busy = false;
-		}
+		failure = errorText(error.code);
 	}
 
 	async function setPaid(paid: boolean) {
@@ -149,27 +49,6 @@
 				method: paid ? 'POST' : 'DELETE'
 			});
 			member = { ...member, paidThisMonth: paid };
-		} catch (e) {
-			handle(e);
-		}
-	}
-
-	async function saveHorse() {
-		clear();
-		try {
-			member = await api<Member>(`/academy/members/${member.id}/horse`, {
-				method: 'PUT',
-				body: { name: horseName.trim(), notes: horseNotes.trim() || null }
-			});
-		} catch (e) {
-			handle(e);
-		}
-	}
-
-	async function retireHorse() {
-		clear();
-		try {
-			member = await api<Member>(`/academy/members/${member.id}/horse`, { method: 'DELETE' });
 		} catch (e) {
 			handle(e);
 		}
@@ -219,6 +98,18 @@
 			handle(e);
 		}
 	}
+
+	const moreItems = $derived<MoreMenuItem[]>([
+		...(isRider && member.paidThisMonth
+			? [{ label: m.member_mark_unpaid(), onselect: () => setPaid(false) }]
+			: []),
+		...(member.status === 'active'
+			? [
+					{ label: m.member_mark_left(), onselect: () => deactivate('leave') },
+					{ label: m.member_suspend(), onselect: () => deactivate('suspend'), danger: true }
+				]
+			: [{ label: m.member_reactivate(), onselect: reactivate }])
+	]);
 </script>
 
 <svelte:head>
@@ -231,22 +122,76 @@
 			{m.back_to_members()}
 		</Button>
 	</div>
-	<div class="sj-page-head">
+
+	<header class="sj-stack head">
 		<div class="sj-row">
 			<h1 class="sj-title">{member.displayName}</h1>
 			{#if inactiveLabel(member.status)}<StatusChip tone="stone"
 					>{inactiveLabel(member.status)}</StatusChip
 				>{/if}
 		</div>
-		{#if member.roles.includes('rider') && member.status === 'active'}
-			<Button
-				icon="event_available"
-				href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
-			>
-				{m.member_book_for()}
-			</Button>
-		{/if}
-	</div>
+		<div class="sj-row chips">
+			{#each member.roles as role (role)}
+				<StatusChip tone="active">{roleName(role, data.locale)}</StatusChip>
+			{/each}
+			{#if member.discipline && member.level}
+				<StatusChip tone="level"
+					>{localName(member.discipline, data.locale)} · {localName(
+						member.level,
+						data.locale
+					)}</StatusChip
+				>
+			{/if}
+			{#if member.plan}
+				<StatusChip tone="neutral">{localName(member.plan, data.locale)}</StatusChip>
+			{/if}
+			{#if data.admin && isRider}
+				{#if member.paidThisMonth}
+					<StatusChip tone="active" dot>{m.member_paid_chip()}</StatusChip>
+				{:else}
+					<StatusChip tone="danger" dot>{m.member_unpaid_chip()}</StatusChip>
+				{/if}
+			{/if}
+		</div>
+		<div class="sj-row actions">
+			{#if data.admin && isRider && !member.paidThisMonth}
+				<Button variant="secondary" icon="check" onclick={() => setPaid(true)}
+					>{m.member_mark_paid()}</Button
+				>
+			{/if}
+			{#if isRider && member.status === 'active'}
+				<Button
+					icon="event_available"
+					href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
+				>
+					{m.member_book_for()}
+				</Button>
+			{/if}
+			{#if data.admin}
+				<Button
+					variant="secondary"
+					icon="edit"
+					href={resolve('/(academy)/(admin)/members/[id]/edit', { id: member.id })}
+					>{m.member_edit()}</Button
+				>
+				{#if member.phone}
+					<!-- wa.me is an external WhatsApp address, not a route of this app. -->
+					<!-- eslint-disable svelte/no-navigation-without-resolve -->
+					<a
+						class="sj-btn sj-btn--quiet sj-btn--icon"
+						href="https://wa.me/{member.phone}"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label={m.member_whatsapp_to({ name: member.displayName })}
+					>
+						<WhatsAppIcon />
+					</a>
+					<!-- eslint-enable svelte/no-navigation-without-resolve -->
+				{/if}
+				<MoreMenu label={m.member_more()} items={moreItems} />
+			{/if}
+		</div>
+	</header>
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
@@ -260,150 +205,6 @@
 		/>
 	{/if}
 
-	{#if data.admin}
-		<form class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
-			<Card>
-				<h2 class="sj-heading">{m.member_details()}</h2>
-				{#if member.email}<p class="sj-small sj-muted" dir="ltr">{member.email}</p>{/if}
-				{#if member.phone}
-					<div class="phone">
-						<span class="sj-label">{m.member_phone()}</span>
-						<p dir="ltr">{member.phone}</p>
-						<span class="sj-small sj-muted">{m.member_phone_hint()}</span>
-					</div>
-					<!-- eslint-disable svelte/no-navigation-without-resolve -->
-					<a
-						class="sj-btn sj-btn--quiet wa"
-						href="https://wa.me/{member.phone}"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<WhatsAppIcon />{m.member_whatsapp()}
-					</a>
-					<!-- eslint-enable svelte/no-navigation-without-resolve -->
-				{/if}
-				<fieldset class="sj-stack roles">
-					<legend class="sj-label">{m.member_roles()}</legend>
-					{#each roles as role (role)}
-						<CheckboxField
-							label={roleName(role, data.locale)}
-							checked={form.roles.includes(role)}
-							onchange={(checked) => toggleRole(role, checked)}
-						/>
-					{/each}
-					{#if fieldText(errors, 'roles')}<span class="sj-field-error"
-							>{fieldText(errors, 'roles')}</span
-						>{/if}
-				</fieldset>
-			</Card>
-			{#if isRider}
-				<Card>
-					<h2 class="sj-heading">{m.member_rider_details()}</h2>
-					{#if !wasRider}
-						<SelectField
-							label={m.invite_discipline()}
-							options={disciplineOptions}
-							error={fieldText(errors, 'disciplineId')}
-							bind:value={form.disciplineId}
-						/>
-						<SelectField
-							label={m.invite_level()}
-							options={levelOptions}
-							error={fieldText(errors, 'levelId')}
-							bind:value={form.levelId}
-						/>
-					{/if}
-					<SelectField
-						label={m.invite_plan()}
-						options={planOptions}
-						error={fieldText(errors, 'planId')}
-						hint={planStarts}
-						bind:value={form.planId}
-					/>
-					<SelectField
-						label={m.invite_horse()}
-						options={horseOptions}
-						bind:value={form.horseSource as string}
-					/>
-				</Card>
-			{/if}
-			<div><Button type="submit" disabled={busy}>{m.action_save()}</Button></div>
-		</form>
-
-		{#if member.roles.includes('rider')}
-			<Card>
-				<h2 class="sj-heading">{m.member_payments()}</h2>
-				<div class="sj-row">
-					<span>{m.member_this_month()}</span>
-					{#if member.paidThisMonth}
-						<StatusChip tone="active" dot>{m.member_paid_chip()}</StatusChip>
-						<Button variant="quiet" onclick={() => setPaid(false)}>{m.member_mark_unpaid()}</Button>
-					{:else}
-						<StatusChip tone="danger" dot>{m.member_unpaid_chip()}</StatusChip>
-						<Button variant="secondary" icon="check" onclick={() => setPaid(true)}
-							>{m.member_mark_paid()}</Button
-						>
-					{/if}
-				</div>
-			</Card>
-
-			{#if member.horseSource === 'own'}
-				<Card>
-					<h2 class="sj-heading">{m.member_horse_title()}</h2>
-					{#if member.privateHorse && !member.privateHorse.isActive}
-						<StatusChip tone="stone">{m.member_horse_retired()}</StatusChip>
-					{:else if !member.privateHorse}
-						<p class="sj-muted">{m.member_horse_none()}</p>
-					{/if}
-					<TextField label={m.member_horse_name()} bind:value={horseName} />
-					<TextField label={m.member_horse_notes()} bind:value={horseNotes} />
-					<div class="sj-row">
-						<Button variant="secondary" onclick={saveHorse}>{m.member_horse_save()}</Button>
-						{#if member.privateHorse?.isActive}
-							<Button variant="quiet" onclick={retireHorse}>{m.member_horse_retire()}</Button>
-						{/if}
-					</div>
-				</Card>
-			{/if}
-		{/if}
-
-		<Card>
-			<h2 class="sj-heading">{m.member_status()}</h2>
-			<div class="sj-row">
-				{#if member.status === 'active'}
-					<Button variant="secondary" onclick={() => deactivate('leave')}
-						>{m.member_mark_left()}</Button
-					>
-					<Button variant="danger" onclick={() => deactivate('suspend')}
-						>{m.member_suspend()}</Button
-					>
-				{:else}
-					<Button variant="secondary" onclick={reactivate}>{m.member_reactivate()}</Button>
-				{/if}
-			</div>
-		</Card>
-	{:else}
-		<Card>
-			<h2 class="sj-heading">{m.member_details()}</h2>
-			<div class="sj-row">
-				{#each member.roles as role (role)}<StatusChip tone="active"
-						>{roleName(role, data.locale)}</StatusChip
-					>{/each}
-				{#if member.discipline && member.level}
-					<StatusChip tone="level"
-						>{localName(member.discipline, data.locale)} · {localName(
-							member.level,
-							data.locale
-						)}</StatusChip
-					>
-				{/if}
-				{#if member.plan}<StatusChip tone="neutral"
-						>{localName(member.plan, data.locale)}</StatusChip
-					>{/if}
-			</div>
-		</Card>
-	{/if}
-
 	{#if wasRider}
 		<MemberLevel
 			{member}
@@ -411,11 +212,11 @@
 			plans={data.plans}
 			today={data.today}
 			locale={data.locale}
-			onchange={levelChanged}
+			onchange={(updated) => (member = updated)}
 		/>
 	{/if}
 
-	{#if member.roles.includes('rider')}
+	{#if isRider}
 		<Card>
 			<h2 class="sj-heading">{m.member_bookings()}</h2>
 			{#if upcoming.length === 0}
@@ -440,25 +241,48 @@
 			{/if}
 		</Card>
 	{/if}
+
+	{#if data.admin && isRider && member.horseSource === 'own'}
+		<Card>
+			<h2 class="sj-heading">{m.member_horse_title()}</h2>
+			{#if member.privateHorse}
+				<div class="sj-row">
+					<span class="horse">{member.privateHorse.name}</span>
+					{#if !member.privateHorse.isActive}<StatusChip tone="stone"
+							>{m.member_horse_retired()}</StatusChip
+						>{/if}
+				</div>
+				{#if member.privateHorse.notes}<p class="sj-muted">{member.privateHorse.notes}</p>{/if}
+			{:else}
+				<p class="sj-muted">{m.member_horse_none()}</p>
+			{/if}
+		</Card>
+	{/if}
+
+	{#if data.admin && (member.phone || member.email)}
+		<Card>
+			<h2 class="sj-heading">{m.member_contact()}</h2>
+			{#if member.phone}<p dir="ltr" class="contact">{member.phone}</p>{/if}
+			{#if member.email}<p dir="ltr" class="contact">{member.email}</p>{/if}
+			<span class="sj-small sj-muted">{m.member_phone_hint()}</span>
+		</Card>
+	{/if}
 </div>
 
 <style>
-	fieldset {
-		border: 0;
-		margin: 0;
-		padding: 0;
+	.head {
+		gap: var(--space-3);
 	}
-	.wa {
-		align-self: flex-start;
+	.chips,
+	.actions {
+		flex-wrap: wrap;
 	}
-	.phone {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-1);
-	}
-	.phone p {
+	.contact {
 		margin: 0;
 		text-align: start;
+	}
+	.horse {
+		font-weight: 600;
 	}
 	.bookings {
 		margin: 0;

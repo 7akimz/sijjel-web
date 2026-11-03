@@ -47,20 +47,6 @@ export function isLevelledRider(member: Member): boolean {
 	return member.roles.includes('rider') && member.discipline !== null && member.level !== null;
 }
 
-/**
- * The profile form after a move: the rider's new discipline, level and plan, except a plan
- * picked in the form and not saved yet, which stays picked.
- */
-export function formAfterMove(form: MemberForm, before: Member, after: Member): MemberForm {
-	const picked = form.planId !== (before.plan?.id ?? '');
-	return {
-		...form,
-		disciplineId: after.discipline?.id ?? '',
-		levelId: after.level?.id ?? '',
-		planId: picked ? form.planId : (after.plan?.id ?? '')
-	};
-}
-
 export function memberFormFrom(m: Member): MemberForm {
 	return {
 		roles: [...m.roles],
