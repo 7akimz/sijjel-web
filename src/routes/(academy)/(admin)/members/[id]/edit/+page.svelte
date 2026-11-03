@@ -167,6 +167,15 @@
 		/>
 	{/if}
 
+	{#if member.phone || member.email}
+		<Card>
+			<h2 class="sj-heading">{m.member_contact()}</h2>
+			{#if member.phone}<p dir="ltr" class="contact">{member.phone}</p>{/if}
+			{#if member.email}<p dir="ltr" class="contact">{member.email}</p>{/if}
+			<span class="sj-small sj-muted">{m.member_phone_hint()}</span>
+		</Card>
+	{/if}
+
 	<form class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
 		<Card>
 			<fieldset class="sj-stack">
@@ -241,6 +250,10 @@
 </div>
 
 <style>
+	.contact {
+		margin: 0;
+		text-align: start;
+	}
 	fieldset {
 		border: 0;
 		margin: 0;

@@ -1,4 +1,4 @@
-import { localName } from '#lib/academy.js';
+import { localName, roleName } from '#lib/academy.js';
 import type { FieldErrors } from '#lib/api/errors.js';
 import type { HorseSource, Member, MemberInput } from '#lib/api/member-types.js';
 import type { Locale } from '#lib/api/types.js';
@@ -40,6 +40,24 @@ export function planHint(
 		},
 		{ locale }
 	);
+}
+
+/**
+ * The one line under a member's name: staff roles (a rider needs no label), level, plan and the
+ * horse they bring.
+ */
+export function profileSummary(member: Member, locale: Locale): string[] {
+	const parts = member.roles
+		.filter((role) => role !== 'rider')
+		.map((role) => roleName(role, locale));
+	if (member.discipline && member.level) {
+		parts.push(`${localName(member.discipline, locale)} · ${localName(member.level, locale)}`);
+	}
+	if (member.plan) parts.push(localName(member.plan, locale));
+	if (member.horseSource === 'own' && member.privateHorse?.isActive) {
+		parts.push(m.member_own_horse_named({ name: member.privateHorse.name }, { locale }));
+	}
+	return parts;
 }
 
 /** A rider staff can move: the rider role, with a discipline and a level to move from. */

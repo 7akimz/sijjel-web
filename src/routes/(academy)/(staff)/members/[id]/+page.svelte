@@ -5,12 +5,11 @@
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
 	import MemberLevel from '#lib/components/MemberLevel.svelte';
 	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
-	import { localName, roleName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { AffectedBooking, BookingView, Member } from '#lib/api/member-types.js';
-	import { formatDate } from '#lib/format.js';
-	import { inactiveLabel, isLevelledRider } from '#lib/forms/member.js';
+	import { formatDate, formatMonth } from '#lib/format.js';
+	import { inactiveLabel, isLevelledRider, profileSummary } from '#lib/forms/member.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, MoreMenu, StatusChip, type MoreMenuItem } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -26,6 +25,11 @@
 	const isRider = $derived(member.roles.includes('rider'));
 	const wasRider = $derived(isLevelledRider(member));
 	const upcoming = $derived(bookings.filter((b) => b.status === 'active' && b.canCancel));
+	const SHOWN_BOOKINGS = 2;
+	let allBookings = $state(false);
+	const shownBookings = $derived(allBookings ? upcoming : upcoming.slice(0, SHOWN_BOOKINGS));
+	const summary = $derived(profileSummary(member, data.locale));
+	const unpaid = $derived(data.admin && isRider && data.month && !member.paidThisMonth);
 
 	function clear() {
 		notice = failure = undefined;
@@ -49,6 +53,7 @@
 				method: paid ? 'POST' : 'DELETE'
 			});
 			member = { ...member, paidThisMonth: paid };
+			notice = paid ? m.member_paid() : m.member_unpaid();
 		} catch (e) {
 			handle(e);
 		}
@@ -123,57 +128,18 @@
 		</Button>
 	</div>
 
-	<header class="sj-stack head">
-		<div class="sj-row">
-			<h1 class="sj-title">{member.displayName}</h1>
-			{#if inactiveLabel(member.status)}<StatusChip tone="stone"
-					>{inactiveLabel(member.status)}</StatusChip
-				>{/if}
+	<header class="head">
+		<div class="title">
+			<div class="sj-row">
+				<h1 class="sj-title">{member.displayName}</h1>
+				{#if inactiveLabel(member.status)}<StatusChip tone="stone"
+						>{inactiveLabel(member.status)}</StatusChip
+					>{/if}
+			</div>
+			{#if summary.length}<p class="sj-muted summary">{summary.join(' · ')}</p>{/if}
 		</div>
-		<div class="sj-row chips">
-			{#each member.roles as role (role)}
-				<StatusChip tone="active">{roleName(role, data.locale)}</StatusChip>
-			{/each}
-			{#if member.discipline && member.level}
-				<StatusChip tone="level"
-					>{localName(member.discipline, data.locale)} · {localName(
-						member.level,
-						data.locale
-					)}</StatusChip
-				>
-			{/if}
-			{#if member.plan}
-				<StatusChip tone="neutral">{localName(member.plan, data.locale)}</StatusChip>
-			{/if}
-			{#if data.admin && isRider}
-				{#if member.paidThisMonth}
-					<StatusChip tone="active" dot>{m.member_paid_chip()}</StatusChip>
-				{:else}
-					<StatusChip tone="danger" dot>{m.member_unpaid_chip()}</StatusChip>
-				{/if}
-			{/if}
-		</div>
-		<div class="sj-row actions">
-			{#if data.admin && isRider && !member.paidThisMonth}
-				<Button variant="secondary" icon="check" onclick={() => setPaid(true)}
-					>{m.member_mark_paid()}</Button
-				>
-			{/if}
-			{#if isRider && member.status === 'active'}
-				<Button
-					icon="event_available"
-					href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
-				>
-					{m.member_book_for()}
-				</Button>
-			{/if}
-			{#if data.admin}
-				<Button
-					variant="secondary"
-					icon="edit"
-					href={resolve('/(academy)/(admin)/members/[id]/edit', { id: member.id })}
-					>{m.member_edit()}</Button
-				>
+		{#if data.admin}
+			<div class="tools">
 				{#if member.phone}
 					<!-- wa.me is an external WhatsApp address, not a route of this app. -->
 					<!-- eslint-disable svelte/no-navigation-without-resolve -->
@@ -188,10 +154,36 @@
 					</a>
 					<!-- eslint-enable svelte/no-navigation-without-resolve -->
 				{/if}
+				<Button
+					variant="quiet"
+					icon="edit"
+					label={m.member_edit()}
+					href={resolve('/(academy)/(admin)/members/[id]/edit', { id: member.id })}
+				/>
 				<MoreMenu label={m.member_more()} items={moreItems} />
-			{/if}
-		</div>
+			</div>
+		{/if}
 	</header>
+
+	{#if unpaid && data.month}
+		<div class="unpaid">
+			<span>{m.member_unpaid_month({ month: formatMonth(`${data.month}-01`, data.locale) })}</span>
+			<Button variant="secondary" icon="check" onclick={() => setPaid(true)}
+				>{m.member_mark_paid()}</Button
+			>
+		</div>
+	{/if}
+
+	{#if isRider && member.status === 'active'}
+		<div>
+			<Button
+				icon="event_available"
+				href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
+			>
+				{m.member_book_for()}
+			</Button>
+		</div>
+	{/if}
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
@@ -223,7 +215,7 @@
 				<p class="sj-muted">{m.member_bookings_none()}</p>
 			{:else}
 				<ul class="bookings" role="list">
-					{#each upcoming as booking (booking.id)}
+					{#each shownBookings as booking (booking.id)}
 						<li>
 							<span
 								>{formatDate(`${booking.date}T00:00:00Z`, data.locale)}
@@ -238,50 +230,49 @@
 						</li>
 					{/each}
 				</ul>
+				{#if !allBookings && upcoming.length > SHOWN_BOOKINGS}
+					<div>
+						<Button variant="quiet" onclick={() => (allBookings = true)}
+							>{m.member_bookings_more({ count: upcoming.length - SHOWN_BOOKINGS })}</Button
+						>
+					</div>
+				{/if}
 			{/if}
-		</Card>
-	{/if}
-
-	{#if data.admin && isRider && member.horseSource === 'own'}
-		<Card>
-			<h2 class="sj-heading">{m.member_horse_title()}</h2>
-			{#if member.privateHorse}
-				<div class="sj-row">
-					<span class="horse">{member.privateHorse.name}</span>
-					{#if !member.privateHorse.isActive}<StatusChip tone="stone"
-							>{m.member_horse_retired()}</StatusChip
-						>{/if}
-				</div>
-				{#if member.privateHorse.notes}<p class="sj-muted">{member.privateHorse.notes}</p>{/if}
-			{:else}
-				<p class="sj-muted">{m.member_horse_none()}</p>
-			{/if}
-		</Card>
-	{/if}
-
-	{#if data.admin && (member.phone || member.email)}
-		<Card>
-			<h2 class="sj-heading">{m.member_contact()}</h2>
-			{#if member.phone}<p dir="ltr" class="contact">{member.phone}</p>{/if}
-			{#if member.email}<p dir="ltr" class="contact">{member.email}</p>{/if}
-			<span class="sj-small sj-muted">{m.member_phone_hint()}</span>
 		</Card>
 	{/if}
 </div>
 
 <style>
 	.head {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
 		gap: var(--space-3);
 	}
-	.chips,
-	.actions {
-		flex-wrap: wrap;
+	.title {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		min-width: 0;
 	}
-	.contact {
+	.summary {
 		margin: 0;
-		text-align: start;
 	}
-	.horse {
+	.tools {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
+	}
+	.unpaid {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-2) var(--space-3);
+		padding: var(--space-2) var(--space-3);
+		border-radius: var(--radius-md);
+		background: var(--danger-soft);
+		color: var(--danger);
 		font-weight: 600;
 	}
 	.bookings {

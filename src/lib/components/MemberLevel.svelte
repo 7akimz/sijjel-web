@@ -141,18 +141,21 @@
 		</div>
 	{/if}
 	{#if member.levelHistory?.length}
-		<h3 class="sj-label">{m.member_history({}, { locale })}</h3>
-		<ul class="history" role="list">
-			{#each member.levelHistory as change, i (i)}
-				<li class="sj-small">{historyText(change)}</li>
-			{/each}
-		</ul>
+		<details>
+			<summary class="sj-small"
+				>{m.member_history_count({ count: member.levelHistory.length }, { locale })}</summary
+			>
+			<ul class="history" role="list">
+				{#each member.levelHistory as change, i (i)}
+					<li class="sj-small">{historyText(change)}</li>
+				{/each}
+			</ul>
+		</details>
 	{/if}
 </Card>
 
 <style>
-	p,
-	h3 {
+	p {
 		margin: 0;
 	}
 	.coming {
@@ -166,7 +169,12 @@
 		background: var(--surface);
 		border: 1px solid var(--line);
 	}
+	summary {
+		cursor: pointer;
+		color: var(--ink-muted);
+	}
 	.history {
+		margin-block-start: var(--space-2);
 		display: grid;
 		gap: var(--space-1);
 		margin: 0;

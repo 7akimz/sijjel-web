@@ -73,7 +73,8 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	await expect(row.getByText('Unpaid this month')).toBeVisible();
 	await row.getByRole('link', { name: /^Layla/ }).click();
 	await owner.getByRole('button', { name: 'Mark paid' }).click();
-	await expect(owner.getByText('Paid', { exact: true })).toBeVisible();
+	await expect(owner.getByText('Paid this month')).toBeVisible();
+	await expect(owner.getByRole('button', { name: 'Mark paid' })).toHaveCount(0);
 	await owner.goto(academyUrl(slug, '/members'));
 	await expect(row).toBeVisible();
 	await expect(row.getByText('Unpaid this month')).toHaveCount(0);

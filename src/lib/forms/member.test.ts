@@ -7,6 +7,7 @@ import {
 	monthKey,
 	nextMonth,
 	planHint,
+	profileSummary,
 	toMemberInput,
 	inactiveLabel,
 	alreadyMemberText
@@ -131,5 +132,28 @@ describe('alreadyMemberText', () => {
 		expect(alreadyMemberText('suspended')).toBe(
 			'You already have a membership here. Ask the academy to reactivate it.'
 		);
+	});
+});
+
+describe('profileSummary', () => {
+	it("gives a rider's level, plan and own horse, without the rider role", () => {
+		const own = {
+			...layla,
+			horseSource: 'own' as const,
+			privateHorse: { id: 'h', name: 'Zahra', notes: null, isActive: true }
+		};
+
+		expect(profileSummary(own, 'en')).toEqual(['Dressage · Intro', 'Two', 'Own horse: Zahra']);
+	});
+
+	it('names staff roles, and leaves out a retired horse', () => {
+		const staff = {
+			...layla,
+			roles: ['admin', 'rider'] as Member['roles'],
+			horseSource: 'own' as const,
+			privateHorse: { id: 'h', name: 'Zahra', notes: null, isActive: false }
+		};
+
+		expect(profileSummary(staff, 'en')).toEqual(['Admin', 'Dressage · Intro', 'Two']);
 	});
 });
