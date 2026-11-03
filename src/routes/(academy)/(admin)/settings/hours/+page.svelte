@@ -159,7 +159,7 @@
 		/>
 	{/if}
 
-	<form class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
+	<form method="post" class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
 		<Card>
 			<ul class="days" role="list">
 				{#each rows as row (row.weekday)}

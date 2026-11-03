@@ -91,7 +91,7 @@
 </script>
 
 <Card raised>
-	<form class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
+	<form method="post" class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
 		<h2 class="sj-heading">{m.academy_new()}</h2>
 		{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 		<TextField

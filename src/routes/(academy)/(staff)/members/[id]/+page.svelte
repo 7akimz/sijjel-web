@@ -261,7 +261,7 @@
 	{/if}
 
 	{#if data.admin}
-		<form class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
+		<form method="post" class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
 			<Card>
 				<h2 class="sj-heading">{m.member_details()}</h2>
 				{#if member.email}<p class="sj-small sj-muted" dir="ltr">{member.email}</p>{/if}

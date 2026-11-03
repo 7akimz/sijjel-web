@@ -179,7 +179,7 @@
 {#if saved}<Banner icon="check_circle">{m.branding_saved()}</Banner>{/if}
 {#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 
-<form class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
+<form method="post" class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
 	{@render imageSection(
 		'logo',
 		m.branding_logo(),

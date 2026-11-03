@@ -118,7 +118,7 @@
 				{/each}
 			</ul>
 		{/if}
-		<form class="sj-stack" bind:this={formElement} onsubmit={addDates} novalidate>
+		<form method="post" class="sj-stack" bind:this={formElement} onsubmit={addDates} novalidate>
 			<DateRangeField
 				label={m.horse_unavailable_dates()}
 				error={fieldText(errors, 'from') ?? fieldText(errors, 'to')}

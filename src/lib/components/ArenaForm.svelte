@@ -47,7 +47,7 @@
 	}
 </script>
 
-<form class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
+<form method="post" class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 	<div class="fields">
 		<TextField

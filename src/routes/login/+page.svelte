@@ -51,7 +51,7 @@
 
 <div class="sj-page login">
 	<Card raised>
-		<form class="sj-stack" onsubmit={submit} novalidate>
+		<form method="post" class="sj-stack" onsubmit={submit} novalidate>
 			<h1 class="sj-title">{m.login_title()}</h1>
 			<p class="sj-muted">{intro}</p>
 			{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}

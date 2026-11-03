@@ -126,7 +126,7 @@
 	{/if}
 
 	<Card raised>
-		<form class="sj-stack" bind:this={formElement} onsubmit={add} novalidate>
+		<form method="post" class="sj-stack" bind:this={formElement} onsubmit={add} novalidate>
 			<h2 class="sj-heading">{m.closed_add()}</h2>
 			<DateRangeField
 				label={m.closed_dates()}

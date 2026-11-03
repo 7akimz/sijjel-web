@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import Icon from './Icon.svelte';
 
 	type Props = {
@@ -25,6 +25,11 @@
 		children
 	}: Props = $props();
 
+	// The server renders submit buttons disabled until the page's script can handle the form, so a
+	// tap during loading never falls back to the browser's own submit.
+	let hydrated = $state(false);
+	onMount(() => (hydrated = true));
+
 	const classes = $derived([
 		'sj-btn',
 		`sj-btn--${variant}`,
@@ -39,7 +44,13 @@
 		{@render children?.()}
 	</a>
 {:else}
-	<button class={classes} {type} {disabled} {onclick} aria-label={label}>
+	<button
+		class={classes}
+		{type}
+		disabled={disabled || (type === 'submit' && !hydrated)}
+		{onclick}
+		aria-label={label}
+	>
 		{#if icon}<Icon name={icon} size={20} />{/if}
 		{@render children?.()}
 	</button>

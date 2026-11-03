@@ -97,7 +97,7 @@
 	}
 </script>
 
-<form class="sj-stack" onsubmit={submit} novalidate>
+<form method="post" class="sj-stack" onsubmit={submit} novalidate>
 	{#if target && targetLevel}
 		<h3 class="sj-label">
 			{m.member_move_to({ level: localName(targetLevel, locale) }, { locale })}

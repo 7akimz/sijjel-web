@@ -131,7 +131,7 @@
 				<Button block disabled={busy} onclick={() => accept({})}>{m.invite_accept()}</Button>
 			{:else}
 				<Button variant="quiet" href={signIn}>{m.invite_have_account()}</Button>
-				<form class="sj-stack" bind:this={formElement} onsubmit={signUp} novalidate>
+				<form method="post" class="sj-stack" bind:this={formElement} onsubmit={signUp} novalidate>
 					<h2 class="sj-heading">{m.invite_sign_up()}</h2>
 					<TextField
 						label={m.field_display_name()}

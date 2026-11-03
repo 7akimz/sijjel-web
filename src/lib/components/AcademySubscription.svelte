@@ -161,7 +161,7 @@
 
 <div class="sj-stack">
 	<Card>
-		<form class="sj-stack" onsubmit={savePackage} novalidate>
+		<form method="post" class="sj-stack" onsubmit={savePackage} novalidate>
 			{@render status('package')}
 			<SelectField
 				label={m.subscription_package()}
@@ -194,7 +194,7 @@
 
 	{#if sub.package}
 		<Card>
-			<form class="sj-stack" onsubmit={markPaid} novalidate>
+			<form method="post" class="sj-stack" onsubmit={markPaid} novalidate>
 				<h2 class="sj-heading">{m.subscription_mark_paid_title()}</h2>
 				{@render status('paid')}
 				<div class="fields">
@@ -232,7 +232,7 @@
 		</Card>
 
 		<Card>
-			<form class="sj-stack" onsubmit={giveFree} novalidate>
+			<form method="post" class="sj-stack" onsubmit={giveFree} novalidate>
 				<h2 class="sj-heading">{m.subscription_free_title()}</h2>
 				{@render status('free')}
 				<div class="fields">
