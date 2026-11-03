@@ -94,8 +94,6 @@ export interface Member {
 }
 
 export interface RiderFieldsInput {
-	age: number | null;
-	weightKg: number | null;
 	disciplineId: string | null;
 	levelId: string | null;
 	planId: string | null;
@@ -103,7 +101,6 @@ export interface RiderFieldsInput {
 }
 
 export interface MemberInput extends RiderFieldsInput {
-	displayName: string;
 	roles: Member['roles'];
 }
 

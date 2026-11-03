@@ -13,8 +13,6 @@ import {
 	alreadyMemberText
 } from './member';
 
-const rules = { minRiderAge: 6, maxRiderAge: null, maxRiderWeightKg: null };
-
 const layla: Member = {
 	id: 'm1',
 	displayName: 'Layla',
@@ -59,12 +57,9 @@ describe('member form', () => {
 		);
 	});
 
-	it('round-trips a rider', () => {
+	it('sends no name, age or weight, which belong to the rider', () => {
 		expect(toMemberInput(memberFormFrom(layla))).toEqual({
-			displayName: 'Layla',
 			roles: ['rider'],
-			age: 14,
-			weightKg: 52,
 			disciplineId: 'd',
 			levelId: 'l1',
 			planId: 'p',
@@ -73,18 +68,18 @@ describe('member form', () => {
 	});
 
 	it('needs the rider fields once the rider role is added', () => {
-		const owner = memberFormFrom({ ...layla, roles: ['admin'], plan: null, age: null });
+		const owner = memberFormFrom({ ...layla, roles: ['admin'], plan: null });
 
-		expect(memberErrors({ ...owner, roles: ['admin', 'rider'] }, rules)).toMatchObject({
+		expect(memberErrors({ ...owner, roles: ['admin', 'rider'] })).toMatchObject({
 			planId: ['plan_required']
 		});
-		expect(memberErrors(owner, rules)).toEqual({});
+		expect(memberErrors(owner)).toEqual({});
 	});
 
 	it('sends no rider fields for staff', () => {
 		const input = toMemberInput({ ...memberFormFrom(layla), roles: ['trainer'] });
 
-		expect(input).toEqual({ displayName: 'Layla', roles: ['trainer'] });
+		expect(input).toEqual({ roles: ['trainer'] });
 	});
 });
 

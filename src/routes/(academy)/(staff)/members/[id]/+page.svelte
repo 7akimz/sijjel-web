@@ -84,7 +84,7 @@
 		wasRider ? planHint(form.planId, member, data.today, data.locale) : undefined
 	);
 	// An existing rider's discipline and level change only through a move, so they have no fields.
-	const shownFields = ['displayName', 'roles', 'age', 'weightKg', 'planId', 'horseSource'];
+	const shownFields = ['roles', 'planId', 'horseSource'];
 	const horseOptions = [
 		{ value: 'school', label: m.invite_horse_school() },
 		{ value: 'own', label: m.invite_horse_own() }
@@ -124,8 +124,7 @@
 	async function save(event: SubmitEvent) {
 		event.preventDefault();
 		clear();
-		if (!data.rules) return;
-		errors = memberErrors(form, data.rules);
+		errors = memberErrors(form);
 		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
 		busy = true;
 		try {
@@ -261,15 +260,10 @@
 		/>
 	{/if}
 
-	{#if data.admin && data.rules}
+	{#if data.admin}
 		<form class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
 			<Card>
 				<h2 class="sj-heading">{m.member_details()}</h2>
-				<TextField
-					label={m.member_name()}
-					error={fieldText(errors, 'displayName')}
-					bind:value={form.displayName}
-				/>
 				{#if member.email}<p class="sj-small sj-muted" dir="ltr">{member.email}</p>{/if}
 				{#if member.phone}
 					<div class="phone">
@@ -305,22 +299,6 @@
 			{#if isRider}
 				<Card>
 					<h2 class="sj-heading">{m.member_rider_details()}</h2>
-					<div class="pair">
-						<TextField
-							label={m.invite_age()}
-							type="number"
-							dir="ltr"
-							error={fieldText(errors, 'age')}
-							bind:value={form.age}
-						/>
-						<TextField
-							label={data.rules.maxRiderWeightKg ? m.invite_weight() : m.invite_weight_optional()}
-							type="number"
-							dir="ltr"
-							error={fieldText(errors, 'weightKg')}
-							bind:value={form.weightKg}
-						/>
-					</div>
 					{#if !wasRider}
 						<SelectField
 							label={m.invite_discipline()}
@@ -469,15 +447,6 @@
 		border: 0;
 		margin: 0;
 		padding: 0;
-	}
-	.pair {
-		display: grid;
-		gap: var(--space-3);
-	}
-	@media (min-width: 720px) {
-		.pair {
-			grid-template-columns: 1fr 1fr;
-		}
 	}
 	.wa {
 		align-self: flex-start;

@@ -62,7 +62,6 @@
 				<InviteMemberForm
 					disciplines={data.disciplines}
 					plans={data.plans}
-					rules={data.rules}
 					locale={data.locale}
 					ridersAllowed={data.membership?.setupDone ?? false}
 					riderLimitReached={data.riders.limit !== null && data.riders.count >= data.riders.limit}

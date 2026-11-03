@@ -1,14 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { inviteMemberErrors, toInviteRequest, type InviteMemberForm } from './invite-member';
 
-const rules = { minRiderAge: 6, maxRiderAge: null, maxRiderWeightKg: null };
-
 const rider = (overrides: Partial<InviteMemberForm> = {}): InviteMemberForm => ({
 	role: 'rider',
 	name: 'Layla',
 	phone: '',
-	age: 14,
-	weightKg: '',
 	disciplineId: 'd',
 	levelId: 'l1',
 	planId: 'p',
@@ -18,27 +14,17 @@ const rider = (overrides: Partial<InviteMemberForm> = {}): InviteMemberForm => (
 
 describe('inviteMemberErrors', () => {
 	it('accepts a complete rider', () => {
-		expect(inviteMemberErrors(rider(), rules)).toEqual({});
+		expect(inviteMemberErrors(rider())).toEqual({});
 	});
 
-	it('checks the age range, plan and weight limit for riders', () => {
-		expect(inviteMemberErrors(rider({ age: 5 }), rules)).toEqual({ age: ['age_out_of_range'] });
-		expect(inviteMemberErrors(rider({ planId: '' }), rules)).toEqual({ planId: ['plan_required'] });
-		expect(inviteMemberErrors(rider(), { ...rules, maxRiderWeightKg: 80 })).toEqual({
-			weightKg: ['weight_out_of_range']
-		});
-		expect(inviteMemberErrors(rider({ weightKg: 85 }), { ...rules, maxRiderWeightKg: 80 })).toEqual(
-			{
-				weightKg: ['weight_out_of_range']
-			}
-		);
+	it('checks the plan and level for riders', () => {
+		expect(inviteMemberErrors(rider({ planId: '' }))).toEqual({ planId: ['plan_required'] });
+		expect(inviteMemberErrors(rider({ levelId: '' }))).toEqual({ levelId: ['level_range_invalid'] });
 	});
 
 	it('only needs a name for staff', () => {
-		expect(inviteMemberErrors(rider({ role: 'trainer', age: null, planId: '' }), rules)).toEqual(
-			{}
-		);
-		expect(inviteMemberErrors(rider({ role: 'trainer', name: ' ' }), rules)).toEqual({
+		expect(inviteMemberErrors(rider({ role: 'trainer', planId: '' }))).toEqual({});
+		expect(inviteMemberErrors(rider({ role: 'trainer', name: ' ' }))).toEqual({
 			name: ['name_required']
 		});
 	});
@@ -51,11 +37,10 @@ describe('toInviteRequest', () => {
 		expect(request).toEqual({ role: 'trainer', name: 'Layla', phone: '010' });
 	});
 
-	it('drops a blank weight and keeps the rest for riders', () => {
+	it('sends no age or weight for riders', () => {
 		expect(toInviteRequest(rider())).toEqual({
 			role: 'rider',
 			name: 'Layla',
-			age: 14,
 			disciplineId: 'd',
 			levelId: 'l1',
 			planId: 'p',

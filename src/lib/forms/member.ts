@@ -4,10 +4,9 @@ import type { HorseSource, Member, MemberInput } from '#lib/api/member-types.js'
 import type { Locale } from '#lib/api/types.js';
 import { formatDate, formatDayMonth } from '#lib/format.js';
 import { m } from '#lib/paraglide/messages.js';
-import { optionalNumber, riderErrors, type RiderForm, type RiderRules } from './invite-member';
+import { riderErrors, type RiderForm } from './invite-member';
 
 export type MemberForm = RiderForm & {
-	displayName: string;
 	roles: Member['roles'];
 };
 
@@ -64,10 +63,7 @@ export function formAfterMove(form: MemberForm, before: Member, after: Member): 
 
 export function memberFormFrom(m: Member): MemberForm {
 	return {
-		displayName: m.displayName,
 		roles: [...m.roles],
-		age: m.age ?? '',
-		weightKg: m.weightKg ?? '',
 		disciplineId: m.discipline?.id ?? '',
 		levelId: m.level?.id ?? '',
 		planId: m.plan?.id ?? '',
@@ -75,20 +71,17 @@ export function memberFormFrom(m: Member): MemberForm {
 	};
 }
 
-export function memberErrors(f: MemberForm, rules: RiderRules): FieldErrors {
-	const errors: FieldErrors = f.roles.includes('rider') ? riderErrors(f, rules) : {};
-	if (!f.displayName.trim()) errors.displayName = ['name_required'];
+export function memberErrors(f: MemberForm): FieldErrors {
+	const errors: FieldErrors = f.roles.includes('rider') ? riderErrors(f) : {};
 	if (f.roles.length === 0) errors.roles = ['role_invalid'];
 	return errors;
 }
 
 export function toMemberInput(f: MemberForm): MemberInput | Omit<MemberInput, keyof RiderForm> {
-	const base = { displayName: f.displayName.trim(), roles: f.roles };
+	const base = { roles: f.roles };
 	if (!f.roles.includes('rider')) return base;
 	return {
 		...base,
-		age: optionalNumber(f.age),
-		weightKg: optionalNumber(f.weightKg),
 		disciplineId: f.disciplineId || null,
 		levelId: f.levelId || null,
 		planId: f.planId || null,
