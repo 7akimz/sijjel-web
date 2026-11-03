@@ -101,12 +101,11 @@ export async function setUpAcademy(owner: Page, slug: string) {
 export async function inviteRider(
 	owner: Page,
 	slug: string,
-	opts: { name: string; age: number; plan: string }
+	opts: { name: string; plan: string }
 ): Promise<string> {
 	await owner.goto(academyUrl(slug, '/members/invite'));
 	await owner.getByLabel('Who are you inviting?').selectOption({ label: 'A rider' });
 	await owner.getByLabel('Their name').fill(opts.name);
-	await owner.getByLabel('Age').fill(String(opts.age));
 	await owner.getByLabel('Discipline').selectOption({ label: 'Dressage' });
 	await owner.getByLabel('Level').selectOption({ label: 'Intro' });
 	await owner.getByLabel('Plan').selectOption({ label: opts.plan });

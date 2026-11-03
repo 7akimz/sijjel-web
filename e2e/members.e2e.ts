@@ -22,9 +22,15 @@ async function addDressagePlan(owner: Page, slug: string, name: string, level: s
 	await expect(owner.getByText('Plan saved.')).toBeVisible();
 }
 
-async function signUp(page: Page, slug: string, invitePath: string, name: string) {
+async function signUp(
+	page: Page,
+	slug: string,
+	invitePath: string,
+	name: string,
+	accountName = name
+) {
 	await page.goto(academyUrl(slug, invitePath));
-	await page.getByLabel('Your name').fill(name);
+	await page.getByLabel('Your name').fill(accountName);
 	await page.getByLabel('Phone', { exact: true }).fill(e2ePhone(`${name.toLowerCase()}-${slug}`));
 	await page.getByLabel('Email').fill(`${name.toLowerCase()}-${slug}@example.test`);
 	await page.getByLabel('Password', { exact: true }).fill('RiderPassw0rd');
@@ -48,10 +54,14 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 
 	const laylaInvite = await inviteRider(owner, slug, {
 		name: 'Layla',
-		age: 14,
 		plan: 'Beginner, 8 a month'
 	});
-	await signUp(await browser.newPage(), slug, laylaInvite, 'Layla');
+	await signUp(await browser.newPage(), slug, laylaInvite, 'Layla', 'Layla Hassan');
+
+	await owner.goto(academyUrl(slug, '/members'));
+	await owner.getByRole('link', { name: /^Layla Hassan/ }).click();
+	await expect(owner.getByRole('heading', { name: 'Layla Hassan' })).toBeVisible();
+	await expect(owner.getByRole('textbox', { name: /^(Your name|Name)$/ })).toHaveCount(0);
 
 	await owner.goto(academyUrl(slug, '/members/invite'));
 	await owner.getByLabel('Who are you inviting?').selectOption({ label: 'A trainer' });
@@ -121,7 +131,6 @@ test('an owner marks a rider as left and can bring them back', async ({ page, br
 	await addDressagePlan(owner, slug, 'Beginner, 8 a month', 'Intro');
 	const laylaInvite = await inviteRider(owner, slug, {
 		name: 'Layla',
-		age: 14,
 		plan: 'Beginner, 8 a month'
 	});
 	const layla = await browser.newPage();

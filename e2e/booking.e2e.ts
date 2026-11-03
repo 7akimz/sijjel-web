@@ -29,7 +29,6 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 
 	const invitePath = await inviteRider(owner, slug, {
 		name: 'Layla',
-		age: 14,
 		plan: 'Dressage, 8 a month'
 	});
 	await expect(owner.getByRole('link', { name: 'Send on WhatsApp' })).toHaveAttribute(

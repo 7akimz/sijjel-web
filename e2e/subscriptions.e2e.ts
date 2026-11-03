@@ -66,10 +66,9 @@ test('a platform admin sets up a package, academies see what they owe, and block
 
 	const laylaInvite = await inviteRider(owner, slug, {
 		name: 'Layla',
-		age: 14,
 		plan: 'Dressage, 8 a month'
 	});
-	await inviteRider(owner, slug, { name: 'Sara', age: 12, plan: 'Dressage, 8 a month' });
+	await inviteRider(owner, slug, { name: 'Sara', plan: 'Dressage, 8 a month' });
 	await owner.goto(academyUrl(slug, '/members/invite'));
 	await expect(owner.getByText('Riders: 2 of 2')).toBeVisible();
 	await expect(owner.getByText(/^You've reached your package's rider limit\./)).toBeVisible();

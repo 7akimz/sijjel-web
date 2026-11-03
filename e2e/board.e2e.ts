@@ -60,7 +60,6 @@ test('staff plan a session: place a rider, suggest a horse, set trainers and not
 	for (const riderName of ['Layla', 'Sara']) {
 		const invitePath = await inviteRider(owner, slug, {
 			name: riderName,
-			age: 14,
 			plan: 'Dressage, 8 a month'
 		});
 		const rider = await browser.newPage();

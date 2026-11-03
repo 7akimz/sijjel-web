@@ -25,7 +25,6 @@ async function academyWithRiderInvite(admin: Page, browser: Browser, slug: strin
 	await expect(owner.getByText('Plan saved.')).toBeVisible();
 	const invitePath = await inviteRider(owner, slug, {
 		name: 'Nour',
-		age: 15,
 		plan: 'Dressage, 8 a month'
 	});
 	return { name, invitePath };
