@@ -72,11 +72,13 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	const row = owner.getByRole('listitem').filter({ hasText: 'Layla' });
 	await expect(row.getByText('Unpaid this month')).toBeVisible();
 	await row.getByRole('link', { name: /^Layla/ }).click();
-	await expect(owner.locator('header').getByText(/^Not paid for /)).toBeVisible();
-	await owner.getByRole('button', { name: 'Mark paid' }).click();
-	await expect(owner.getByText('Paid this month')).toBeVisible();
-	await expect(owner.getByRole('button', { name: 'Mark paid' })).toHaveCount(0);
-	await expect(owner.getByText(/^Not paid for /)).toHaveCount(0);
+	const unpaidFee = owner.getByRole('button', { name: /^Mark \w+ paid$/ });
+	await expect(unpaidFee).toHaveAttribute('aria-pressed', 'false');
+	await expect(unpaidFee).toContainText('Not paid');
+	await unpaidFee.click();
+	const paidFee = owner.getByRole('button', { name: /^Mark \w+ not paid$/ });
+	await expect(paidFee).toHaveAttribute('aria-pressed', 'true');
+	await expect(paidFee).toContainText('Paid');
 	await owner.goto(academyUrl(slug, '/members'));
 	await expect(row).toBeVisible();
 	await expect(row.getByText('Unpaid this month')).toHaveCount(0);

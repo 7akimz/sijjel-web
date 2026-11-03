@@ -4,11 +4,12 @@
 	import { page } from '$app/state';
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
 	import MemberLevel from '#lib/components/MemberLevel.svelte';
+	import MonthFee from '#lib/components/MonthFee.svelte';
 	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { AffectedBooking, BookingView, Member } from '#lib/api/member-types.js';
-	import { formatDate, formatMonth } from '#lib/format.js';
+	import { formatDate } from '#lib/format.js';
 	import { inactiveLabel, isLevelledRider, profileSummary } from '#lib/forms/member.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, MoreMenu, StatusChip, type MoreMenuItem } from '#lib/ui/index.js';
@@ -29,7 +30,7 @@
 	let allBookings = $state(false);
 	const shownBookings = $derived(allBookings ? upcoming : upcoming.slice(0, SHOWN_BOOKINGS));
 	const summary = $derived(profileSummary(member, data.locale));
-	const unpaid = $derived(data.admin && isRider && data.month && !member.paidThisMonth);
+	let paying = $state(false);
 
 	function clear() {
 		notice = failure = undefined;
@@ -48,14 +49,16 @@
 	async function setPaid(paid: boolean) {
 		clear();
 		if (!data.month) return;
+		paying = true;
 		try {
 			await api(`/academy/members/${member.id}/payments/${data.month}`, {
 				method: paid ? 'POST' : 'DELETE'
 			});
 			member = { ...member, paidThisMonth: paid };
-			notice = paid ? m.member_paid() : m.member_unpaid();
 		} catch (e) {
 			handle(e);
+		} finally {
+			paying = false;
 		}
 	}
 
@@ -105,9 +108,6 @@
 	}
 
 	const moreItems = $derived<MoreMenuItem[]>([
-		...(isRider && member.paidThisMonth
-			? [{ label: m.member_mark_unpaid(), onselect: () => setPaid(false) }]
-			: []),
 		...(member.status === 'active'
 			? [
 					{ label: m.member_mark_left(), onselect: () => deactivate('leave') },
@@ -137,12 +137,18 @@
 					>{/if}
 			</div>
 			{#if summary.length}<p class="sj-muted summary">{summary.join(' · ')}</p>{/if}
-			{#if unpaid && data.month}
-				<p class="owed">
-					<span class="dot" aria-hidden="true"></span>{m.member_unpaid_month({
-						month: formatMonth(`${data.month}-01`, data.locale)
-					})}
-				</p>
+			{#if data.admin && isRider && data.month}
+				<div class="fee">
+					<MonthFee
+						month={data.month}
+						paid={member.paidThisMonth ?? false}
+						amount={member.plan?.monthlyPrice ?? null}
+						currency={data.currency}
+						locale={data.locale}
+						busy={paying}
+						onchange={setPaid}
+					/>
+				</div>
 			{/if}
 		</div>
 		{#if data.admin}
@@ -172,19 +178,14 @@
 		{/if}
 	</header>
 
-	{#if unpaid || (isRider && member.status === 'active')}
-		<div class="sj-row actions">
-			{#if unpaid}
-				<Button icon="check" onclick={() => setPaid(true)}>{m.member_mark_paid()}</Button>
-			{/if}
-			{#if isRider && member.status === 'active'}
-				<Button
-					icon="event_available"
-					href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
-				>
-					{m.member_book_for()}
-				</Button>
-			{/if}
+	{#if isRider && member.status === 'active'}
+		<div>
+			<Button
+				icon="event_available"
+				href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
+			>
+				{m.member_book_for()}
+			</Button>
 		</div>
 	{/if}
 
@@ -266,22 +267,8 @@
 		align-items: center;
 		flex-shrink: 0;
 	}
-	.owed {
-		margin: 0;
-		display: flex;
-		align-items: center;
-		gap: var(--space-2);
-		color: var(--danger);
-		font-weight: 600;
-	}
-	.dot {
-		width: 0.5rem;
-		height: 0.5rem;
-		border-radius: var(--radius-pill);
-		background: var(--danger);
-	}
-	.actions {
-		flex-wrap: wrap;
+	.fee {
+		margin-block-start: var(--space-2);
 	}
 	.bookings {
 		margin: 0;
