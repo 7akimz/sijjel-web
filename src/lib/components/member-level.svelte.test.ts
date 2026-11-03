@@ -111,6 +111,8 @@ describe('MemberLevel', () => {
 			...layla.levelHistory!
 		];
 		const screen = render(MemberLevel, props({ ...layla, levelHistory: history }));
+		await expect.element(screen.getByText('Started at Level 1 · 1 Oct')).not.toBeVisible();
+		await screen.getByText('History (2)').click();
 
 		const items = screen
 			.getByRole('listitem')

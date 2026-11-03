@@ -1,4 +1,4 @@
-import { localName } from '#lib/academy.js';
+import { localName, roleName } from '#lib/academy.js';
 import type { FieldErrors } from '#lib/api/errors.js';
 import type { HorseSource, Member, MemberInput } from '#lib/api/member-types.js';
 import type { Locale } from '#lib/api/types.js';
@@ -42,23 +42,33 @@ export function planHint(
 	);
 }
 
+export type ProfileChip = { text: string; tone: 'level' | 'neutral' };
+
+/** The chips under a member's name: level first, as the design system orders them. */
+export function profileChips(member: Member, locale: Locale): ProfileChip[] {
+	const chips: ProfileChip[] = [];
+	if (member.discipline && member.level) {
+		chips.push({
+			text: `${localName(member.discipline, locale)} · ${localName(member.level, locale)}`,
+			tone: 'level'
+		});
+	}
+	if (member.plan) chips.push({ text: localName(member.plan, locale), tone: 'neutral' });
+	if (member.horseSource === 'own' && member.privateHorse?.isActive) {
+		chips.push({
+			text: m.member_own_horse_named({ name: member.privateHorse.name }, { locale }),
+			tone: 'neutral'
+		});
+	}
+	for (const role of member.roles) {
+		if (role !== 'rider') chips.push({ text: roleName(role, locale), tone: 'neutral' });
+	}
+	return chips;
+}
+
 /** A rider staff can move: the rider role, with a discipline and a level to move from. */
 export function isLevelledRider(member: Member): boolean {
 	return member.roles.includes('rider') && member.discipline !== null && member.level !== null;
-}
-
-/**
- * The profile form after a move: the rider's new discipline, level and plan, except a plan
- * picked in the form and not saved yet, which stays picked.
- */
-export function formAfterMove(form: MemberForm, before: Member, after: Member): MemberForm {
-	const picked = form.planId !== (before.plan?.id ?? '');
-	return {
-		...form,
-		disciplineId: after.discipline?.id ?? '',
-		levelId: after.level?.id ?? '',
-		planId: picked ? form.planId : (after.plan?.id ?? '')
-	};
 }
 
 export function memberFormFrom(m: Member): MemberForm {

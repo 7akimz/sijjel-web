@@ -13,3 +13,4 @@ export { default as TextField } from './TextField.svelte';
 export { default as DateRangeField } from './DateRangeField.svelte';
 export { default as ProgressBar } from './ProgressBar.svelte';
 export { default as TimeRangeField } from './TimeRangeField.svelte';
+export { default as MoreMenu, type MoreMenuItem } from './MoreMenu.svelte';

@@ -72,87 +72,95 @@
 	}
 </script>
 
-<Card>
+<section class="sj-stack section">
 	<h2 class="sj-heading">{m.member_level_title({}, { locale })}</h2>
-	{#if member.discipline && member.level}
-		<p>{stepText({ discipline: member.discipline, level: member.level }, true)}</p>
-	{/if}
-	{#if moving}
-		<MoveRider
-			{member}
-			{disciplines}
-			{plans}
-			{today}
-			{locale}
-			target={moving.target}
-			onmoved={moved}
-			oncancel={() => (moving = undefined)}
-		/>
-	{:else}
-		{#if member.comingMove}
-			<div class="coming">
-				<span
-					>{m.member_move_coming(
-						{
-							discipline: localName(member.comingMove.discipline, locale),
-							level: localName(member.comingMove.level, locale),
-							date: formatDayMonth(member.comingMove.from, locale)
-						},
-						{ locale }
-					)}</span
-				>
-				<Button variant="quiet" disabled={busy} onclick={() => cancel('move')}
-					>{m.member_move_cancel({}, { locale })}</Button
-				>
+	<Card>
+		{#if member.discipline && member.level}
+			<p>{stepText({ discipline: member.discipline, level: member.level }, true)}</p>
+		{/if}
+		{#if moving}
+			<MoveRider
+				{member}
+				{disciplines}
+				{plans}
+				{today}
+				{locale}
+				target={moving.target}
+				onmoved={moved}
+				oncancel={() => (moving = undefined)}
+			/>
+		{:else}
+			{#if member.comingMove}
+				<div class="coming">
+					<span
+						>{m.member_move_coming(
+							{
+								discipline: localName(member.comingMove.discipline, locale),
+								level: localName(member.comingMove.level, locale),
+								date: formatDayMonth(member.comingMove.from, locale)
+							},
+							{ locale }
+						)}</span
+					>
+					<Button variant="quiet" disabled={busy} onclick={() => cancel('move')}
+						>{m.member_move_cancel({}, { locale })}</Button
+					>
+				</div>
+			{/if}
+			{#if member.comingPlan}
+				<div class="coming">
+					<span
+						>{m.member_plan_coming(
+							{
+								plan: localName(member.comingPlan.plan, locale),
+								date: formatDayMonth(member.comingPlan.from, locale)
+							},
+							{ locale }
+						)}</span
+					>
+					<Button variant="quiet" disabled={busy} onclick={() => cancel('coming-plan')}
+						>{m.member_plan_cancel({}, { locale })}</Button
+					>
+				</div>
+			{/if}
+			{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
+			<div class="sj-row">
+				{#if next && member.discipline}
+					{@const disciplineId = member.discipline.id}
+					<Button
+						variant="secondary"
+						icon="trending_up"
+						onclick={() => (moving = { target: { disciplineId, levelId: next.id } })}
+						>{m.member_move_to({ level: localName(next, locale) }, { locale })}</Button
+					>
+				{/if}
+				{#if !member.comingMove}
+					<Button variant="quiet" onclick={() => (moving = {})}
+						>{m.member_change_level({}, { locale })}</Button
+					>
+				{/if}
 			</div>
 		{/if}
-		{#if member.comingPlan}
-			<div class="coming">
-				<span
-					>{m.member_plan_coming(
-						{
-							plan: localName(member.comingPlan.plan, locale),
-							date: formatDayMonth(member.comingPlan.from, locale)
-						},
-						{ locale }
-					)}</span
+		{#if member.levelHistory?.length}
+			<details>
+				<summary class="sj-small"
+					>{m.member_history_count({ count: member.levelHistory.length }, { locale })}</summary
 				>
-				<Button variant="quiet" disabled={busy} onclick={() => cancel('coming-plan')}
-					>{m.member_plan_cancel({}, { locale })}</Button
-				>
-			</div>
+				<ul class="history" role="list">
+					{#each member.levelHistory as change, i (i)}
+						<li class="sj-small">{historyText(change)}</li>
+					{/each}
+				</ul>
+			</details>
 		{/if}
-		{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
-		<div class="sj-row">
-			{#if next && member.discipline}
-				{@const disciplineId = member.discipline.id}
-				<Button
-					variant="secondary"
-					icon="trending_up"
-					onclick={() => (moving = { target: { disciplineId, levelId: next.id } })}
-					>{m.member_move_to({ level: localName(next, locale) }, { locale })}</Button
-				>
-			{/if}
-			{#if !member.comingMove}
-				<Button variant="quiet" onclick={() => (moving = {})}
-					>{m.member_change_level({}, { locale })}</Button
-				>
-			{/if}
-		</div>
-	{/if}
-	{#if member.levelHistory?.length}
-		<h3 class="sj-label">{m.member_history({}, { locale })}</h3>
-		<ul class="history" role="list">
-			{#each member.levelHistory as change, i (i)}
-				<li class="sj-small">{historyText(change)}</li>
-			{/each}
-		</ul>
-	{/if}
-</Card>
+	</Card>
+</section>
 
 <style>
-	p,
-	h3 {
+	.section {
+		gap: var(--space-2);
+	}
+	p {
 		margin: 0;
 	}
 	.coming {
@@ -166,7 +174,12 @@
 		background: var(--surface);
 		border: 1px solid var(--line);
 	}
+	summary {
+		cursor: pointer;
+		color: var(--ink-muted);
+	}
 	.history {
+		margin-block-start: var(--space-2);
 		display: grid;
 		gap: var(--space-1);
 		margin: 0;

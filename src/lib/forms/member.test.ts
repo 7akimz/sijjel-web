@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import type { Member } from '#lib/api/member-types.js';
 import {
-	formAfterMove,
 	isLevelledRider,
 	memberErrors,
 	memberFormFrom,
 	monthKey,
 	nextMonth,
 	planHint,
+	profileChips,
 	toMemberInput,
 	inactiveLabel,
 	alreadyMemberText
@@ -105,26 +105,6 @@ describe('planHint for a rider with no plan', () => {
 	});
 });
 
-describe('formAfterMove', () => {
-	const moved: Member = {
-		...layla,
-		level: { id: 'l2', nameEn: 'Preliminary', nameAr: 'أولي', position: 2 }
-	};
-
-	it('takes the new level and keeps the plan the form had unchanged', () => {
-		const form = formAfterMove(memberFormFrom(layla), layla, moved);
-
-		expect(form.levelId).toBe('l2');
-		expect(form.planId).toBe('p');
-	});
-
-	it('keeps a plan picked but not saved yet', () => {
-		const form = formAfterMove({ ...memberFormFrom(layla), planId: 'p2' }, layla, moved);
-
-		expect(form.planId).toBe('p2');
-	});
-});
-
 describe('isLevelledRider', () => {
 	it('needs the rider role, a discipline and a level', () => {
 		expect(isLevelledRider(layla)).toBe(true);
@@ -152,5 +132,36 @@ describe('alreadyMemberText', () => {
 		expect(alreadyMemberText('suspended')).toBe(
 			'You already have a membership here. Ask the academy to reactivate it.'
 		);
+	});
+});
+
+describe('profileChips', () => {
+	it("gives a rider's level first, then plan and own horse, without the rider role", () => {
+		const own = {
+			...layla,
+			horseSource: 'own' as const,
+			privateHorse: { id: 'h', name: 'Zahra', notes: null, isActive: true }
+		};
+
+		expect(profileChips(own, 'en')).toEqual([
+			{ text: 'Dressage · Intro', tone: 'level' },
+			{ text: 'Two', tone: 'neutral' },
+			{ text: 'Own horse: Zahra', tone: 'neutral' }
+		]);
+	});
+
+	it('names staff roles after the level, and leaves out a retired horse', () => {
+		const staff = {
+			...layla,
+			roles: ['admin', 'rider'] as Member['roles'],
+			horseSource: 'own' as const,
+			privateHorse: { id: 'h', name: 'Zahra', notes: null, isActive: false }
+		};
+
+		expect(profileChips(staff, 'en')).toEqual([
+			{ text: 'Dressage · Intro', tone: 'level' },
+			{ text: 'Two', tone: 'neutral' },
+			{ text: 'Admin', tone: 'neutral' }
+		]);
 	});
 });

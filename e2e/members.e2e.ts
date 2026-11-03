@@ -85,7 +85,8 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 	await expect(omar.getByRole('link', { name: 'WhatsApp Layla' })).toHaveCount(0);
 	await omar.getByRole('link', { name: /^Layla/ }).click();
 	await expect(omar.getByRole('heading', { name: 'Layla' })).toBeVisible();
-	await expect(omar.getByRole('button', { name: 'Save', exact: true })).toHaveCount(0);
+	await expect(omar.getByRole('link', { name: 'Edit', exact: true })).toHaveCount(0);
+	await expect(omar.getByRole('button', { name: 'More actions' })).toHaveCount(0);
 	await expect(omar.getByText('Dressage · Intro', { exact: true }).last()).toBeVisible();
 
 	await omar.getByRole('button', { name: 'Move to Preliminary' }).click();
@@ -109,10 +110,17 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 		.filter({ has: owner.getByRole('heading', { name: 'Level', exact: true }) });
 	await expect(levelCard.getByText(comingMove)).toBeVisible();
 	await expect(levelCard.getByText(comingPlan)).toBeVisible();
+	await levelCard.getByText(/^History \(/).click();
 	await expect(levelCard.getByText(/^Started at Intro · /)).toBeVisible();
-	// The profile form still selects the current plan and names the saved change under it.
+	await expect(owner.getByRole('button', { name: 'Mark paid' })).toBeVisible();
+	await expect(owner.getByLabel('Plan')).toHaveCount(0);
+
+	// The edit form still selects the current plan and names the saved change under it.
+	await owner.getByRole('link', { name: 'Edit', exact: true }).click();
+	await expect(owner).toHaveURL(/\/members\/[^/]+\/edit$/);
 	await expect(owner.getByLabel('Plan')).toHaveValue(/.+/);
 	await expect(owner.locator('.sj-hint').getByText(comingPlan)).toBeVisible();
+	await owner.getByRole('link', { name: 'Cancel' }).click();
 
 	await owner.getByRole('button', { name: 'Cancel move' }).click();
 	await expect(owner.getByText(comingMove)).toHaveCount(0);
@@ -138,7 +146,8 @@ test('an owner marks a rider as left and can bring them back', async ({ page, br
 
 	await owner.goto(academyUrl(slug, '/members'));
 	await owner.getByRole('link', { name: /^Layla/ }).click();
-	await owner.getByRole('button', { name: 'Mark as left' }).click();
+	await owner.getByRole('button', { name: 'More actions' }).click();
+	await owner.getByRole('menuitem', { name: 'Mark as left' }).click();
 	await expect(owner.getByText('Marked as left.')).toBeVisible();
 	await owner.goto(academyUrl(slug, '/members'));
 	const row = owner.getByRole('listitem').filter({ hasText: 'Layla' });
@@ -149,7 +158,8 @@ test('an owner marks a rider as left and can bring them back', async ({ page, br
 	await expect(layla.getByRole('link', { name: 'Book a session' })).toHaveCount(0);
 
 	await row.getByRole('link', { name: /^Layla/ }).click();
-	await owner.getByRole('button', { name: 'Reactivate' }).click();
+	await owner.getByRole('button', { name: 'More actions' }).click();
+	await owner.getByRole('menuitem', { name: 'Reactivate' }).click();
 	await expect(owner.getByText('Member reactivated.')).toBeVisible();
 	await layla.reload();
 	await expect(layla.getByRole('link', { name: 'Book a session' })).toBeVisible();
