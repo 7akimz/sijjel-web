@@ -1,4 +1,5 @@
 <script lang="ts">
+	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
 	import { onMount } from 'svelte';
 	import QRCode from 'qrcode';
 	import InviteLink from '#lib/components/InviteLink.svelte';
@@ -39,7 +40,7 @@
 		target="_blank"
 		rel="noopener noreferrer"
 	>
-		<span class="sj-icon sj-icon--sm" aria-hidden="true">chat</span>{m.invite_whatsapp()}
+		<WhatsAppIcon />{m.invite_whatsapp()}
 	</a>
 	<!-- eslint-enable svelte/no-navigation-without-resolve -->
 	<InviteLink {invite} {locale} />

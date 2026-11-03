@@ -1,4 +1,5 @@
 <script lang="ts">
+	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
 	import { untrack } from 'svelte';
 	import { resolve } from '$app/paths';
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
@@ -283,7 +284,7 @@
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						{m.member_whatsapp()}
+						<WhatsAppIcon />{m.member_whatsapp()}
 					</a>
 					<!-- eslint-enable svelte/no-navigation-without-resolve -->
 				{/if}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
 	import { untrack } from 'svelte';
 	import { resolve } from '$app/paths';
 	import InviteShareCard from '#lib/components/InviteShareCard.svelte';
@@ -203,7 +204,7 @@
 							rel="noopener noreferrer"
 							aria-label={m.member_whatsapp_to({ name: member.displayName })}
 						>
-							<span class="sj-icon" aria-hidden="true">chat</span>
+							<WhatsAppIcon />
 						</a>
 						<!-- eslint-enable svelte/no-navigation-without-resolve -->
 					{/if}
