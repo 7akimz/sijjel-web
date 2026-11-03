@@ -77,8 +77,9 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 		.filter({ has: owner.getByRole('heading', { name: 'This month' }) });
 	await expect(thisMonth.getByText('Not paid')).toBeVisible();
 	await thisMonth.getByRole('button', { name: 'Mark paid' }).click();
-	await expect(thisMonth.getByText('Paid', { exact: true })).toBeVisible();
-	await expect(thisMonth.getByRole('button')).toHaveCount(0);
+	await expect(owner.getByText(/^\w+ marked paid\.$/)).toBeVisible();
+	await expect(thisMonth).toHaveCount(0);
+	await expect(owner.locator('header').getByText(/^Paid for \w+$/)).toBeVisible();
 	await owner.getByRole('button', { name: 'More actions' }).click();
 	await expect(owner.getByRole('menuitem', { name: /^Mark \w+ not paid$/ })).toBeVisible();
 	await owner.keyboard.press('Escape');

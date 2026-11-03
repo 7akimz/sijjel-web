@@ -32,9 +32,9 @@
 	const chips = $derived(profileChips(member, data.locale));
 	const showFee = $derived(data.admin && isRider && data.month !== null);
 	// One primary per screen: while the month is unpaid, Mark paid is the primary and Book steps back.
-	const bookVariant = $derived(
-		showFee && !member.paidThisMonth ? ('secondary' as const) : ('primary' as const)
-	);
+	const owes = $derived(showFee && !member.paidThisMonth);
+	const monthName = $derived(data.month ? formatMonth(`${data.month}-01`, data.locale) : '');
+	const bookVariant = $derived(owes ? ('secondary' as const) : ('primary' as const));
 	let paying = $state(false);
 
 	function clear() {
@@ -60,6 +60,9 @@
 				method: paid ? 'POST' : 'DELETE'
 			});
 			member = { ...member, paidThisMonth: paid };
+			notice = paid
+				? m.member_paid_notice({ month: monthName })
+				: m.member_unpaid_notice({ month: monthName });
 		} catch (e) {
 			handle(e);
 		} finally {
@@ -116,9 +119,7 @@
 		...(showFee && member.paidThisMonth && data.month
 			? [
 					{
-						label: m.member_fee_mark_unpaid({
-							month: formatMonth(`${data.month}-01`, data.locale)
-						}),
+						label: m.member_fee_mark_unpaid({ month: monthName }),
 						onselect: () => setPaid(false)
 					}
 				]
@@ -150,6 +151,9 @@
 				{#each chips as chip, i (i)}
 					<StatusChip tone={chip.tone}>{chip.text}</StatusChip>
 				{/each}
+				{#if showFee && member.paidThisMonth}<StatusChip tone="active" dot
+						>{m.member_paid_month({ month: monthName })}</StatusChip
+					>{/if}
 				{#if inactiveLabel(member.status)}<StatusChip tone="stone" dot
 						>{inactiveLabel(member.status)}</StatusChip
 					>{/if}
@@ -194,10 +198,9 @@
 		/>
 	{/if}
 
-	{#if showFee && data.month}
+	{#if owes && data.month}
 		<MonthPayment
 			month={data.month}
-			paid={member.paidThisMonth ?? false}
 			amount={member.plan?.monthlyPrice ?? null}
 			currency={data.currency}
 			locale={data.locale}
