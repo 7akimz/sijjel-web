@@ -47,7 +47,9 @@ export default async function globalSetup() {
 				'--phone',
 				ADMIN_PHONE,
 				'--email',
-				ADMIN_EMAIL
+				ADMIN_EMAIL,
+				'--name',
+				'Platform admin'
 			],
 			`${ADMIN_PASSWORD}\n`
 		);
