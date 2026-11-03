@@ -103,10 +103,11 @@ Success looks like this:
     it reveals less.
 - **Member update** (`PUT /api/academy/members/{id}`, `MemberInput`): drops `displayName`, `age`
   and `weightKg`. It keeps roles and the rider fields that remain: discipline, level, plan and horse
-  source.
+  source. `decodeJSON` refuses unknown fields (`DisallowUnknownFields`), so a request that still
+  sends `displayName` is refused, and the web stops sending it.
 - **Invites** (`POST /api/academy/invites`, renewal, `RiderFields`): drop `age` and `weightKg`, and
   with them the age-range and weight-limit checks (`age_out_of_range` and `weight_out_of_range` on
-  invites).
+  invites). The pending-invites list (`PendingInvite`) drops `age` and `weightKg` too.
 - **Booking rules** (`GET` and `PUT` `/api/academy/booking-rules`): drop `minRiderAge`,
   `maxRiderAge` and `maxRiderWeightKg`, and their validation.
 - **Horses:** drop `maxRiderWeightKg` from the request and response.
@@ -153,9 +154,8 @@ Success looks like this:
 - **API:**
   - Accepting an invite doesn't copy the invite name. The member shows the account name, and a
     later account rename shows up in every academy.
-  - The member update ignores or refuses `displayName`. Pick refusing an unknown field only if
-    `decodeJSON` already refuses unknown fields; otherwise it's ignored and the name is unchanged.
-    The test asserts the name is unchanged either way.
+  - The member update refuses a request that includes `displayName`, because unknown fields are
+    refused. The name stays unchanged.
   - Account update:
     - sets and clears the date of birth and weight;
     - refuses a future date or one before 1900, and a weight outside 10–250.
