@@ -137,6 +137,13 @@
 					>{/if}
 			</div>
 			{#if summary.length}<p class="sj-muted summary">{summary.join(' · ')}</p>{/if}
+			{#if unpaid && data.month}
+				<p class="owed">
+					<span class="dot" aria-hidden="true"></span>{m.member_unpaid_month({
+						month: formatMonth(`${data.month}-01`, data.locale)
+					})}
+				</p>
+			{/if}
 		</div>
 		{#if data.admin}
 			<div class="tools">
@@ -165,23 +172,19 @@
 		{/if}
 	</header>
 
-	{#if unpaid && data.month}
-		<div class="unpaid">
-			<span>{m.member_unpaid_month({ month: formatMonth(`${data.month}-01`, data.locale) })}</span>
-			<Button variant="secondary" icon="check" onclick={() => setPaid(true)}
-				>{m.member_mark_paid()}</Button
-			>
-		</div>
-	{/if}
-
-	{#if isRider && member.status === 'active'}
-		<div>
-			<Button
-				icon="event_available"
-				href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
-			>
-				{m.member_book_for()}
-			</Button>
+	{#if unpaid || (isRider && member.status === 'active')}
+		<div class="sj-row actions">
+			{#if unpaid}
+				<Button icon="check" onclick={() => setPaid(true)}>{m.member_mark_paid()}</Button>
+			{/if}
+			{#if isRider && member.status === 'active'}
+				<Button
+					icon="event_available"
+					href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
+				>
+					{m.member_book_for()}
+				</Button>
+			{/if}
 		</div>
 	{/if}
 
@@ -263,17 +266,22 @@
 		align-items: center;
 		flex-shrink: 0;
 	}
-	.unpaid {
+	.owed {
+		margin: 0;
 		display: flex;
-		flex-wrap: wrap;
 		align-items: center;
-		justify-content: space-between;
-		gap: var(--space-2) var(--space-3);
-		padding: var(--space-2) var(--space-3);
-		border-radius: var(--radius-md);
-		background: var(--danger-soft);
+		gap: var(--space-2);
 		color: var(--danger);
 		font-weight: 600;
+	}
+	.dot {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: var(--radius-pill);
+		background: var(--danger);
+	}
+	.actions {
+		flex-wrap: wrap;
 	}
 	.bookings {
 		margin: 0;
