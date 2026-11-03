@@ -1,8 +1,31 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { upload } from './client';
+import { api, upload } from './client';
 import { ApiError } from './errors';
 
 afterEach(() => vi.unstubAllGlobals());
+
+describe('api', () => {
+	it('labels a write with no body as JSON, so it is never taken for a cross-site form', async () => {
+		const fetch = vi.fn(async () => new Response(null, { status: 204 }));
+		vi.stubGlobal('fetch', fetch);
+
+		await api('/academy/members/1/payments/2026-11', { method: 'POST' });
+
+		expect(fetch).toHaveBeenCalledWith('/api/academy/members/1/payments/2026-11', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' }
+		});
+	});
+
+	it('sends a read with no content type', async () => {
+		const fetch = vi.fn(async () => Response.json([]));
+		vi.stubGlobal('fetch', fetch);
+
+		await api('/academy/members');
+
+		expect(fetch).toHaveBeenCalledWith('/api/academy/members', { method: 'GET' });
+	});
+});
 
 describe('upload', () => {
 	it('sends the blob as the body with its own content type', async () => {

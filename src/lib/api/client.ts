@@ -16,10 +16,10 @@ async function send<T>(path: string, init: RequestInit) {
 
 export async function api<T = void>(path: string, { method = 'GET', body }: ApiOptions = {}) {
 	const init: RequestInit = { method };
-	if (body !== undefined) {
-		init.headers = { 'content-type': 'application/json' };
-		init.body = JSON.stringify(body);
-	}
+	// SvelteKit treats a write with no content type as a form post and refuses it when the
+	// origin it assumes differs, so every write says JSON even when it carries no body.
+	if (method !== 'GET') init.headers = { 'content-type': 'application/json' };
+	if (body !== undefined) init.body = JSON.stringify(body);
 	return send<T>(path, init);
 }
 
