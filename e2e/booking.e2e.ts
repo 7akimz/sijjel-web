@@ -72,13 +72,16 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	const row = owner.getByRole('listitem').filter({ hasText: 'Layla' });
 	await expect(row.getByText('Unpaid this month')).toBeVisible();
 	await row.getByRole('link', { name: /^Layla/ }).click();
-	const unpaidFee = owner.getByRole('button', { name: /^Mark \w+ paid$/ });
-	await expect(unpaidFee).toHaveAttribute('aria-pressed', 'false');
-	await expect(unpaidFee).toContainText('Not paid');
-	await unpaidFee.click();
-	const paidFee = owner.getByRole('button', { name: /^Mark \w+ not paid$/ });
-	await expect(paidFee).toHaveAttribute('aria-pressed', 'true');
-	await expect(paidFee).toContainText('Paid');
+	const thisMonth = owner
+		.locator('section')
+		.filter({ has: owner.getByRole('heading', { name: 'This month' }) });
+	await expect(thisMonth.getByText('Not paid')).toBeVisible();
+	await thisMonth.getByRole('button', { name: 'Mark paid' }).click();
+	await expect(thisMonth.getByText('Paid', { exact: true })).toBeVisible();
+	await expect(thisMonth.getByRole('button')).toHaveCount(0);
+	await owner.getByRole('button', { name: 'More actions' }).click();
+	await expect(owner.getByRole('menuitem', { name: /^Mark \w+ not paid$/ })).toBeVisible();
+	await owner.keyboard.press('Escape');
 	await owner.goto(academyUrl(slug, '/members'));
 	await expect(row).toBeVisible();
 	await expect(row.getByText('Unpaid this month')).toHaveCount(0);

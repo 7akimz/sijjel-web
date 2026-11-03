@@ -7,7 +7,7 @@ import {
 	monthKey,
 	nextMonth,
 	planHint,
-	profileSummary,
+	profileChips,
 	toMemberInput,
 	inactiveLabel,
 	alreadyMemberText
@@ -135,18 +135,22 @@ describe('alreadyMemberText', () => {
 	});
 });
 
-describe('profileSummary', () => {
-	it("gives a rider's level, plan and own horse, without the rider role", () => {
+describe('profileChips', () => {
+	it("gives a rider's level first, then plan and own horse, without the rider role", () => {
 		const own = {
 			...layla,
 			horseSource: 'own' as const,
 			privateHorse: { id: 'h', name: 'Zahra', notes: null, isActive: true }
 		};
 
-		expect(profileSummary(own, 'en')).toEqual(['Dressage · Intro', 'Two', 'Own horse: Zahra']);
+		expect(profileChips(own, 'en')).toEqual([
+			{ text: 'Dressage · Intro', tone: 'level' },
+			{ text: 'Two', tone: 'neutral' },
+			{ text: 'Own horse: Zahra', tone: 'neutral' }
+		]);
 	});
 
-	it('names staff roles, and leaves out a retired horse', () => {
+	it('names staff roles after the level, and leaves out a retired horse', () => {
 		const staff = {
 			...layla,
 			roles: ['admin', 'rider'] as Member['roles'],
@@ -154,6 +158,10 @@ describe('profileSummary', () => {
 			privateHorse: { id: 'h', name: 'Zahra', notes: null, isActive: false }
 		};
 
-		expect(profileSummary(staff, 'en')).toEqual(['Admin', 'Dressage · Intro', 'Two']);
+		expect(profileChips(staff, 'en')).toEqual([
+			{ text: 'Dressage · Intro', tone: 'level' },
+			{ text: 'Two', tone: 'neutral' },
+			{ text: 'Admin', tone: 'neutral' }
+		]);
 	});
 });

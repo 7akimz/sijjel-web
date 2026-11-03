@@ -183,7 +183,7 @@
 									<StatusChip tone="neutral">{localName(member.plan, data.locale)}</StatusChip>
 								{/if}
 								{#if member.paidThisMonth === false && member.roles.includes('rider')}
-									<StatusChip tone="danger" dot>{m.member_unpaid()}</StatusChip>
+									<StatusChip tone="pending" dot>{m.member_unpaid()}</StatusChip>
 								{/if}
 								{#if inactiveLabel(member.status)}
 									<StatusChip tone="stone">{inactiveLabel(member.status)}</StatusChip>

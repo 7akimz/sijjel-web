@@ -4,15 +4,15 @@
 	import { page } from '$app/state';
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
 	import MemberLevel from '#lib/components/MemberLevel.svelte';
-	import MonthFee from '#lib/components/MonthFee.svelte';
+	import MonthPayment from '#lib/components/MonthPayment.svelte';
 	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { AffectedBooking, BookingView, Member } from '#lib/api/member-types.js';
-	import { formatDate } from '#lib/format.js';
-	import { inactiveLabel, isLevelledRider, profileSummary } from '#lib/forms/member.js';
+	import { formatDate, formatMonth } from '#lib/format.js';
+	import { inactiveLabel, isLevelledRider, profileChips } from '#lib/forms/member.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner, Button, Card, MoreMenu, StatusChip, type MoreMenuItem } from '#lib/ui/index.js';
+	import { Banner, Button, MoreMenu, StatusChip, type MoreMenuItem } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -29,7 +29,12 @@
 	const SHOWN_BOOKINGS = 2;
 	let allBookings = $state(false);
 	const shownBookings = $derived(allBookings ? upcoming : upcoming.slice(0, SHOWN_BOOKINGS));
-	const summary = $derived(profileSummary(member, data.locale));
+	const chips = $derived(profileChips(member, data.locale));
+	const showFee = $derived(data.admin && isRider && data.month !== null);
+	// One primary per screen: while the month is unpaid, Mark paid is the primary and Book steps back.
+	const bookVariant = $derived(
+		showFee && !member.paidThisMonth ? ('secondary' as const) : ('primary' as const)
+	);
 	let paying = $state(false);
 
 	function clear() {
@@ -108,6 +113,16 @@
 	}
 
 	const moreItems = $derived<MoreMenuItem[]>([
+		...(showFee && member.paidThisMonth && data.month
+			? [
+					{
+						label: m.member_fee_mark_unpaid({
+							month: formatMonth(`${data.month}-01`, data.locale)
+						}),
+						onselect: () => setPaid(false)
+					}
+				]
+			: []),
 		...(member.status === 'active'
 			? [
 					{ label: m.member_mark_left(), onselect: () => deactivate('leave') },
@@ -129,27 +144,16 @@
 	</div>
 
 	<header class="head">
-		<div class="title">
+		<div class="who">
+			<h1 class="sj-title">{member.displayName}</h1>
 			<div class="sj-row">
-				<h1 class="sj-title">{member.displayName}</h1>
-				{#if inactiveLabel(member.status)}<StatusChip tone="stone"
+				{#each chips as chip, i (i)}
+					<StatusChip tone={chip.tone}>{chip.text}</StatusChip>
+				{/each}
+				{#if inactiveLabel(member.status)}<StatusChip tone="stone" dot
 						>{inactiveLabel(member.status)}</StatusChip
 					>{/if}
 			</div>
-			{#if summary.length}<p class="sj-muted summary">{summary.join(' · ')}</p>{/if}
-			{#if data.admin && isRider && data.month}
-				<div class="fee">
-					<MonthFee
-						month={data.month}
-						paid={member.paidThisMonth ?? false}
-						amount={member.plan?.monthlyPrice ?? null}
-						currency={data.currency}
-						locale={data.locale}
-						busy={paying}
-						onchange={setPaid}
-					/>
-				</div>
-			{/if}
 		</div>
 		{#if data.admin}
 			<div class="tools">
@@ -157,7 +161,7 @@
 					<!-- wa.me is an external WhatsApp address, not a route of this app. -->
 					<!-- eslint-disable svelte/no-navigation-without-resolve -->
 					<a
-						class="sj-btn sj-btn--quiet sj-btn--icon"
+						class="sj-btn sj-btn--secondary sj-btn--icon"
 						href="https://wa.me/{member.phone}"
 						target="_blank"
 						rel="noopener noreferrer"
@@ -168,7 +172,7 @@
 					<!-- eslint-enable svelte/no-navigation-without-resolve -->
 				{/if}
 				<Button
-					variant="quiet"
+					variant="secondary"
 					icon="edit"
 					label={m.member_edit()}
 					href={resolve('/(academy)/(admin)/members/[id]/edit', { id: member.id })}
@@ -177,17 +181,6 @@
 			</div>
 		{/if}
 	</header>
-
-	{#if isRider && member.status === 'active'}
-		<div>
-			<Button
-				icon="event_available"
-				href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
-			>
-				{m.member_book_for()}
-			</Button>
-		</div>
-	{/if}
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
@@ -201,6 +194,63 @@
 		/>
 	{/if}
 
+	{#if showFee && data.month}
+		<MonthPayment
+			month={data.month}
+			paid={member.paidThisMonth ?? false}
+			amount={member.plan?.monthlyPrice ?? null}
+			currency={data.currency}
+			locale={data.locale}
+			busy={paying}
+			onmarkpaid={() => setPaid(true)}
+		/>
+	{/if}
+
+	{#if isRider}
+		<section class="sj-stack section">
+			<div class="section-head">
+				<h2 class="sj-heading">{m.member_bookings()}</h2>
+				{#if member.status === 'active'}
+					<Button
+						variant={bookVariant}
+						icon="event_available"
+						href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
+						>{m.member_book()}</Button
+					>
+				{/if}
+			</div>
+			{#if upcoming.length === 0}
+				<p class="sj-muted">{m.member_bookings_none()}</p>
+			{:else}
+				<ul class="sj-list" role="list">
+					{#each shownBookings as booking (booking.id)}
+						<li class="sj-list__row">
+							<div class="sj-list__main">
+								<span class="strong"
+									>{formatDate(`${booking.date}T00:00:00Z`, data.locale)} ·
+									<span dir="ltr">{booking.start}</span></span
+								>
+								<span class="sj-small sj-muted"
+									>{booking.ownHorseName ?? m.booking_school_horse()}</span
+								>
+							</div>
+							<Button variant="quiet" onclick={() => cancelBooking(booking)}
+								>{m.booking_cancel()}</Button
+							>
+						</li>
+					{/each}
+					{#if !allBookings && upcoming.length > SHOWN_BOOKINGS}
+						<li class="sj-list__row more">
+							<Button variant="quiet" onclick={() => (allBookings = true)}
+								>{m.member_bookings_more({ count: upcoming.length - SHOWN_BOOKINGS })}</Button
+							>
+						</li>
+					{/if}
+				</ul>
+			{/if}
+		</section>
+	{/if}
+
 	{#if wasRider}
 		<MemberLevel
 			{member}
@@ -211,39 +261,6 @@
 			onchange={(updated) => (member = updated)}
 		/>
 	{/if}
-
-	{#if isRider}
-		<Card>
-			<h2 class="sj-heading">{m.member_bookings()}</h2>
-			{#if upcoming.length === 0}
-				<p class="sj-muted">{m.member_bookings_none()}</p>
-			{:else}
-				<ul class="bookings" role="list">
-					{#each shownBookings as booking (booking.id)}
-						<li>
-							<span
-								>{formatDate(`${booking.date}T00:00:00Z`, data.locale)}
-								<span dir="ltr">{booking.start}</span></span
-							>
-							<span class="sj-small sj-muted"
-								>{booking.ownHorseName ?? m.booking_school_horse()}</span
-							>
-							<Button variant="quiet" onclick={() => cancelBooking(booking)}
-								>{m.booking_cancel()}</Button
-							>
-						</li>
-					{/each}
-				</ul>
-				{#if !allBookings && upcoming.length > SHOWN_BOOKINGS}
-					<div>
-						<Button variant="quiet" onclick={() => (allBookings = true)}
-							>{m.member_bookings_more({ count: upcoming.length - SHOWN_BOOKINGS })}</Button
-						>
-					</div>
-				{/if}
-			{/if}
-		</Card>
-	{/if}
 </div>
 
 <style>
@@ -253,40 +270,37 @@
 		justify-content: space-between;
 		gap: var(--space-3);
 	}
-	.title {
+	.who {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-1);
+		gap: var(--space-2);
 		min-width: 0;
-	}
-	.summary {
-		margin: 0;
 	}
 	.tools {
 		display: flex;
 		align-items: center;
+		gap: var(--space-2);
 		flex-shrink: 0;
 	}
-	.fee {
-		margin-block-start: var(--space-2);
+	.section {
+		gap: var(--space-2);
 	}
-	.bookings {
+	.section-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-3);
+	}
+	ul {
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
-	.bookings li {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: var(--space-2) var(--space-3);
-		padding-block: var(--space-2);
-	}
-	.bookings li + li {
-		border-block-start: 1px solid var(--line);
-	}
-	.bookings li > span:first-child {
-		flex: 1;
+	.strong {
 		font-weight: 600;
+	}
+	.more {
+		min-block-size: auto;
+		padding-block: var(--space-1);
 	}
 </style>

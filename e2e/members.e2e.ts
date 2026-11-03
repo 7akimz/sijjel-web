@@ -112,7 +112,7 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 	await expect(levelCard.getByText(comingPlan)).toBeVisible();
 	await levelCard.getByText(/^History \(/).click();
 	await expect(levelCard.getByText(/^Started at Intro · /)).toBeVisible();
-	await expect(owner.getByRole('button', { name: /^Mark \w+ paid$/ })).toBeVisible();
+	await expect(owner.getByRole('button', { name: 'Mark paid' })).toBeVisible();
 	await expect(owner.getByLabel('Plan')).toHaveCount(0);
 
 	// The edit form still selects the current plan and names the saved change under it.

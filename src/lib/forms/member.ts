@@ -42,22 +42,28 @@ export function planHint(
 	);
 }
 
-/**
- * The one line under a member's name: staff roles (a rider needs no label), level, plan and the
- * horse they bring.
- */
-export function profileSummary(member: Member, locale: Locale): string[] {
-	const parts = member.roles
-		.filter((role) => role !== 'rider')
-		.map((role) => roleName(role, locale));
+export type ProfileChip = { text: string; tone: 'level' | 'neutral' };
+
+/** The chips under a member's name: level first, as the design system orders them. */
+export function profileChips(member: Member, locale: Locale): ProfileChip[] {
+	const chips: ProfileChip[] = [];
 	if (member.discipline && member.level) {
-		parts.push(`${localName(member.discipline, locale)} · ${localName(member.level, locale)}`);
+		chips.push({
+			text: `${localName(member.discipline, locale)} · ${localName(member.level, locale)}`,
+			tone: 'level'
+		});
 	}
-	if (member.plan) parts.push(localName(member.plan, locale));
+	if (member.plan) chips.push({ text: localName(member.plan, locale), tone: 'neutral' });
 	if (member.horseSource === 'own' && member.privateHorse?.isActive) {
-		parts.push(m.member_own_horse_named({ name: member.privateHorse.name }, { locale }));
+		chips.push({
+			text: m.member_own_horse_named({ name: member.privateHorse.name }, { locale }),
+			tone: 'neutral'
+		});
 	}
-	return parts;
+	for (const role of member.roles) {
+		if (role !== 'rider') chips.push({ text: roleName(role, locale), tone: 'neutral' });
+	}
+	return chips;
 }
 
 /** A rider staff can move: the rider role, with a discipline and a level to move from. */
