@@ -33,7 +33,7 @@ An academy's active admins get Home, Horses and Settings in the navigation. Unti
 
 - `/settings/hours`: weekly opening hours, session length, break and time zone, with a live preview of session times
 - `/settings/booking-rules`, `/settings/arenas`, `/settings/closed-dates`, `/settings/disciplines`
-- `/horses`, `/horses/new`, `/horses/{id}`: school horses, their level range, rider weight limit and unavailable dates
+- `/horses`, `/horses/new`, `/horses/{id}`: school horses, their level range and unavailable dates
 
 Admins also get `/settings/plans` (lessons a month, monthly price, and optionally a discipline and the levels a plan is for) and `/members/invite`, which makes an invitation link to send on WhatsApp or show as a QR code (drawn by the `qrcode` package). When an hours change or a closure would hit existing bookings, the page lists them; closing days can cancel them in the same step.
 
