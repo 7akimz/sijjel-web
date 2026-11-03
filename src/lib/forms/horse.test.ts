@@ -41,7 +41,6 @@ describe('horse form', () => {
 			minLevelId: 'd1',
 			maxLevelId: 'd5',
 			maxSessionsPerDay: 3,
-			maxRiderWeightKg: '',
 			notes: '',
 			isActive: true
 		});
@@ -97,13 +96,9 @@ describe('horse form', () => {
 		expect(rangeLabel({ ...horse, maxLevel: level('Intro') }, 'en')).toBe('Intro');
 	});
 
-	it('treats the weight limit as optional, from 20 to 200 kg', () => {
+	it('sends no rider weight limit', () => {
 		const valid = { ...newHorseState(disciplines), name: 'Zahra' };
 
-		expect(toHorseInput(valid).maxRiderWeightKg).toBeNull();
-		expect(toHorseInput({ ...valid, maxRiderWeightKg: '80' }).maxRiderWeightKg).toBe(80);
-		expect(horseErrors({ ...valid, maxRiderWeightKg: '15' }, disciplines)).toEqual({
-			maxRiderWeightKg: ['weight_range_invalid']
-		});
+		expect(toHorseInput(valid)).not.toHaveProperty('maxRiderWeightKg');
 	});
 });

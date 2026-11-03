@@ -76,7 +76,7 @@ export interface PickerHorse {
 }
 
 export interface HorsePicker {
-	rider: { memberId: string; name: string; level: NameRef | null; weightKg: number | null };
+	rider: { memberId: string; name: string; level: NameRef | null };
 	history: Ride[];
 	horses: PickerHorse[];
 }

@@ -32,7 +32,7 @@ const session = (editable = true): BoardSession => ({
 });
 
 const picker: HorsePicker = {
-	rider: { memberId: 'm-sara', name: 'Sara', level: null, weightKg: null },
+	rider: { memberId: 'm-sara', name: 'Sara', level: null },
 	history: [
 		{
 			bookingId: 'old',

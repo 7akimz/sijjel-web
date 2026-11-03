@@ -111,14 +111,6 @@
 		error={fieldText(errors, 'maxSessionsPerDay')}
 		bind:value={sessions}
 	/>
-	<TextField
-		label={m.horse_max_weight()}
-		type="number"
-		dir="ltr"
-		hint={m.horse_max_weight_hint()}
-		error={fieldText(errors, 'maxRiderWeightKg')}
-		bind:value={form.maxRiderWeightKg}
-	/>
 	<TextField label={m.horse_notes()} error={fieldText(errors, 'notes')} bind:value={form.notes} />
 	{#if initial}<CheckboxField label={m.horse_active()} bind:checked={form.isActive} />{/if}
 	<div>

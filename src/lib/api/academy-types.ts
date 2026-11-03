@@ -37,10 +37,7 @@ export interface BookingRules {
 	cancellationCutoffHours: number;
 	currency: string;
 	unpaidBooking: 'allow' | 'block';
-	minRiderAge: number;
-	maxRiderAge: number | null;
 	countryCallingCode: string;
-	maxRiderWeightKg: number | null;
 }
 
 export interface Arena {
@@ -102,7 +99,6 @@ export interface Horse {
 	minLevel: HorseLevel;
 	maxLevel: HorseLevel;
 	maxSessionsPerDay: number;
-	maxRiderWeightKg: number | null;
 	notes: string | null;
 	isActive: boolean;
 	unavailableToday: boolean;
@@ -115,7 +111,6 @@ export interface HorseInput {
 	minLevelId: string;
 	maxLevelId: string;
 	maxSessionsPerDay: number;
-	maxRiderWeightKg: number | null;
 	notes: string | null;
 	isActive: boolean;
 }

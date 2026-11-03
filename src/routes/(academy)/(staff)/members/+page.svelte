@@ -189,9 +189,6 @@
 									<StatusChip tone="stone">{inactiveLabel(member.status)}</StatusChip>
 								{/if}
 							</span>
-							{#if member.age}
-								<span class="sj-small sj-muted">{m.member_age({ age: member.age })}</span>
-							{/if}
 						</span>
 					</a>
 					{#if member.phone}

@@ -42,7 +42,7 @@ const horse = (state: PickerHorse['state'], extra: Partial<PickerHorse> = {}): P
 });
 
 const pickerWith = (arenaIds: (string | null)[]): HorsePicker => ({
-	rider: { memberId: 'm', name: 'Layla', level: null, weightKg: null },
+	rider: { memberId: 'm', name: 'Layla', level: null },
 	history: arenaIds.map((arenaId, i) => ({
 		bookingId: `b${i}`,
 		date: '2026-10-1' + i,

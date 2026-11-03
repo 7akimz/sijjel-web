@@ -36,7 +36,7 @@ describe('BoardPlanner', () => {
 			'fetch',
 			vi.fn(async () =>
 				Response.json({
-					rider: { memberId: 'm', name: 'Sara', level: null, weightKg: null },
+					rider: { memberId: 'm', name: 'Sara', level: null },
 					history: [],
 					horses: []
 				})
@@ -57,7 +57,7 @@ describe('BoardPlanner', () => {
 
 	it('keeps the saved notice when a save returns the same session', async () => {
 		const picker = {
-			rider: { memberId: 'm', name: 'Sara', level: null, weightKg: null },
+			rider: { memberId: 'm', name: 'Sara', level: null },
 			history: [],
 			horses: []
 		};

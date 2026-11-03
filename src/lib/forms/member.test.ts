@@ -20,8 +20,6 @@ const layla: Member = {
 	roles: ['rider'],
 	status: 'active',
 	phone: '201012345678',
-	age: 14,
-	weightKg: 52,
 	discipline: { id: 'd', key: 'dressage', nameEn: 'Dressage', nameAr: 'ترويض' },
 	level: { id: 'l1', nameEn: 'Intro', nameAr: 'تمهيدي', position: 1 },
 	plan: {

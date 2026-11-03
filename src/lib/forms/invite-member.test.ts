@@ -19,7 +19,9 @@ describe('inviteMemberErrors', () => {
 
 	it('checks the plan and level for riders', () => {
 		expect(inviteMemberErrors(rider({ planId: '' }))).toEqual({ planId: ['plan_required'] });
-		expect(inviteMemberErrors(rider({ levelId: '' }))).toEqual({ levelId: ['level_range_invalid'] });
+		expect(inviteMemberErrors(rider({ levelId: '' }))).toEqual({
+			levelId: ['level_range_invalid']
+		});
 	});
 
 	it('only needs a name for staff', () => {

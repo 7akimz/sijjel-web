@@ -7,10 +7,7 @@ const rules = {
 	cancellationCutoffHours: 12,
 	currency: 'EGP',
 	unpaidBooking: 'allow' as const,
-	minRiderAge: 6,
-	maxRiderAge: null,
-	countryCallingCode: '20',
-	maxRiderWeightKg: null
+	countryCallingCode: '20'
 };
 
 describe('bookingRulesErrors', () => {
@@ -51,19 +48,12 @@ describe('wholeNumber', () => {
 });
 
 describe('member settings', () => {
-	it('validates currency, age range, calling code and weight limit', () => {
+	it('validates currency and calling code', () => {
 		expect(bookingRulesErrors({ ...rules, currency: 'egp' })).toEqual({
 			currency: ['currency_invalid']
-		});
-		expect(bookingRulesErrors({ ...rules, minRiderAge: 10, maxRiderAge: 8 })).toEqual({
-			maxRiderAge: ['age_range_invalid']
 		});
 		expect(bookingRulesErrors({ ...rules, countryCallingCode: '2001' })).toEqual({
 			countryCallingCode: ['phone_invalid']
 		});
-		expect(bookingRulesErrors({ ...rules, maxRiderWeightKg: 15 })).toEqual({
-			maxRiderWeightKg: ['weight_range_invalid']
-		});
-		expect(bookingRulesErrors({ ...rules, maxRiderWeightKg: 80, maxRiderAge: 18 })).toEqual({});
 	});
 });

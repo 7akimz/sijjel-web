@@ -25,14 +25,6 @@ export function bookingRulesErrors(rules: BookingRules): FieldErrors {
 		if (!inRange(rules[field], min, max)) errors[field] = ['booking_rule_invalid'];
 	}
 	if (!/^[A-Z]{3}$/.test(rules.currency)) errors.currency = ['currency_invalid'];
-	if (!inRange(rules.minRiderAge, 3, 99)) errors.minRiderAge = ['age_range_invalid'];
-	const maxAge = rules.maxRiderAge;
-	if (maxAge !== null && !inRange(maxAge, Math.max(rules.minRiderAge, 3), 120)) {
-		errors.maxRiderAge = ['age_range_invalid'];
-	}
 	if (!/^[0-9]{1,3}$/.test(rules.countryCallingCode)) errors.countryCallingCode = ['phone_invalid'];
-	const weight = rules.maxRiderWeightKg;
-	if (weight !== null && !inRange(weight, 20, 200))
-		errors.maxRiderWeightKg = ['weight_range_invalid'];
 	return errors;
 }

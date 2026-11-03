@@ -78,8 +78,6 @@ export interface Member {
 	roles: ('admin' | 'trainer' | 'rider')[];
 	status: 'active' | 'suspended' | 'left';
 	phone?: string | null;
-	age: number | null;
-	weightKg: number | null;
 	discipline: CatalogueDiscipline | null;
 	level: MemberLevel | null;
 	plan: Plan | null;
@@ -109,8 +107,6 @@ export interface PendingInvite {
 	role: 'admin' | 'trainer' | 'rider';
 	name: string | null;
 	phone: string | null;
-	age: number | null;
-	weightKg: number | null;
 	discipline: { key: string; nameEn: string; nameAr: string } | null;
 	level: { nameEn: string; nameAr: string } | null;
 	plan: { nameEn: string; nameAr: string } | null;
