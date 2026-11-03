@@ -26,7 +26,9 @@
 		event.preventDefault();
 		saved = false;
 		failure = undefined;
-		errors = phone.trim() ? {} : { phone: ['phone_invalid'] };
+		errors = {};
+		if (!displayName.trim()) errors.displayName = ['name_required'];
+		if (!phone.trim()) errors.phone = ['phone_invalid'];
 		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
 		busy = true;
 		try {

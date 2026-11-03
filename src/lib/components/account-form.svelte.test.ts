@@ -35,6 +35,17 @@ beforeEach(() => (calls = []));
 afterEach(() => vi.unstubAllGlobals());
 
 describe('AccountForm', () => {
+	it('asks for a name before saving', async () => {
+		stubFetch(() => json(200, me));
+		const screen = render(AccountForm, { me, onsaved: vi.fn() });
+
+		await screen.getByLabelText('Your name').fill('  ');
+		await screen.getByRole('button', { name: 'Save' }).click();
+
+		await expect.element(screen.getByText('Enter a name.')).toBeVisible();
+		expect(calls).toHaveLength(0);
+	});
+
 	it('saves the account and says so', async () => {
 		const saved = { ...me, phone: '201000000001' };
 		stubFetch(() => json(200, saved));
