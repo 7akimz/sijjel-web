@@ -9,7 +9,7 @@
 		closedRangeErrors,
 		formatRange,
 		type DateRangeForm,
-		isPast,
+		splitByToday,
 		toDateRangeInput
 	} from '#lib/forms/closed-dates.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
@@ -30,9 +30,9 @@
 	let affected = $state<{ bookings: AffectedBooking[]; form: DateRangeForm }>();
 	let formElement = $state<HTMLFormElement>();
 
-	const sorted = $derived([...closures].sort((a, b) => a.from.localeCompare(b.from)));
-	const upcoming = $derived(sorted.filter((r) => !isPast(r, data.today)));
-	const past = $derived(sorted.filter((r) => isPast(r, data.today)).reverse());
+	const split = $derived(splitByToday(closures, data.today));
+	const upcoming = $derived(split.upcoming);
+	const past = $derived(split.past);
 
 	function add(event: SubmitEvent) {
 		event.preventDefault();
@@ -146,7 +146,7 @@
 		</form>
 	</Card>
 
-	{#if sorted.length === 0}
+	{#if closures.length === 0}
 		<EmptyState icon="event_busy" title={m.closed_empty_title()}>{m.closed_empty_body()}</EmptyState
 		>
 	{/if}

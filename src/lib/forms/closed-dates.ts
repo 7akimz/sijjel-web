@@ -26,6 +26,15 @@ export function isPast(r: ClosedRange, today: string): boolean {
 	return r.to < today;
 }
 
+/** Splits ranges into coming ones, soonest first, and past ones, latest first. */
+export function splitByToday<T extends ClosedRange>(ranges: T[], today: string) {
+	const sorted = [...ranges].sort((a, b) => a.from.localeCompare(b.from));
+	return {
+		upcoming: sorted.filter((r) => !isPast(r, today)),
+		past: sorted.filter((r) => isPast(r, today)).reverse()
+	};
+}
+
 export function formatRange(r: { from: string; to: string }, locale: Locale): string {
 	const from = formatDate(`${r.from}T00:00:00Z`, locale);
 	return r.from === r.to ? from : `${from} – ${formatDate(`${r.to}T00:00:00Z`, locale)}`;

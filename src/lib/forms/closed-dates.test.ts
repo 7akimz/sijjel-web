@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { closedRangeErrors, formatRange, isPast, toDateRangeInput } from './closed-dates';
+import {
+	closedRangeErrors,
+	formatRange,
+	isPast,
+	splitByToday,
+	toDateRangeInput
+} from './closed-dates';
 
 describe('closedRangeErrors', () => {
 	it('accepts a range with an optional reason', () => {
@@ -28,6 +34,23 @@ describe('isPast', () => {
 
 		expect(isPast(range, '2026-10-18')).toBe(true);
 		expect(isPast(range, '2026-10-17')).toBe(false);
+	});
+});
+
+describe('splitByToday', () => {
+	it('lists coming ranges soonest first and past ranges latest first', () => {
+		const range = (id: string, from: string, to: string) => ({ id, from, to, reason: null });
+		const ranges = [
+			range('later', '2026-11-20', '2026-11-20'),
+			range('old', '2026-09-01', '2026-09-02'),
+			range('now', '2026-11-03', '2026-11-06'),
+			range('recent', '2026-10-10', '2026-10-12')
+		];
+
+		const { upcoming, past } = splitByToday(ranges, '2026-11-04');
+
+		expect(upcoming.map((r) => r.id)).toEqual(['now', 'later']);
+		expect(past.map((r) => r.id)).toEqual(['recent', 'old']);
 	});
 });
 
