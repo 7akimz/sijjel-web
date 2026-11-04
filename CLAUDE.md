@@ -54,7 +54,20 @@ The design system is the source of truth: https://claude.ai/artifact/HysWBDjQnrq
 
 - A change is judged by how it fits the whole page and the rest of the app, not by how one element looks on its own.
 - Before changing a screen, open the sibling pages and copy how they already do the same thing: page width, title row, section headings, lists, actions, empty states. Reuse the existing `sj-` classes and `#lib/ui` components before writing page-local CSS.
-- A pattern the app doesn't have yet needs a reason, and the user sees a visual preview of it before any code.
+- A pattern the app doesn't have yet needs a reason.
+
+### Preview before code
+
+Every UI change, even one built only from existing patterns, starts with a visual preview the user approves before any Svelte code is written:
+
+1. Write a throwaway static HTML file outside the repo (in the session scratchpad). Inline `src/lib/styles/{tokens,base,components}.css` and the Google Fonts link (IBM Plex Sans and Plex Sans Arabic, Readex Pro, Material Symbols Rounded). Use the real `sj-` classes, and copy any component-scoped CSS (for example `DateRangeField`'s fieldset reset) so the mock-up matches the app.
+2. Use real copy from `messages/en.json` and `ar.json` and realistic data (Arabic and English names, a long note, an empty state).
+3. Lay out side-by-side frames:
+   - phone frames, 390px wide, in English Day and Arabic Night (`data-theme`, `dir`);
+   - a frame with the main interaction open (form, sheet, select mode);
+   - one desktop frame at the real page width (`--content-max`), so the screen can be compared with its sibling pages.
+4. Screenshot it with Playwright (run the script from inside the repo so `playwright` resolves, then delete it), look at the image, and fix anything off before showing it.
+5. Show the user the screenshot and the file path. Build only after they say yes.
 
 ### Layout rules
 
