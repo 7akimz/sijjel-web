@@ -116,6 +116,23 @@ describe('RiderSheet', () => {
 		await expect.element(screen.getByRole('radio', { name: /Badr/ })).toBeEnabled();
 	});
 
+	it('says how many places each arena has left in a form that suits any number', async () => {
+		stubApi(placed);
+		const oneLeft = {
+			...session(),
+			arenas: [{ id: 'side', name: 'Side arena', capacity: 2, placesLeft: 1, trainer: null }]
+		};
+		const screen = render(RiderSheet, {
+			session: oneLeft,
+			rider: sara,
+			locale: 'en',
+			onclose: () => {},
+			onsession: () => {}
+		});
+
+		await expect.element(screen.getByText('Places left: 1')).toBeVisible();
+	});
+
 	it('places the rider on the chosen horse in the arena from their last ride', async () => {
 		const calls = stubApi(placed);
 		const onsession = vi.fn();

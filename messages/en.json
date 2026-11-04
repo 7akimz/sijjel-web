@@ -559,7 +559,7 @@
 	"board_saved": "Saved.",
 	"board_no_arena": "No arena yet",
 	"board_no_horse": "No horse yet",
-	"board_places_left": "{count} places left",
+	"board_places_left": "Places left: {count}",
 	"board_unplaceable": "Now nobody can take a horse for: {names}.",
 	"board_own_horse": "Own horse: {name}",
 	"board_close": "Close",
