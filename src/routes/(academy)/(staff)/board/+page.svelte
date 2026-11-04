@@ -20,7 +20,7 @@
 	<title>{m.board_title()}</title>
 </svelte:head>
 
-<div class="sj-page board">
+<div class="sj-page">
 	{#if !session}
 		<h1 class="sj-title">{m.board_title()}</h1>
 		<EmptyState icon="lock" title={m.board_setup_title()}>
@@ -32,15 +32,12 @@
 			{/snippet}
 		</EmptyState>
 	{:else}
-		<div class="top">
+		<div class="sj-page-head">
 			<h1 class="sj-title">{m.board_title()}</h1>
 			{#if session.times.length > 0 && canSelect(session) && !selecting}
-				<Button
-					variant="secondary"
-					icon="checklist"
-					label={m.board_select()}
-					onclick={() => (selecting = true)}
-				/>
+				<Button variant="secondary" icon="checklist" onclick={() => (selecting = true)}>
+					{m.board_select()}
+				</Button>
 			{/if}
 		</div>
 		<BoardDays days={session.days} current={session.date} locale={data.locale} />
@@ -63,16 +60,3 @@
 		{/if}
 	{/if}
 </div>
-
-<style>
-	/* One column about as wide as a day of session times keeps the strips and arenas together. */
-	.board {
-		max-inline-size: 792px;
-	}
-	.top {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--space-3);
-	}
-</style>
