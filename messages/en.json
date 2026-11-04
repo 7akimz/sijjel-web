@@ -252,7 +252,6 @@
 	"arena_add": "Add arena",
 	"arena_name": "Name",
 	"arena_capacity": "Riders at once",
-	"arena_riders": "{count} riders",
 	"arena_active": "In use",
 	"arena_inactive": "Not in use",
 	"arena_edit": "Edit {name}",
@@ -534,23 +533,13 @@
 	"board_title": "Planning board",
 	"board_date": "Day",
 	"board_times": "Sessions",
-	"board_time_riders": [
-		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
-			"match": {
-				"countPlural=one": "{count} rider",
-				"countPlural=other": "{count} riders"
-			}
-		}
-	],
 	"board_time_empty": "No riders",
 	"board_time_problem": "Needs attention",
 	"board_not_placed": "Not placed",
 	"board_no_trainer": "No trainer",
 	"board_pick_horse": "Pick horse",
 	"board_suggest": "Suggest horses",
-	"board_suggest_done": "Horses suggested for {count} riders.",
+	"board_suggest_done": "Horses suggested for {riders}.",
 	"board_suggest_none": "No horse could be suggested for the riders left.",
 	"board_no_sessions": "No sessions on this day.",
 	"board_setup_title": "The board opens once setup is finished",

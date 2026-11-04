@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import type { BoardTime } from '#lib/api/board-types.js';
 	import type { Locale } from '#lib/api/types.js';
+	import { riderCountText } from '#lib/forms/subscription.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Icon } from '#lib/ui/index.js';
 
@@ -34,9 +35,7 @@
 						<Icon name="warning" size={20} filled />
 					</span>
 				{/if}
-				{time.riders > 0
-					? m.board_time_riders({ count: time.riders }, { locale })
-					: m.board_time_empty({}, { locale })}
+				{time.riders > 0 ? riderCountText(time.riders, locale) : m.board_time_empty({}, { locale })}
 			</span>
 		</a>
 	{/each}

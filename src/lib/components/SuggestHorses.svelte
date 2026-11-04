@@ -3,6 +3,7 @@
 	import type { BoardSession } from '#lib/api/board-types.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { Locale } from '#lib/api/types.js';
+	import { riderCountText } from '#lib/forms/subscription.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button } from '#lib/ui/index.js';
 
@@ -33,7 +34,10 @@
 			const placed = before - waiting(next);
 			message =
 				placed > 0
-					? m.board_suggest_done({ count: placed }, { locale })
+					? m.board_suggest_done(
+							{ count: placed, riders: riderCountText(placed, locale) },
+							{ locale }
+						)
 					: m.board_suggest_none({}, { locale });
 			onsession(next);
 		} catch (e) {

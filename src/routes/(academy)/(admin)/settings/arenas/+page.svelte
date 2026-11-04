@@ -4,6 +4,7 @@
 	import SetupNext from '#lib/components/SetupNext.svelte';
 	import { reveal } from '#lib/reveal.js';
 	import type { Arena } from '#lib/api/academy-types.js';
+	import { riderCountText } from '#lib/forms/subscription.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, EmptyState, StatusChip } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -69,7 +70,7 @@
 						<div class="row">
 							<div class="main">
 								<span class="arena-name">{arena.name}</span>
-								<span class="sj-small sj-muted">{m.arena_riders({ count: arena.capacity })}</span>
+								<span class="sj-small sj-muted">{riderCountText(arena.capacity, data.locale)}</span>
 							</div>
 							{#if !arena.isActive}<StatusChip tone="stone">{m.arena_inactive()}</StatusChip>{/if}
 							<Button

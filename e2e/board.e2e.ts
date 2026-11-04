@@ -96,7 +96,7 @@ test('staff plan a session: place a rider, suggest a horse, set trainers and not
 	await expect(owner.getByRole('button', { name: /Layla.*Zahra/ })).toBeVisible();
 
 	await owner.getByRole('button', { name: 'Suggest horses' }).click();
-	await expect(owner.getByText('Horses suggested for 1 riders.')).toBeVisible();
+	await expect(owner.getByText('Horses suggested for 1 rider.')).toBeVisible();
 	await expect(owner.getByRole('button', { name: /Sara.*Badr/ })).toBeVisible();
 
 	await owner.getByRole('button', { name: 'Trainer for Main arena' }).click();

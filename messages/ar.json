@@ -252,7 +252,6 @@
 	"arena_add": "إضافة حلبة",
 	"arena_name": "الاسم",
 	"arena_capacity": "عدد الفرسان في وقت واحد",
-	"arena_riders": "{count} فرسان",
 	"arena_active": "مستخدمة",
 	"arena_inactive": "غير مستخدمة",
 	"arena_edit": "تعديل {name}",
@@ -534,20 +533,6 @@
 	"board_title": "لوحة التخطيط",
 	"board_date": "اليوم",
 	"board_times": "الحصص",
-	"board_time_riders": [
-		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
-			"match": {
-				"countPlural=zero": "لا فرسان",
-				"countPlural=one": "فارس واحد",
-				"countPlural=two": "فارسان",
-				"countPlural=few": "{count} فرسان",
-				"countPlural=many": "{count} فارسًا",
-				"countPlural=other": "{count} فارس"
-			}
-		}
-	],
 	"board_time_empty": "لا فرسان",
 	"board_time_problem": "تحتاج إلى متابعة",
 	"board_not_placed": "بدون ساحة",
