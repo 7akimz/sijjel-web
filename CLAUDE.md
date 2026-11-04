@@ -1,4 +1,50 @@
-# sijjel-web
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+sijjel-web is the SvelteKit front end of sijjel, a booking and planning app for riding academies. Its backend is the sibling Go repo `../sijjel-api`. `README.md` describes every area of the app (setup, members, booking, the board, subscriptions, reminders) and how to run the container.
+
+## Commands
+
+Node 24 is required. The API must be running on :8080 for `npm run dev`.
+
+```sh
+npm run dev                         # http://localhost:5173 (platform), http://alfaris.localhost:5173 (an academy)
+npx vitest run                      # unit + component tests
+npx vitest run src/lib/forms/board.test.ts   # one file (add -t "name" for one test)
+npm run check                       # svelte-check / types
+npx eslint src e2e
+npx prettier --check src e2e messages   # or npm run format to fix
+npx playwright test                 # e2e; builds the app and starts a throwaway API + Postgres
+npx playwright test e2e/board.e2e.ts
+```
+
+- The e2e suite runs the `sijjel-api-api` image by default. Rebuild it after API changes (`cd ../sijjel-api && docker compose --profile app build`), or point `E2E_API_IMAGE` at another image. The stack is the compose project `sijjel-e2e` and never touches the dev database.
+- The container build (`docker compose up -d --build`) serves on 127.0.0.1:3000 and joins the `sijjel-api_default` network.
+
+## Architecture
+
+- **Server-rendered, with one origin.** The browser only talks to this app. `src/routes/api/[...path]/+server.ts` proxies `/api/*` to `API_URL` (`#lib/server/proxy.ts`), so session cookies stay host-only.
+- **Every request starts in `src/hooks.server.ts`:**
+  - It loads the tenant (platform or academy, from the Host), the user and the membership into `locals` (`#lib/server/context.ts`).
+  - It picks the locale: the `PARAGLIDE_LOCALE` cookie, else the academy's default language.
+  - It puts the academy accent colours, the theme, `lang` and `dir` into the first HTML.
+- **Route groups carry access control** in their `+layout.server.ts`:
+  - `(academy)` requires an academy host;
+  - inside it, `(admin)`, `(staff)` and `(rider)` check the membership and send signed-out users to `/login?returnTo=…`;
+  - `(platform)` is the platform host.
+- **Data flow:**
+  - Page loads run on the server and call the API with `apiLoad`/`apiFetch` (`#lib/server/api.ts`).
+  - Writes from the browser use `api()` in `#lib/api/client.ts`. It always sends `content-type: application/json`, even with no body, because SvelteKit's CSRF check rejects a body-less write without it.
+  - API failures become `ApiError` with the API's `code`, shown through the `error_<code>` messages.
+  - Response types live in `#lib/api/*-types.ts`.
+- **Where logic lives:**
+  - `src/lib/forms/` and the other plain `.ts` files hold pure logic (form parsing, grouping, plural text), tested in Node.
+  - `src/lib/components/` holds feature components, tested as `*.svelte.test.ts` in headless Chromium through vitest browser mode.
+  - `src/lib/ui/` holds design-system primitives (`Button`, `Icon`, `Banner`, `EmptyState`…).
+- **Svelte 5 runes are forced** for all project files. Imports use the `#lib/...` alias with a `.js` extension.
+- **i18n is Paraglide.** Every string lives in both `messages/en.json` and `messages/ar.json`; `src/lib/paraglide/` is generated. Pass `{ locale }` explicitly in components that receive it as a prop.
+- **The dev style guide** at `/design` shows every component.
 
 ## Designing UI
 
