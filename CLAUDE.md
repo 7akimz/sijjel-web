@@ -67,7 +67,8 @@ Every UI change, even one built only from existing patterns, starts with a visua
    - a frame with the main interaction open (form, sheet, select mode);
    - one desktop frame at the real page width (`--content-max`), so the screen can be compared with its sibling pages.
 4. Screenshot it with Playwright (run the script from inside the repo so `playwright` resolves, then delete it), look at the image, and fix anything off before showing it.
-5. Show the user the screenshot and the file path. Build only after they say yes.
+5. Run a UX review of the preview with the `ux-laws` skill. UX matters most to the user, so no design skips this step. Check the screen against the laws (proximity, similarity, Fitts, Hick, Von Restorff, cognitive load, Jakob's law against the app's own pages) and against the design system. Fix what it finds in the preview, take the screenshot again, and list the findings and fixes for the user.
+6. Show the user the screenshot, the file path and the review. Build only after they say yes.
 
 ### Layout rules
 
