@@ -126,7 +126,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: var(--space-2);
+		gap: var(--space-1);
 		margin: 0;
 		font: inherit;
 	}
