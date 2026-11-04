@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { BoardSession, HorsePicker, PickerHorse } from '#lib/api/board-types.js';
-import { defaultArenaFor, groupByArena, horseStateText, problemText, trainerGroups } from './board';
+import {
+	canSelect,
+	defaultArenaFor,
+	groupByArena,
+	horseStateText,
+	problemText,
+	trainerGroups,
+	waitingText
+} from './board';
 
 const rider = (name: string, arenaId: string | null) => ({
 	bookingId: name,
@@ -22,6 +30,7 @@ const session = (riders: ReturnType<typeof rider>[]): BoardSession => ({
 	end: '18:30',
 	editable: true,
 	times: [],
+	days: [],
 	arenas: [
 		{ id: 'main', name: 'Main arena', capacity: 2, placesLeft: 0, trainer: null },
 		{ id: 'side', name: 'Side arena', capacity: 2, placesLeft: 2, trainer: null }
@@ -150,5 +159,29 @@ describe('trainerGroups', () => {
 		expect(
 			summary(trainerGroups(arena(null), [withTrainer('Layla', null), withTrainer('Sara', null)]))
 		).toEqual([[null, ['Layla', 'Sara']]]);
+	});
+});
+
+describe('waitingText', () => {
+	it('agrees with the number of riders', () => {
+		expect(waitingText(1, 'en')).toBe("1 rider isn't placed yet");
+		expect(waitingText(2, 'en')).toBe("2 riders aren't placed yet");
+		expect(waitingText(5, 'en')).toBe("5 riders aren't placed yet");
+	});
+
+	it('uses the Arabic one, two and plural forms', () => {
+		expect(waitingText(1, 'ar')).toBe('فارس واحد لم يُحدَّد له مكان بعد');
+		expect(waitingText(2, 'ar')).toBe('فارسان لم يُحدَّد لهما مكان بعد');
+		expect(waitingText(3, 'ar')).toBe('3 فرسان لم يُحدَّد لهم مكان بعد');
+		expect(waitingText(11, 'ar')).toBe('11 فارسًا لم يُحدَّد لهم مكان بعد');
+	});
+});
+
+describe('canSelect', () => {
+	it('allows selecting riders only in a session that can still change', () => {
+		const one = session([rider('Sara', null)]);
+		expect(canSelect(one)).toBe(true);
+		expect(canSelect({ ...one, editable: false })).toBe(false);
+		expect(canSelect(session([]))).toBe(false);
 	});
 });

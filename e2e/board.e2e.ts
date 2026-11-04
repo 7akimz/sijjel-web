@@ -84,7 +84,11 @@ test('staff plan a session: place a rider, suggest a horse, set trainers and not
 
 	await owner.goto(academyUrl(slug, `/board?date=${slot.date}&start=${slot.start}`));
 	await expect(owner.getByRole('link', { name: `${slot.start} 2 riders` })).toBeVisible();
-	await expect(owner.getByRole('heading', { name: 'Not placed' })).toBeVisible();
+	await expect(owner.getByRole('link', { name: /: 2 riders$/ })).toHaveAttribute(
+		'aria-current',
+		'date'
+	);
+	await expect(owner.getByRole('heading', { name: "2 riders aren't placed yet" })).toBeVisible();
 	await expect(owner.getByRole('button', { name: /Layla.*Pick horse/ })).toBeVisible();
 	await expect(owner.getByRole('button', { name: /Sara.*Pick horse/ })).toBeVisible();
 
@@ -99,9 +103,9 @@ test('staff plan a session: place a rider, suggest a horse, set trainers and not
 	await expect(owner.getByText('Horses suggested for 1 rider.')).toBeVisible();
 	await expect(owner.getByRole('button', { name: /Sara.*Badr/ })).toBeVisible();
 
-	await owner.getByRole('button', { name: 'Trainer for Main arena' }).click();
+	await owner.getByRole('button', { name: 'Trainer for Main arena: Add trainer' }).click();
 	await owner.getByRole('dialog').getByRole('button', { name: 'Owner' }).click();
-	await expect(owner.getByRole('heading', { name: 'Main arena · Owner' })).toBeVisible();
+	await expect(owner.getByRole('button', { name: 'Trainer for Main arena: Owner' })).toBeVisible();
 
 	await owner.getByRole('button', { name: /Layla.*Zahra/ }).click();
 	await owner.getByLabel('Note on this ride').fill('Leg kept coming out in canter.');
@@ -124,5 +128,5 @@ test('staff plan a session: place a rider, suggest a horse, set trainers and not
 
 	await owner.reload();
 	await expect(owner.getByRole('heading', { name: 'Omar · 1' })).toBeVisible();
-	await expect(owner.getByRole('heading', { name: 'Main arena · Owner' })).toBeVisible();
+	await expect(owner.getByRole('button', { name: 'Trainer for Main arena: Owner' })).toBeVisible();
 });

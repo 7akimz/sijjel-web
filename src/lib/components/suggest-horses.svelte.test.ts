@@ -25,6 +25,7 @@ const session = (riders: BoardRider[]): BoardSession => ({
 	end: '18:00',
 	editable: true,
 	times: [],
+	days: [],
 	arenas: [],
 	staff: [],
 	riders
@@ -36,31 +37,34 @@ async function suggestFor(names: string[], locale: 'en' | 'ar' = 'en') {
 		'fetch',
 		vi.fn(async () => Response.json(after))
 	);
+	const onnotice = vi.fn();
 	const screen = render(SuggestHorses, {
 		session: session(names.map((n) => rider(n))),
 		locale,
-		onsession: vi.fn()
+		onsession: vi.fn(),
+		onnotice
 	});
 	await screen.getByRole('button').click();
-	return screen;
+	await vi.waitFor(() => expect(onnotice).toHaveBeenCalled());
+	return onnotice;
 }
 
 describe('SuggestHorses', () => {
 	it('says one rider in the singular', async () => {
-		const screen = await suggestFor(['Layla']);
+		const onnotice = await suggestFor(['Layla']);
 
-		await expect.element(screen.getByText('Horses suggested for 1 rider.')).toBeVisible();
+		expect(onnotice).toHaveBeenCalledWith('Horses suggested for 1 rider.', 'done');
 	});
 
 	it('counts several riders', async () => {
-		const screen = await suggestFor(['Layla', 'Sara', 'Omar']);
+		const onnotice = await suggestFor(['Layla', 'Sara', 'Omar']);
 
-		await expect.element(screen.getByText('Horses suggested for 3 riders.')).toBeVisible();
+		expect(onnotice).toHaveBeenCalledWith('Horses suggested for 3 riders.', 'done');
 	});
 
 	it('keeps the Arabic sentence that suits any number', async () => {
-		const screen = await suggestFor(['Layla', 'Sara'], 'ar');
+		const onnotice = await suggestFor(['Layla', 'Sara'], 'ar');
 
-		await expect.element(screen.getByText('تم اقتراح خيول لـ 2 من الفرسان.')).toBeVisible();
+		expect(onnotice).toHaveBeenCalledWith('تم اقتراح خيول لـ 2 من الفرسان.', 'done');
 	});
 });

@@ -1,3 +1,4 @@
+import { createRawSnippet } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import type { BoardRider, BoardSession as Session } from '#lib/api/board-types.js';
@@ -24,6 +25,7 @@ const session: Session = {
 	end: '18:30',
 	editable: true,
 	times: [],
+	days: [],
 	arenas: [
 		{
 			id: 'main',
@@ -46,20 +48,78 @@ const session: Session = {
 };
 
 describe('BoardSession', () => {
-	it('groups riders by arena with unplaced riders first and opens a rider', async () => {
+	it('puts unplaced riders in a callout before the arenas and opens a rider', async () => {
 		const onrider = vi.fn();
 		const screen = render(BoardSession, { session, locale: 'en', onrider, ontrainer: () => {} });
 
 		const headings = screen.container.querySelectorAll('h2');
 		expect([...headings].map((h) => h.textContent?.trim())).toEqual([
-			'Not placed',
-			'Main arena · Omar',
-			'Side arena · No trainer'
+			"1 rider isn't placed yet",
+			'Main arena',
+			'Side arena'
 		]);
+		const waiting = screen.container.querySelector('.waiting');
+		expect(waiting?.textContent).toContain('Sara');
+		expect(waiting?.textContent).not.toContain('Layla');
 		await expect.element(screen.getByRole('button', { name: /Sara.*Pick horse/ })).toBeVisible();
 		await expect.element(screen.getByLabelText('This horse is unavailable today.')).toBeVisible();
 		await screen.getByRole('button', { name: /Layla.*Zahra/ }).click();
 		expect(onrider).toHaveBeenCalledWith(expect.objectContaining({ name: 'Layla' }));
+	});
+
+	it('gives each arena one line: its riders against capacity and its trainer, who can be changed', async () => {
+		const ontrainer = vi.fn();
+		const screen = render(BoardSession, { session, locale: 'en', onrider: () => {}, ontrainer });
+
+		expect(screen.container.textContent).toContain('Riders: 1 of 2');
+		expect(screen.container.textContent).toContain('Riders: 0 of 2');
+		await expect.element(screen.getByText('1 of 2', { exact: true })).toBeVisible();
+		await expect
+			.element(screen.getByRole('button', { name: 'Trainer for Side arena: Add trainer' }))
+			.toBeVisible();
+		await screen.getByRole('button', { name: 'Trainer for Main arena: Omar' }).click();
+		expect(ontrainer).toHaveBeenCalledWith(expect.objectContaining({ id: 'main' }));
+	});
+
+	it('shows an empty arena as its heading line only', async () => {
+		const screen = render(BoardSession, {
+			session,
+			locale: 'en',
+			onrider: () => {},
+			ontrainer: () => {}
+		});
+
+		const side = [...screen.container.querySelectorAll('section')].find((s) =>
+			s.textContent?.includes('Side arena')
+		);
+		expect(side?.querySelector('ul')).toBeNull();
+	});
+
+	it("shows the rider's level beside their name", async () => {
+		const screen = render(BoardSession, {
+			session: {
+				...session,
+				riders: [rider('Sara', { level: { nameEn: 'Intro', nameAr: 'مبتدئ' } })]
+			},
+			locale: 'en',
+			onrider: () => {},
+			ontrainer: () => {}
+		});
+
+		await expect.element(screen.getByRole('button', { name: /Sara.*Intro/ })).toBeVisible();
+	});
+
+	it('shows the action it is given inside the callout', async () => {
+		const screen = render(BoardSession, {
+			session,
+			locale: 'en',
+			onrider: () => {},
+			ontrainer: () => {},
+			waitingAction: createRawSnippet(() => ({ render: () => '<button>Suggest horses</button>' }))
+		});
+
+		const waiting = screen.container.querySelector('.waiting');
+		expect(waiting?.querySelector('button')?.textContent).toBe('Suggest horses');
 	});
 
 	it('splits an arena into trainer groups only when its riders have more than one trainer', async () => {

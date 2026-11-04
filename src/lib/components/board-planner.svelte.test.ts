@@ -9,6 +9,7 @@ const session = (start: string): BoardSession => ({
 	end: '18:30',
 	editable: true,
 	times: [],
+	days: [],
 	arenas: [],
 	staff: [],
 	riders: [
@@ -112,9 +113,13 @@ describe('BoardPlanner', () => {
 		it('gives the ticked riders one trainer in a single request', async () => {
 			const calls = stubTrainers();
 			const onsession = vi.fn();
-			const screen = render(BoardPlanner, { session: group(), locale: 'en', onsession });
+			const screen = render(BoardPlanner, {
+				session: group(),
+				locale: 'en',
+				onsession,
+				selecting: true
+			});
 
-			await screen.getByRole('button', { name: 'Select' }).click();
 			await screen.getByRole('button', { name: /Sara/ }).click();
 			await screen.getByRole('button', { name: /Layla/ }).click();
 			await expect.element(screen.getByText('2 selected')).toBeVisible();
@@ -128,14 +133,18 @@ describe('BoardPlanner', () => {
 					body: { bookingIds: ['Sara', 'Layla'], trainerId: 'o' }
 				}
 			]);
-			await expect.element(screen.getByRole('button', { name: 'Select' })).toBeVisible();
+			await expect.element(screen.getByText('2 selected')).not.toBeInTheDocument();
 		});
 
 		it('puts riders back with the arena trainer', async () => {
 			const calls = stubTrainers();
-			const screen = render(BoardPlanner, { session: group(), locale: 'en', onsession: () => {} });
+			const screen = render(BoardPlanner, {
+				session: group(),
+				locale: 'en',
+				onsession: () => {},
+				selecting: true
+			});
 
-			await screen.getByRole('button', { name: 'Select' }).click();
 			await screen.getByRole('button', { name: /Sara/ }).click();
 			await screen.getByRole('button', { name: 'Trainer…' }).click();
 			await screen.getByRole('button', { name: 'Same as arena' }).click();
@@ -146,25 +155,19 @@ describe('BoardPlanner', () => {
 
 		it('forgets the selection when the session changes', async () => {
 			const calls = stubTrainers();
-			const screen = render(BoardPlanner, { session: group(), locale: 'en', onsession: () => {} });
+			const screen = render(BoardPlanner, {
+				session: group(),
+				locale: 'en',
+				onsession: () => {},
+				selecting: true
+			});
 
-			await screen.getByRole('button', { name: 'Select' }).click();
 			await screen.getByRole('button', { name: /Sara/ }).click();
+			await expect.element(screen.getByText('1 selected')).toBeVisible();
 			await screen.rerender({ session: group('18:30'), locale: 'en', onsession: () => {} });
 
 			await expect.element(screen.getByText('1 selected')).not.toBeInTheDocument();
-			await expect.element(screen.getByRole('button', { name: 'Select' })).toBeVisible();
 			expect(calls).toHaveLength(0);
-		});
-
-		it('offers no selecting on a past session', async () => {
-			const screen = render(BoardPlanner, {
-				session: group('18:00', false),
-				locale: 'en',
-				onsession: () => {}
-			});
-			await expect.element(screen.getByRole('button', { name: /Sara/ })).toBeVisible();
-			await expect.element(screen.getByRole('button', { name: 'Select' })).not.toBeInTheDocument();
 		});
 	});
 });

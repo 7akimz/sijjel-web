@@ -10,6 +10,7 @@ const session: BoardSession = {
 	end: '18:30',
 	editable: true,
 	times: [],
+	days: [],
 	arenas: [{ id: 'main', name: 'Main arena', capacity: 2, placesLeft: 2, trainer: null }],
 	staff: [
 		{ id: 'ahmed', name: 'Ahmed' },
@@ -76,7 +77,12 @@ describe('TrainerPicker', () => {
 describe('SuggestHorses', () => {
 	it('sends one request however fast it is tapped', async () => {
 		const bodies = stubFetch(200);
-		const screen = render(SuggestHorses, { session, locale: 'en', onsession: () => {} });
+		const screen = render(SuggestHorses, {
+			session,
+			locale: 'en',
+			onsession: () => {},
+			onnotice: () => {}
+		});
 		const button = screen.getByRole('button', { name: 'Suggest horses' });
 
 		await button.click();

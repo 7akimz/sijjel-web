@@ -23,3 +23,10 @@ export function formatMonth(iso: string, locale: Locale): string {
 		new Date(iso)
 	);
 }
+
+/** "Wed": the short weekday name. */
+export function formatWeekday(iso: string, locale: Locale): string {
+	return new Intl.DateTimeFormat(intlLocale(locale), { weekday: 'short', timeZone: 'UTC' }).format(
+		new Date(iso)
+	);
+}

@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import BoardDays from '#lib/components/BoardDays.svelte';
 	import BoardPlanner from '#lib/components/BoardPlanner.svelte';
 	import BoardTimes from '#lib/components/BoardTimes.svelte';
 	import { isAcademyAdmin } from '#lib/academy/admin.js';
 	import type { BoardSession } from '#lib/api/board-types.js';
+	import { canSelect } from '#lib/forms/board.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Button, EmptyState } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -12,11 +13,7 @@
 	let { data }: PageProps = $props();
 
 	let session = $derived<BoardSession | null>(data.session);
-
-	function changeDate(event: Event) {
-		const value = (event.currentTarget as HTMLInputElement).value;
-		if (value) goto(resolve(`/(academy)/(staff)/board?date=${value}`));
-	}
+	let selecting = $state(false);
 </script>
 
 <svelte:head>
@@ -37,11 +34,16 @@
 	{:else}
 		<div class="top">
 			<h1 class="sj-title">{m.board_title()}</h1>
-			<label class="date">
-				<span class="sj-label">{m.board_date()}</span>
-				<input class="sj-input" type="date" value={session.date} onchange={changeDate} />
-			</label>
+			{#if session.times.length > 0 && canSelect(session) && !selecting}
+				<Button
+					variant="secondary"
+					icon="checklist"
+					label={m.board_select()}
+					onclick={() => (selecting = true)}
+				/>
+			{/if}
 		</div>
+		<BoardDays days={session.days} current={session.date} locale={data.locale} />
 
 		{#if session.times.length === 0}
 			<EmptyState icon="event_busy" title={m.board_no_sessions()} />
@@ -52,9 +54,12 @@
 				current={session.start}
 				locale={data.locale}
 			/>
-
-			<p class="sj-muted sj-small" dir="ltr">{session.start} – {session.end}</p>
-			<BoardPlanner {session} locale={data.locale} onsession={(next) => (session = next)} />
+			<BoardPlanner
+				{session}
+				locale={data.locale}
+				onsession={(next) => (session = next)}
+				bind:selecting
+			/>
 		{/if}
 	{/if}
 </div>
@@ -62,14 +67,8 @@
 <style>
 	.top {
 		display: flex;
-		flex-wrap: wrap;
-		align-items: flex-end;
+		align-items: center;
 		justify-content: space-between;
 		gap: var(--space-3);
-	}
-	.date {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-1);
 	}
 </style>

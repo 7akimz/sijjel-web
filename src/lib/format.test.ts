@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, formatDayMonth, formatMonth } from './format';
+import { formatDate, formatDayMonth, formatMonth, formatWeekday } from './format';
 
 describe('formatDate', () => {
 	it('uses Western digits in Arabic', () => {
@@ -26,5 +26,12 @@ describe('formatMonth', () => {
 	it('writes the month name', () => {
 		expect(formatMonth('2026-11-01', 'en')).toBe('November');
 		expect(formatMonth('2026-12-01', 'ar')).not.toMatch(/[٠-٩]/);
+	});
+});
+
+describe('formatWeekday', () => {
+	it('writes the short weekday name', () => {
+		expect(formatWeekday('2026-11-04', 'en')).toBe('Wed');
+		expect(formatWeekday('2026-10-31', 'en')).toBe('Sat');
 	});
 });

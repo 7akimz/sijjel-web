@@ -9,6 +9,7 @@ const board = (times: BoardSession['times']): BoardSession => ({
 	end: '18:30',
 	editable: true,
 	times,
+	days: [],
 	arenas: [],
 	staff: [],
 	riders: []

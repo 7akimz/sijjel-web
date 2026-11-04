@@ -23,6 +23,7 @@ const session = (editable = true): BoardSession => ({
 	end: '18:30',
 	editable,
 	times: [],
+	days: [],
 	arenas: [
 		{ id: 'main', name: 'Main arena', capacity: 2, placesLeft: 0, trainer: null },
 		{ id: 'side', name: 'Side arena', capacity: 2, placesLeft: 2, trainer: null }

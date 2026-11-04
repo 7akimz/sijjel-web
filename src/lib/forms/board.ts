@@ -8,6 +8,7 @@ import type {
 } from '#lib/api/board-types.js';
 import type { Locale } from '#lib/api/types.js';
 import { m } from '#lib/paraglide/messages.js';
+import { riderCountText } from '#lib/forms/subscription.js';
 
 type MessageFn = (inputs: object, options: { locale?: Locale }) => string;
 const messages = m as unknown as Record<string, MessageFn | undefined>;
@@ -66,4 +67,16 @@ export function defaultArenaFor(picker: HorsePicker, session: BoardSession): str
 	const last = picker.history.find((ride) => ride.arenaId !== null);
 	const arena = session.arenas.find((a) => a.id === last?.arenaId);
 	return arena && arena.placesLeft > 0 ? arena.id : null;
+}
+
+/** The callout over riders without an arena, agreeing with how many there are. */
+export function waitingText(count: number, locale: Locale): string {
+	if (count === 1) return m.board_waiting_one({}, { locale });
+	if (count === 2) return m.board_waiting_two({}, { locale });
+	return m.board_waiting_more({ riders: riderCountText(count, locale) }, { locale });
+}
+
+/** Riders can be ticked for a shared change only in a session that can still change. */
+export function canSelect(session: BoardSession): boolean {
+	return session.editable && session.riders.length > 0;
 }

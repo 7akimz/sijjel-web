@@ -15,6 +15,11 @@ export interface BoardTime {
 	hasProblem: boolean;
 }
 
+export interface BoardDay {
+	date: string;
+	riders: number;
+}
+
 export interface BoardArena {
 	id: string;
 	name: string;
@@ -47,6 +52,8 @@ export interface BoardSession {
 	end: string;
 	editable: boolean;
 	times: BoardTime[];
+	/** Riders booked on each day of the week holding the date, Saturday to Friday. */
+	days: BoardDay[];
 	arenas: BoardArena[];
 	staff: NamedRef[];
 	riders: BoardRider[];

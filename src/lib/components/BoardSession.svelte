@@ -1,7 +1,9 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+	import { localName } from '#lib/academy.js';
 	import type { BoardArena, BoardRider, BoardSession } from '#lib/api/board-types.js';
 	import type { Locale } from '#lib/api/types.js';
-	import { groupByArena, problemText, trainerGroups } from '#lib/forms/board.js';
+	import { groupByArena, problemText, trainerGroups, waitingText } from '#lib/forms/board.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { EmptyState, Icon } from '#lib/ui/index.js';
 
@@ -13,6 +15,8 @@
 		selecting?: boolean;
 		selected?: string[];
 		ontoggle?: (bookingId: string) => void;
+		/** Shown in the callout over riders without an arena. */
+		waitingAction?: Snippet;
 	};
 	let {
 		session,
@@ -21,7 +25,8 @@
 		ontrainer,
 		selecting = false,
 		selected = [],
-		ontoggle = () => {}
+		ontoggle = () => {},
+		waitingAction
 	}: Props = $props();
 
 	const groups = $derived(groupByArena(session));
@@ -36,49 +41,82 @@
 	<EmptyState icon="event_available" title={m.board_no_riders({}, { locale })} />
 {:else}
 	{#each groups as group (group.arena?.id ?? 'unplaced')}
-		{@const subgroups = trainerGroups(group.arena, group.riders)}
-		{@const split =
-			subgroups.length > 1 || subgroups.some((g) => g.trainer?.id !== group.arena?.trainer?.id)}
-		<section class="group">
-			<header>
-				<h2>
-					{#if group.arena}
-						{group.arena.name} · {group.arena.trainer?.name ?? m.board_no_trainer({}, { locale })}
+		{#if group.arena}
+			{@const arena = group.arena}
+			{@const taken = arena.capacity - arena.placesLeft}
+			<section class="arena">
+				<div class="head">
+					<h2 class="sj-heading">{arena.name}</h2>
+					<span class="count">
+						<Icon name="group" size={20} />
+						<span aria-hidden="true"
+							>{m.board_arena_count({ count: taken, capacity: arena.capacity }, { locale })}</span
+						>
+						<span class="sj-visually-hidden"
+							>{m.board_arena_count_label(
+								{ count: taken, capacity: arena.capacity },
+								{ locale }
+							)}</span
+						>
+					</span>
+					<span class="grow"></span>
+					{#if session.editable}
+						<button
+							type="button"
+							class="sj-btn sj-btn--quiet trainer"
+							onclick={() => ontrainer(arena)}
+						>
+							<span class="sj-visually-hidden"
+								>{m.board_trainer_named({ arena: arena.name }, { locale })}</span
+							>
+							<Icon name={arena.trainer ? 'person' : 'person_add'} size={20} />
+							<bdi>{arena.trainer?.name ?? m.board_add_trainer({}, { locale })}</bdi>
+						</button>
 					{:else}
-						{m.board_not_placed({}, { locale })}
+						<span class="trainer-name sj-small">
+							<Icon name="person" size={20} />
+							<bdi>{arena.trainer?.name ?? m.board_no_trainer({}, { locale })}</bdi>
+						</span>
 					{/if}
-				</h2>
-				<span class="count sj-small">{group.riders.length}</span>
-				{#if group.arena && session.editable}
-					{@const arena = group.arena}
-					<button
-						type="button"
-						class="sj-btn sj-btn--quiet sj-btn--icon"
-						aria-label={m.board_trainer_for({ arena: arena.name }, { locale })}
-						onclick={() => ontrainer(arena)}
-					>
-						<Icon name="person_edit" size={20} />
-					</button>
+				</div>
+				{#if group.riders.length > 0}
+					{@render riders(arena, group.riders)}
 				{/if}
-			</header>
-			{#if split}
-				{#each subgroups as sub (sub.trainer?.id ?? 'none')}
-					<h3 class="subgroup sj-small">
-						<bdi>{sub.trainer?.name ?? m.board_no_trainer({}, { locale })}</bdi> · {sub.riders
-							.length}
-					</h3>
-					{#each sub.riders as rider (rider.bookingId)}
-						{@render row(rider)}
-					{/each}
-				{/each}
-			{:else}
-				{#each group.riders as rider (rider.bookingId)}
-					{@render row(rider)}
-				{/each}
-			{/if}
-		</section>
+			</section>
+		{:else}
+			<section class="waiting">
+				<div class="head">
+					<Icon name="pending_actions" size={20} />
+					<h2 class="waiting-title">{waitingText(group.riders.length, locale)}</h2>
+					{@render waitingAction?.()}
+				</div>
+				{@render riders(null, group.riders)}
+			</section>
+		{/if}
 	{/each}
 {/if}
+
+{#snippet riders(arena: BoardArena | null, list: BoardRider[])}
+	{@const subgroups = trainerGroups(arena, list)}
+	{@const split =
+		subgroups.length > 1 || subgroups.some((g) => g.trainer?.id !== arena?.trainer?.id)}
+	<div class="sj-list">
+		{#if split}
+			{#each subgroups as sub (sub.trainer?.id ?? 'none')}
+				<h3 class="subgroup sj-small">
+					<bdi>{sub.trainer?.name ?? m.board_no_trainer({}, { locale })}</bdi> · {sub.riders.length}
+				</h3>
+				{#each sub.riders as rider (rider.bookingId)}
+					{@render row(rider)}
+				{/each}
+			{/each}
+		{:else}
+			{#each list as rider (rider.bookingId)}
+				{@render row(rider)}
+			{/each}
+		{/if}
+	</div>
+{/snippet}
 
 {#snippet row(rider: BoardRider)}
 	{@const ticked = selected.includes(rider.bookingId)}
@@ -91,8 +129,10 @@
 		{#if selecting}
 			<Icon name={ticked ? 'check_box' : 'check_box_outline_blank'} size={20} filled={ticked} />
 		{/if}
-		<span class="sj-avatar" aria-hidden="true">{rider.name.slice(0, 1)}</span>
-		<span class="name" dir="auto">{rider.name}</span>
+		<span class="who">
+			<span class="name" dir="auto">{rider.name}</span>
+			{#if rider.level}<span class="level" dir="auto">{localName(rider.level, locale)}</span>{/if}
+		</span>
 		{#if rider.problems.length > 0}
 			<span
 				class="problem"
@@ -102,47 +142,79 @@
 				<Icon name="warning" size={20} filled />
 			</span>
 		{/if}
-		<span class={['horse', !rider.horse && rider.horseSource === 'school' && 'pick']}>
-			{horseLabel(rider)}
-		</span>
+		{#if !rider.horse && rider.horseSource === 'school'}
+			<span class="horse pick">{horseLabel(rider)}</span>
+		{:else}
+			<span class="horse"><Icon name="horseshoe" size={20} /><bdi>{horseLabel(rider)}</bdi></span>
+		{/if}
 	</button>
 {/snippet}
 
 <style>
-	.group {
-		background: var(--surface);
-		border: 1px solid var(--line);
-		border-radius: var(--radius-lg);
-		overflow: hidden;
+	section {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
 	}
-	header {
+	.head {
 		display: flex;
 		align-items: center;
 		gap: var(--space-2);
-		padding: var(--space-2) var(--space-3);
+		min-block-size: var(--touch-target);
 	}
-	h2 {
-		margin: 0;
+	.grow {
 		flex: 1;
-		font: 600 0.875rem/1.3 var(--font-display);
-		color: var(--ink-muted);
 	}
-	.count {
+	.count,
+	.trainer-name {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+		font-size: 14px;
 		color: var(--ink-muted);
+		font-variant-numeric: tabular-nums;
+	}
+	.trainer {
+		padding-inline: var(--space-2);
+	}
+	.waiting {
+		padding: var(--space-3);
+		border-radius: var(--radius-lg);
+		background: var(--brass-soft);
+		color: var(--brass);
+	}
+	.waiting .head {
+		font-weight: 600;
+	}
+	.waiting-title {
+		flex: 1;
+		margin: 0;
+		font: inherit;
+	}
+	.waiting :global(.sj-btn--quiet) {
+		color: var(--brass);
+	}
+	.waiting .sj-list {
+		border-color: transparent;
+		color: var(--ink);
 	}
 	.row {
 		display: flex;
 		align-items: center;
 		gap: var(--space-3);
 		inline-size: 100%;
-		padding: var(--space-3);
+		min-block-size: 52px;
+		padding: var(--space-3) var(--space-4);
 		border: 0;
-		border-block-start: 1px solid var(--line);
 		background: none;
 		color: var(--ink);
 		font: inherit;
 		text-align: start;
 		cursor: pointer;
+	}
+	.row + .row,
+	.subgroup + .row {
+		border-block-start: 1px solid var(--line);
 	}
 	.row:hover {
 		background: var(--hover-veil);
@@ -152,17 +224,35 @@
 	}
 	.subgroup {
 		margin: 0;
-		padding: var(--space-2) var(--space-3) var(--space-1);
-		border-block-start: 1px solid var(--line);
+		padding: var(--space-2) var(--space-4) var(--space-1);
 		color: var(--ink-muted);
 		font-weight: 600;
 	}
-	.name {
+	.row + .subgroup {
+		border-block-start: 1px solid var(--line);
+	}
+	.who {
 		flex: 1;
-		font-weight: 500;
+		display: flex;
+		align-items: baseline;
+		gap: var(--space-2);
+		min-inline-size: 0;
+	}
+	.name {
+		font-weight: 600;
+	}
+	.level {
+		font-size: 13px;
+		color: var(--ink-muted);
 	}
 	.horse {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
 		font-weight: 600;
+	}
+	.horse :global(.sj-icon) {
+		color: var(--ink-muted);
 	}
 	.pick {
 		color: var(--accent);
