@@ -29,54 +29,64 @@
 	}
 </script>
 
-<div class="week">
-	<a
-		class="sj-btn sj-btn--quiet sj-btn--icon"
-		href={resolve(`/(academy)/(staff)/board?date=${shift(current, -7)}`)}
-		aria-label={m.board_week_prev({}, { locale })}
-	>
-		<Icon name="chevron_left" directional />
-	</a>
-	<span class="range">{week}</span>
-	<a
-		class="sj-btn sj-btn--quiet sj-btn--icon"
-		href={resolve(`/(academy)/(staff)/board?date=${shift(current, 7)}`)}
-		aria-label={m.board_week_next({}, { locale })}
-	>
-		<Icon name="chevron_right" directional />
-	</a>
-</div>
-<nav class="days" aria-label={m.board_days({}, { locale })}>
-	{#each days as day (day.date)}
+<div class="strip">
+	<div class="week">
 		<a
-			class={['day', day.date === current && 'current']}
-			href={resolve(`/(academy)/(staff)/board?date=${day.date}`)}
-			aria-current={day.date === current ? 'date' : undefined}
-			aria-label={label(day)}
+			class="sj-btn sj-btn--quiet sj-btn--icon"
+			href={resolve(`/(academy)/(staff)/board?date=${shift(current, -7)}`)}
+			aria-label={m.board_week_prev({}, { locale })}
 		>
-			<span class="weekday" aria-hidden="true">{formatWeekday(day.date, locale)}</span>
-			<span class="number" aria-hidden="true">{Number(day.date.slice(8))}</span>
-			<span class={['riders', day.riders > 0 && 'booked']} aria-hidden="true">
-				{#if day.riders > 0}<Icon name="group" size={20} />{day.riders}{:else}–{/if}
-			</span>
+			<Icon name="chevron_left" directional />
 		</a>
-	{/each}
-</nav>
+		<span class="range">{week}</span>
+		<a
+			class="sj-btn sj-btn--quiet sj-btn--icon"
+			href={resolve(`/(academy)/(staff)/board?date=${shift(current, 7)}`)}
+			aria-label={m.board_week_next({}, { locale })}
+		>
+			<Icon name="chevron_right" directional />
+		</a>
+	</div>
+	<nav class="days" aria-label={m.board_days({}, { locale })}>
+		{#each days as day (day.date)}
+			<a
+				class={['day', day.date === current && 'current']}
+				href={resolve(`/(academy)/(staff)/board?date=${day.date}`)}
+				aria-current={day.date === current ? 'date' : undefined}
+				aria-label={label(day)}
+			>
+				<span class="weekday" aria-hidden="true">{formatWeekday(day.date, locale)}</span>
+				<span class="number" aria-hidden="true">{Number(day.date.slice(8))}</span>
+				<span class={['riders', day.riders > 0 && 'booked']} aria-hidden="true">
+					{#if day.riders > 0}<Icon name="group" size={20} />{day.riders}{:else}–{/if}
+				</span>
+			</a>
+		{/each}
+	</nav>
+</div>
 
 <style>
+	/* Day cells share the time pills' width and spacing, so both strips line up on wide screens. */
+	.strip {
+		--cell: 88px;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		inline-size: 100%;
+		max-inline-size: calc(7 * var(--cell) + 6 * var(--space-2));
+	}
 	.week {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		margin-block-end: calc(-1 * var(--space-4));
 	}
 	.range {
 		font-weight: 600;
 	}
 	.days {
 		display: grid;
-		grid-template-columns: repeat(7, 1fr);
-		gap: var(--space-1);
+		grid-template-columns: repeat(7, minmax(0, 1fr));
+		gap: var(--space-2);
 	}
 	.day {
 		display: flex;

@@ -30,6 +30,7 @@
 	}: Props = $props();
 
 	const groups = $derived(groupByArena(session));
+	const waiting = $derived(groups.find((g) => !g.arena));
 
 	function horseLabel(rider: BoardRider) {
 		if (rider.horseSource === 'own') return rider.ownHorseName ?? '';
@@ -40,60 +41,63 @@
 {#if session.riders.length === 0}
 	<EmptyState icon="event_available" title={m.board_no_riders({}, { locale })} />
 {:else}
-	{#each groups as group (group.arena?.id ?? 'unplaced')}
-		{#if group.arena}
-			{@const arena = group.arena}
-			{@const taken = arena.capacity - arena.placesLeft}
-			<section class="arena">
-				<div class="head">
-					<h2 class="sj-heading">{arena.name}</h2>
-					<span class="count">
-						<Icon name="group" size={20} />
-						<span aria-hidden="true"
-							>{m.board_arena_count({ count: taken, capacity: arena.capacity }, { locale })}</span
-						>
-						<span class="sj-visually-hidden"
-							>{m.board_arena_count_label(
-								{ count: taken, capacity: arena.capacity },
-								{ locale }
-							)}</span
-						>
-					</span>
-					<span class="grow"></span>
-					{#if session.editable}
-						<button
-							type="button"
-							class="sj-btn sj-btn--quiet trainer"
-							onclick={() => ontrainer(arena)}
-						>
-							<span class="sj-visually-hidden"
-								>{m.board_trainer_named({ arena: arena.name }, { locale })}</span
+	{#if waiting}
+		<section class="waiting">
+			<div class="head">
+				<Icon name="pending_actions" size={20} />
+				<h2 class="waiting-title">{waitingText(waiting.riders.length, locale)}</h2>
+				{@render waitingAction?.()}
+			</div>
+			{@render riders(null, waiting.riders)}
+		</section>
+	{/if}
+	<div class="arenas">
+		{#each groups.filter((g) => g.arena) as group (group.arena?.id)}
+			{#if group.arena}
+				{@const arena = group.arena}
+				{@const taken = arena.capacity - arena.placesLeft}
+				<section class="arena">
+					<div class="head">
+						<h2 class="sj-heading">{arena.name}</h2>
+						<span class="count">
+							<Icon name="group" size={20} />
+							<span aria-hidden="true"
+								>{m.board_arena_count({ count: taken, capacity: arena.capacity }, { locale })}</span
 							>
-							<Icon name={arena.trainer ? 'person' : 'person_add'} size={20} />
-							<bdi>{arena.trainer?.name ?? m.board_add_trainer({}, { locale })}</bdi>
-						</button>
-					{:else}
-						<span class="trainer-name sj-small">
-							<Icon name="person" size={20} />
-							<bdi>{arena.trainer?.name ?? m.board_no_trainer({}, { locale })}</bdi>
+							<span class="sj-visually-hidden"
+								>{m.board_arena_count_label(
+									{ count: taken, capacity: arena.capacity },
+									{ locale }
+								)}</span
+							>
 						</span>
+						<span class="grow"></span>
+						{#if session.editable}
+							<button
+								type="button"
+								class="sj-btn sj-btn--quiet trainer"
+								onclick={() => ontrainer(arena)}
+							>
+								<span class="sj-visually-hidden"
+									>{m.board_trainer_named({ arena: arena.name }, { locale })}</span
+								>
+								<Icon name={arena.trainer ? 'person' : 'person_add'} size={20} />
+								<bdi>{arena.trainer?.name ?? m.board_add_trainer({}, { locale })}</bdi>
+							</button>
+						{:else}
+							<span class="trainer-name sj-small">
+								<Icon name="person" size={20} />
+								<bdi>{arena.trainer?.name ?? m.board_no_trainer({}, { locale })}</bdi>
+							</span>
+						{/if}
+					</div>
+					{#if group.riders.length > 0}
+						{@render riders(arena, group.riders)}
 					{/if}
-				</div>
-				{#if group.riders.length > 0}
-					{@render riders(arena, group.riders)}
-				{/if}
-			</section>
-		{:else}
-			<section class="waiting">
-				<div class="head">
-					<Icon name="pending_actions" size={20} />
-					<h2 class="waiting-title">{waitingText(group.riders.length, locale)}</h2>
-					{@render waitingAction?.()}
-				</div>
-				{@render riders(null, group.riders)}
-			</section>
-		{/if}
-	{/each}
+				</section>
+			{/if}
+		{/each}
+	</div>
 {/if}
 
 {#snippet riders(arena: BoardArena | null, list: BoardRider[])}
@@ -155,6 +159,16 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-2);
+	}
+	.arenas {
+		display: grid;
+		gap: var(--space-6);
+		align-items: start;
+	}
+	@media (min-width: 720px) {
+		.arenas {
+			grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+		}
 	}
 	.head {
 		display: flex;
