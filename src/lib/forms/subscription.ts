@@ -75,7 +75,7 @@ type CountForms = {
 };
 
 /** Arabic counts one, two, three to ten, and eleven up differently. */
-function countText(n: number, forms: CountForms): string {
+export function countText(n: number, forms: CountForms): string {
 	if (n === 1) return forms.one();
 	if (n === 2) return forms.two();
 	return n <= 10 ? forms.few(n) : forms.many(n);

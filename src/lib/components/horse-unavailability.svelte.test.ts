@@ -21,7 +21,8 @@ const horse = (unavailability: Horse['unavailability']): Horse => ({
 	notes: null,
 	isActive: true,
 	unavailableToday: false,
-	unavailability
+	unavailability,
+	lastWeekSessions: 0
 });
 
 const range = (id: string, from: string, to: string, reason: string | null = null) => ({
@@ -45,7 +46,7 @@ describe('HorseUnavailability', () => {
 			onchange: () => {}
 		});
 
-		await expect.element(screen.getByRole('heading', { name: 'Unavailable dates' })).toBeVisible();
+		await expect.element(screen.getByRole('heading')).not.toBeInTheDocument();
 		await expect.element(screen.getByText('20 November 2026')).toBeVisible();
 		await expect.element(screen.getByText('Shoeing')).toBeVisible();
 		await expect.element(screen.getByText('Earlier (1)')).toBeVisible();

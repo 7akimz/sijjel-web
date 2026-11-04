@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { academyMark, localName } from '#lib/academy.js';
 	import { rangeLabel } from '#lib/forms/horse.js';
+	import { lastWeekLine } from '#lib/forms/horse-rides.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Button, EmptyState, StatusChip } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -69,7 +70,7 @@
 								{#if !horse.isActive}<StatusChip tone="stone">{m.horse_inactive()}</StatusChip>{/if}
 							</span>
 							<span class="sj-small sj-muted">
-								{m.horses_sessions_per_day({ count: horse.maxSessionsPerDay })}
+								{lastWeekLine(horse.lastWeekSessions, horse.maxSessionsPerDay, data.locale)}
 							</span>
 						</span>
 					</a>

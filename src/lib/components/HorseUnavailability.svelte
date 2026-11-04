@@ -107,14 +107,13 @@
 {/snippet}
 
 <section class="sj-stack section">
-	<div class="section-head">
-		<h2 class="sj-heading">{m.horse_unavailable_title({}, { locale })}</h2>
-		{#if !adding}
+	{#if !adding}
+		<div>
 			<Button variant="secondary" icon="event_busy" onclick={open}>
 				{m.horse_unavailable_mark({}, { locale })}
 			</Button>
-		{/if}
-	</div>
+		</div>
+	{/if}
 
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 
@@ -159,13 +158,6 @@
 <style>
 	.section {
 		gap: var(--space-2);
-	}
-	.section-head {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--space-3);
 	}
 	ul {
 		margin: 0;

@@ -103,6 +103,38 @@ export interface Horse {
 	isActive: boolean;
 	unavailableToday: boolean;
 	unavailability: Unavailable[];
+	/** Rides that have started today and in the 6 days before. */
+	lastWeekSessions: number;
+}
+
+export interface HorseRide {
+	bookingId: string;
+	memberId: string;
+	riderName: string;
+	start: string;
+	arenaName: string | null;
+	trainerName: string | null;
+	note: string | null;
+}
+
+export interface HorseRideDay {
+	date: string;
+	rides: HorseRide[];
+}
+
+export interface HorseLoad {
+	sessions: number;
+	/** Days that reached the horse's daily limit. */
+	fullDays: number;
+}
+
+export interface HorseRides {
+	/** Null for a horse with no daily limit. */
+	maxPerDay: number | null;
+	lastWeek: HorseLoad;
+	days: HorseRideDay[];
+	/** The date to ask for older rides with, or null when there are none. */
+	before: string | null;
 }
 
 export interface HorseInput {

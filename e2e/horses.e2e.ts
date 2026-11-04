@@ -8,7 +8,7 @@ import {
 	signUpOwner
 } from './helpers';
 
-test("an owner marks a horse unavailable and edits its details from the horse's page", async ({
+test("an owner marks a horse unavailable, edits its details and opens its rides from the horse's page", async ({
 	page,
 	browser
 }) => {
@@ -20,6 +20,7 @@ test("an owner marks a horse unavailable and edits its details from the horse's 
 	await setUpAcademy(owner, slug);
 
 	await owner.goto(academyUrl(slug, '/horses'));
+	await expect(owner.getByText(/Last 7 days: no sessions · up to \d a day/).first()).toBeVisible();
 	await owner.getByRole('link', { name: /Zahra/ }).click();
 	await expect(owner.getByRole('heading', { name: 'Zahra', level: 1 })).toBeVisible();
 	await expect(owner.getByLabel('Name')).not.toBeVisible();
@@ -41,5 +42,12 @@ test("an owner marks a horse unavailable and edits its details from the horse's 
 	await expect(owner.getByRole('heading', { name: 'Zahra', level: 1 })).toBeVisible();
 	await expect(owner.getByText('Horse saved.')).toBeVisible();
 	await expect(owner.getByText('Up to 2 sessions a day')).toBeVisible();
+	await expect(owner.getByText('Shoeing')).toBeVisible();
+
+	await owner.getByRole('link', { name: 'Rides' }).click();
+	await expect(owner.getByRole('link', { name: 'Rides' })).toHaveAttribute('aria-current', 'page');
+	await expect(owner.getByText('Last 7 days · No sessions')).toBeVisible();
+	await expect(owner.getByText('No rides yet.')).toBeVisible();
+	await owner.getByRole('link', { name: 'Unavailable dates' }).click();
 	await expect(owner.getByText('Shoeing')).toBeVisible();
 });
