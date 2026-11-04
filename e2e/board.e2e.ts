@@ -83,6 +83,7 @@ test('staff plan a session: place a rider, suggest a horse, set trainers and not
 	}
 
 	await owner.goto(academyUrl(slug, `/board?date=${slot.date}&start=${slot.start}`));
+	await expect(owner.getByRole('link', { name: `${slot.start} 2 riders` })).toBeVisible();
 	await expect(owner.getByRole('heading', { name: 'Not placed' })).toBeVisible();
 	await expect(owner.getByRole('button', { name: /Layla.*Pick horse/ })).toBeVisible();
 	await expect(owner.getByRole('button', { name: /Sara.*Pick horse/ })).toBeVisible();

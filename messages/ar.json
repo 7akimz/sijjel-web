@@ -534,6 +534,22 @@
 	"board_title": "لوحة التخطيط",
 	"board_date": "اليوم",
 	"board_times": "الحصص",
+	"board_time_riders": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=zero": "لا فرسان",
+				"countPlural=one": "فارس واحد",
+				"countPlural=two": "فارسان",
+				"countPlural=few": "{count} فرسان",
+				"countPlural=many": "{count} فارسًا",
+				"countPlural=other": "{count} فارس"
+			}
+		}
+	],
+	"board_time_empty": "لا فرسان",
+	"board_time_problem": "تحتاج إلى متابعة",
 	"board_not_placed": "بدون ساحة",
 	"board_no_trainer": "بدون مدرّب",
 	"board_pick_horse": "اختر حصانًا",
@@ -568,7 +584,7 @@
 	"board_horse_unavailable": "غير متاح اليوم",
 	"board_horse_unsuitable": "غير مناسب لهذا الفارس",
 	"board_problem_horse_unavailable": "هذا الحصان غير متاح اليوم.",
-	"board_problem_horse_unsuitable": "هذا الحصان لم يعد يناسب مستوى الفارس أو وزنه.",
+	"board_problem_horse_unsuitable": "هذا الحصان لم يعد يناسب مستوى الفارس.",
 	"board_problem_arena_full": "في هذه الساحة فرسان أكثر من أماكنها.",
 	"board_problem_arena_inactive": "هذه الساحة مغلقة.",
 	"board_problem_no_workable_horse": "لا يوجد حصان متاح يناسب هذا الفارس في هذه الحصة.",

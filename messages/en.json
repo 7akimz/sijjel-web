@@ -534,6 +534,18 @@
 	"board_title": "Planning board",
 	"board_date": "Day",
 	"board_times": "Sessions",
+	"board_time_riders": [
+		{
+			"declarations": ["input count", "local countPlural = count: plural"],
+			"selectors": ["countPlural"],
+			"match": {
+				"countPlural=one": "{count} rider",
+				"countPlural=other": "{count} riders"
+			}
+		}
+	],
+	"board_time_empty": "No riders",
+	"board_time_problem": "Needs attention",
 	"board_not_placed": "Not placed",
 	"board_no_trainer": "No trainer",
 	"board_pick_horse": "Pick horse",
@@ -568,7 +580,7 @@
 	"board_horse_unavailable": "Unavailable today",
 	"board_horse_unsuitable": "Not for this rider",
 	"board_problem_horse_unavailable": "This horse is unavailable today.",
-	"board_problem_horse_unsuitable": "This horse no longer suits the rider's level or weight.",
+	"board_problem_horse_unsuitable": "This horse no longer suits the rider's level.",
 	"board_problem_arena_full": "This arena has more riders than places.",
 	"board_problem_arena_inactive": "This arena is closed.",
 	"board_problem_no_workable_horse": "No free horse suits this rider in this session.",

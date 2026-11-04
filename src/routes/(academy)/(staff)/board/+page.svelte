@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import BoardPlanner from '#lib/components/BoardPlanner.svelte';
+	import BoardTimes from '#lib/components/BoardTimes.svelte';
 	import { isAcademyAdmin } from '#lib/academy/admin.js';
 	import type { BoardSession } from '#lib/api/board-types.js';
 	import { m } from '#lib/paraglide/messages.js';
@@ -11,15 +12,6 @@
 	let { data }: PageProps = $props();
 
 	let session = $derived<BoardSession | null>(data.session);
-	// The selected time can sit far along the row on a phone, so bring it into view.
-	function showCurrent(link: HTMLElement, current: boolean) {
-		if (current) link.scrollIntoView({ block: 'nearest', inline: 'center' });
-		return {
-			update(now: boolean) {
-				if (now) link.scrollIntoView({ block: 'nearest', inline: 'center' });
-			}
-		};
-	}
 
 	function changeDate(event: Event) {
 		const value = (event.currentTarget as HTMLInputElement).value;
@@ -54,19 +46,12 @@
 		{#if session.times.length === 0}
 			<EmptyState icon="event_busy" title={m.board_no_sessions()} />
 		{:else}
-			<nav class="times" aria-label={m.board_times()}>
-				{#each session.times as time (time.start)}
-					<a
-						class={['time', time.start === session.start && 'current']}
-						href={resolve(`/(academy)/(staff)/board?date=${session.date}&start=${time.start}`)}
-						aria-current={time.start === session.start ? 'true' : undefined}
-						use:showCurrent={time.start === session.start}
-					>
-						<span dir="ltr">{time.start}</span>
-						{#if time.hasProblem}<i class="dot" aria-hidden="true"></i>{/if}
-					</a>
-				{/each}
-			</nav>
+			<BoardTimes
+				times={session.times}
+				date={session.date}
+				current={session.start}
+				locale={data.locale}
+			/>
 
 			<p class="sj-muted sj-small" dir="ltr">{session.start} – {session.end}</p>
 			<BoardPlanner {session} locale={data.locale} onsession={(next) => (session = next)} />
@@ -86,36 +71,5 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-1);
-	}
-	.times {
-		display: flex;
-		gap: var(--space-2);
-		overflow-x: auto;
-		padding-block: var(--space-1);
-	}
-	.time {
-		position: relative;
-		padding: var(--space-2) var(--space-3);
-		border-radius: 999px;
-		border: 1px solid var(--line);
-		background: var(--surface);
-		color: var(--ink);
-		font-weight: 600;
-		text-decoration: none;
-		white-space: nowrap;
-	}
-	.time.current {
-		background: var(--accent);
-		border-color: var(--accent);
-		color: var(--on-accent);
-	}
-	.dot {
-		position: absolute;
-		inset-block-start: 3px;
-		inset-inline-end: 5px;
-		inline-size: 7px;
-		block-size: 7px;
-		border-radius: 50%;
-		background: var(--brass);
 	}
 </style>
