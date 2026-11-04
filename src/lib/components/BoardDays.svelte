@@ -66,14 +66,10 @@
 </div>
 
 <style>
-	/* Day cells share the time pills' width and spacing, so both strips line up on wide screens. */
 	.strip {
-		--cell: 88px;
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-2);
-		inline-size: 100%;
-		max-inline-size: calc(7 * var(--cell) + 6 * var(--space-2));
 	}
 	.week {
 		display: flex;

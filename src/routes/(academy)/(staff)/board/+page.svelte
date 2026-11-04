@@ -20,7 +20,7 @@
 	<title>{m.board_title()}</title>
 </svelte:head>
 
-<div class="sj-page">
+<div class="sj-page board">
 	{#if !session}
 		<h1 class="sj-title">{m.board_title()}</h1>
 		<EmptyState icon="lock" title={m.board_setup_title()}>
@@ -65,6 +65,10 @@
 </div>
 
 <style>
+	/* One column about as wide as a day of session times keeps the strips and arenas together. */
+	.board {
+		max-inline-size: 792px;
+	}
 	.top {
 		display: flex;
 		align-items: center;

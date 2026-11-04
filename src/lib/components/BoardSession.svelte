@@ -165,11 +165,6 @@
 		gap: var(--space-6);
 		align-items: start;
 	}
-	@media (min-width: 720px) {
-		.arenas {
-			grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-		}
-	}
 	.head {
 		display: flex;
 		align-items: center;
