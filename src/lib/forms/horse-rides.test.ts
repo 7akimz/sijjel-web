@@ -3,15 +3,15 @@ import { daySessionsText, isFullDay, lastWeekLine, rideDayLabel, weekSummary } f
 
 describe('lastWeekLine', () => {
 	it('gives the horses list the sessions of the last 7 days and the daily limit', () => {
-		expect(lastWeekLine(5, 2, 'en')).toBe('Last 7 days: 5 sessions · up to 2 a day');
-		expect(lastWeekLine(1, 3, 'en')).toBe('Last 7 days: 1 session · up to 3 a day');
-		expect(lastWeekLine(0, 3, 'en')).toBe('Last 7 days: no sessions · up to 3 a day');
+		expect(lastWeekLine(5, 2, 'en')).toBe('Last 7 days: 5 sessions · limit 2 a day');
+		expect(lastWeekLine(1, 3, 'en')).toBe('Last 7 days: 1 session · limit 3 a day');
+		expect(lastWeekLine(0, 3, 'en')).toBe('Last 7 days: no sessions · limit 3 a day');
 	});
 
 	it('uses the Arabic plural forms', () => {
-		expect(lastWeekLine(5, 2, 'ar')).toBe('آخر 7 أيام: 5 حصص · حتى 2 حصص في اليوم');
-		expect(lastWeekLine(11, 2, 'ar')).toBe('آخر 7 أيام: 11 حصة · حتى 2 حصص في اليوم');
-		expect(lastWeekLine(0, 2, 'ar')).toBe('آخر 7 أيام: لا حصص · حتى 2 حصص في اليوم');
+		expect(lastWeekLine(5, 2, 'ar')).toBe('آخر 7 أيام: 5 حصص · الحد اليومي: 2');
+		expect(lastWeekLine(11, 2, 'ar')).toBe('آخر 7 أيام: 11 حصة · الحد اليومي: 2');
+		expect(lastWeekLine(0, 2, 'ar')).toBe('آخر 7 أيام: لا حصص · الحد اليومي: 2');
 	});
 });
 

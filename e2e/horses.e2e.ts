@@ -20,7 +20,7 @@ test("an owner marks a horse unavailable, edits its details and opens its rides 
 	await setUpAcademy(owner, slug);
 
 	await owner.goto(academyUrl(slug, '/horses'));
-	await expect(owner.getByText(/Last 7 days: no sessions · up to \d a day/).first()).toBeVisible();
+	await expect(owner.getByText(/Last 7 days: no sessions · limit \d a day/).first()).toBeVisible();
 	await owner.getByRole('link', { name: /Zahra/ }).click();
 	await expect(owner.getByRole('heading', { name: 'Zahra', level: 1 })).toBeVisible();
 	await expect(owner.getByLabel('Name')).not.toBeVisible();
@@ -41,7 +41,7 @@ test("an owner marks a horse unavailable, edits its details and opens its rides 
 
 	await expect(owner.getByRole('heading', { name: 'Zahra', level: 1 })).toBeVisible();
 	await expect(owner.getByText('Horse saved.')).toBeVisible();
-	await expect(owner.getByText('Up to 2 sessions a day')).toBeVisible();
+	await expect(owner.getByText('Limit: 2 sessions a day')).toBeVisible();
 	await expect(owner.getByText('Shoeing')).toBeVisible();
 
 	await owner.getByRole('link', { name: 'Rides' }).click();

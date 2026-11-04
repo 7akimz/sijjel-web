@@ -32,7 +32,7 @@ function fullDaysText(n: number, locale: Locale): string {
 	});
 }
 
-/** The horses list line: "Last 7 days: 5 sessions · up to 2 a day". */
+/** The horses list line: "Last 7 days: 5 sessions · limit 2 a day". */
 export function lastWeekLine(sessions: number, max: number, locale: Locale): string {
 	const text =
 		sessions === 0 ? m.horses_last_week_none({}, { locale }) : sessionsText(sessions, locale);
