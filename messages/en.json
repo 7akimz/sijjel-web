@@ -781,5 +781,19 @@
 	"member_left_notice": "Marked as left.",
 	"membership_left": "You're no longer a member here.",
 	"error_member_left": "This member has left the academy.",
-	"invite_ask_reactivate": "You already have a membership here. Ask the academy to reactivate it."
+	"invite_ask_reactivate": "You already have a membership here. Ask the academy to reactivate it.",
+	"rider_tabs": "Rider details",
+	"rider_tab_profile": "Profile",
+	"rider_tab_rides": "Rides",
+	"rider_rides_none": "No rides yet.",
+	"rider_rides_month_none": "No rides yet",
+	"rider_rides_loading": "Loading rides…",
+	"rider_rides_count_one": "1 ride",
+	"rider_rides_count_two": "2 rides",
+	"rider_rides_count_few": "{count} rides",
+	"rider_rides_count_many": "{count} rides",
+	"rider_rides_notes_one": "1 note",
+	"rider_rides_notes_two": "2 notes",
+	"rider_rides_notes_few": "{count} notes",
+	"rider_rides_notes_many": "{count} notes"
 }

@@ -170,3 +170,23 @@ export interface AffectedBooking {
 	date: string;
 	startTime: string;
 }
+
+export type RiderRide = {
+	bookingId: string;
+	date: string;
+	start: string;
+	/** Null while no horse has been assigned. */
+	horseName: string | null;
+	trainerName: string | null;
+	note: string | null;
+};
+
+export type RiderRideMonth = { month: string; rides: number; notes: number };
+
+export type RiderRides = {
+	/** Every month with a ride, newest first. */
+	months: RiderRideMonth[];
+	/** The month `rides` come from, or null when the rider has no rides. */
+	month: string | null;
+	rides: RiderRide[];
+};

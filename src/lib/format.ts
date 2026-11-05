@@ -24,6 +24,22 @@ export function formatMonth(iso: string, locale: Locale): string {
 	);
 }
 
+/** "October 2026". */
+export function formatMonthYear(iso: string, locale: Locale): string {
+	return new Intl.DateTimeFormat(intlLocale(locale), {
+		month: 'long',
+		year: 'numeric',
+		timeZone: 'UTC'
+	}).format(new Date(iso));
+}
+
+/** "29": the day of the month. */
+export function formatDayNumber(iso: string, locale: Locale): string {
+	return new Intl.DateTimeFormat(intlLocale(locale), { day: 'numeric', timeZone: 'UTC' }).format(
+		new Date(iso)
+	);
+}
+
 /** "Wed": the short weekday name. */
 export function formatWeekday(iso: string, locale: Locale): string {
 	return new Intl.DateTimeFormat(intlLocale(locale), { weekday: 'short', timeZone: 'UTC' }).format(

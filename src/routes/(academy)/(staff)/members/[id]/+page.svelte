@@ -5,6 +5,7 @@
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
 	import MemberLevel from '#lib/components/MemberLevel.svelte';
 	import MonthPayment from '#lib/components/MonthPayment.svelte';
+	import RiderRides from '#lib/components/RiderRides.svelte';
 	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
@@ -35,6 +36,11 @@
 	const owes = $derived(showFee && !member.paidThisMonth);
 	const monthName = $derived(data.month ? formatMonth(`${data.month}-01`, data.locale) : '');
 	const bookVariant = $derived(owes ? ('secondary' as const) : ('primary' as const));
+	const profileHref = $derived(resolve('/(academy)/(staff)/members/[id]', { id: member.id }));
+	const tabs = $derived([
+		{ id: 'profile', label: m.rider_tab_profile(), href: profileHref },
+		{ id: 'rides', label: m.rider_tab_rides(), href: `${profileHref}?tab=rides` }
+	]);
 	let paying = $state(false);
 
 	function clear() {
@@ -186,6 +192,16 @@
 		{/if}
 	</header>
 
+	<nav class="tabs" aria-label={m.rider_tabs()}>
+		{#each tabs as tab (tab.id)}
+			<!-- Each href is the resolved profile route, with the Rides view in the query. -->
+			<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+			<a class="tab" href={tab.href} aria-current={data.tab === tab.id ? 'page' : undefined}>
+				{tab.label}
+			</a>
+		{/each}
+	</nav>
+
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 	{#if affected}
@@ -198,7 +214,13 @@
 		/>
 	{/if}
 
-	{#if owes && data.month}
+	{#if data.tab === 'rides' && data.rides}
+		{#key member.id}
+			<RiderRides memberId={member.id} rides={data.rides} today={data.today} locale={data.locale} />
+		{/key}
+	{/if}
+
+	{#if data.tab === 'profile' && owes && data.month}
 		<MonthPayment
 			month={data.month}
 			amount={member.plan?.monthlyPrice ?? null}
@@ -209,7 +231,7 @@
 		/>
 	{/if}
 
-	{#if isRider}
+	{#if data.tab === 'profile' && isRider}
 		<section class="sj-stack section">
 			<div class="section-head">
 				<h2 class="sj-heading">{m.member_bookings()}</h2>
@@ -254,7 +276,7 @@
 		</section>
 	{/if}
 
-	{#if wasRider}
+	{#if data.tab === 'profile' && wasRider}
 		<MemberLevel
 			{member}
 			disciplines={data.disciplines}
@@ -287,6 +309,29 @@
 	}
 	.section {
 		gap: var(--space-2);
+	}
+	.tabs {
+		display: flex;
+		gap: var(--space-4);
+		border-block-end: 1px solid var(--line);
+	}
+	.tab {
+		display: inline-flex;
+		align-items: center;
+		min-block-size: 44px;
+		margin-block-end: -1px;
+		border-block-end: 2px solid transparent;
+		color: var(--ink-muted);
+		font-weight: 500;
+		text-decoration: none;
+	}
+	.tab:hover {
+		color: var(--ink);
+	}
+	.tab[aria-current='page'] {
+		border-color: var(--accent);
+		color: var(--ink);
+		font-weight: 600;
 	}
 	.section-head {
 		display: flex;

@@ -781,5 +781,19 @@
 	"member_left_notice": "سُجّل أنه غادر الأكاديمية.",
 	"membership_left": "لم تعد عضوًا هنا.",
 	"error_member_left": "غادر هذا العضو الأكاديمية.",
-	"invite_ask_reactivate": "لديك عضوية هنا بالفعل. اطلب من الأكاديمية إعادة تفعيلها."
+	"invite_ask_reactivate": "لديك عضوية هنا بالفعل. اطلب من الأكاديمية إعادة تفعيلها.",
+	"rider_tabs": "تفاصيل الفارس",
+	"rider_tab_profile": "الملف الشخصي",
+	"rider_tab_rides": "الحصص",
+	"rider_rides_none": "لا حصص بعد.",
+	"rider_rides_month_none": "لا حصص بعد",
+	"rider_rides_loading": "جارٍ تحميل الحصص…",
+	"rider_rides_count_one": "الحصص: 1",
+	"rider_rides_count_two": "الحصص: 2",
+	"rider_rides_count_few": "الحصص: {count}",
+	"rider_rides_count_many": "الحصص: {count}",
+	"rider_rides_notes_one": "الملاحظات: 1",
+	"rider_rides_notes_two": "الملاحظات: 2",
+	"rider_rides_notes_few": "الملاحظات: {count}",
+	"rider_rides_notes_many": "الملاحظات: {count}"
 }

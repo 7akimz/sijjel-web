@@ -62,6 +62,13 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 	await owner.getByRole('link', { name: /^Layla Hassan/ }).click();
 	await expect(owner.getByRole('heading', { name: 'Layla Hassan' })).toBeVisible();
 	await expect(owner.getByRole('textbox', { name: /^(Your name|Name)$/ })).toHaveCount(0);
+	await owner.getByRole('link', { name: 'Rides', exact: true }).click();
+	await expect(owner.getByRole('link', { name: 'Rides', exact: true })).toHaveAttribute(
+		'aria-current',
+		'page'
+	);
+	await expect(owner.getByText('No rides yet.')).toBeVisible();
+	await expect(owner.getByRole('heading', { name: 'Upcoming bookings' })).toHaveCount(0);
 
 	await owner.goto(academyUrl(slug, '/settings/staff'));
 	await owner.getByRole('link', { name: 'Invite staff' }).click();
