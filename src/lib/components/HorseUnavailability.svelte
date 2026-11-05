@@ -167,6 +167,9 @@
 	.strong {
 		font-weight: 600;
 	}
+	.sj-list__main > .strong {
+		white-space: normal;
+	}
 	summary {
 		cursor: pointer;
 		color: var(--ink-muted);

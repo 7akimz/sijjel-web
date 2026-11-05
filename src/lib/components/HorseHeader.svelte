@@ -54,9 +54,9 @@
 	/>
 </header>
 
-<nav class="sj-row" aria-label={m.horse_tabs()}>
+<nav class="tabs" aria-label={m.horse_tabs()}>
 	{#each tabs as tab (tab.id)}
-		<a class="filter" href={tab.href} aria-current={current === tab.id ? 'page' : undefined}>
+		<a class="tab" href={tab.href} aria-current={current === tab.id ? 'page' : undefined}>
 			{tab.label}
 		</a>
 	{/each}
@@ -78,20 +78,27 @@
 	.who p {
 		margin: 0;
 	}
-	.filter {
+	.tabs {
+		display: flex;
+		gap: var(--space-4);
+		border-block-end: 1px solid var(--line);
+	}
+	.tab {
 		display: inline-flex;
 		align-items: center;
 		min-block-size: 44px;
-		padding-inline: var(--space-4);
-		border: 1px solid var(--line-strong);
-		border-radius: 999px;
-		color: inherit;
+		margin-block-end: -1px;
+		border-block-end: 2px solid transparent;
+		color: var(--ink-muted);
+		font-weight: 500;
 		text-decoration: none;
 	}
-	.filter[aria-current='page'] {
-		background: var(--accent-soft);
-		color: var(--on-accent-soft);
-		border-color: transparent;
+	.tab:hover {
+		color: var(--ink);
+	}
+	.tab[aria-current='page'] {
+		border-color: var(--accent);
+		color: var(--ink);
 		font-weight: 600;
 	}
 </style>

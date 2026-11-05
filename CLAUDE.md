@@ -97,21 +97,20 @@ sijjel follows its own design system, the source of truth for every screen: http
 
 Keep this list current. A new use of a pattern must mean the same thing as the uses already here.
 
-| Pattern                                            | Means                                                            | Where                                                   |
-| -------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
-| Pill links (`.filter` with `aria-current`)         | Narrow **one list** to a category; the page stays the same       | Horses by discipline, Members by role                   |
-| Day strip and time pills                           | Pick the day or time the board shows                             | Board (`BoardDays`, `BoardTimes`)                       |
-| `sj-page-head` with a labelled button              | The page's title and its main action                             | Horses "New horse", Members "Invite", Board "Select"    |
-| Quiet back button above the title                  | Go up one level                                                  | Horse page "All horses", member profile                 |
-| Whole-row link in a list                           | Open that item                                                   | Horses list, Members list, ride rows                    |
-| Row with an icon, title, description and a chevron | Go to a sub-page of settings                                     | Settings                                                |
-| `<details>` fold with a count                      | Hide the older or secondary part of the same content             | "Earlier (N)" unavailable dates, member level "History" |
-| Icon-only secondary pencil in the header           | Edit this item on its own page                                   | Horse page, member profile                              |
-| More menu (`MoreMenu`) next to the pencil          | Less frequent actions on this item, such as Mark left or Suspend | Member profile                                          |
-| `h2.sj-heading` sections, one after another        | Parts of one page, all visible                                   | Member profile                                          |
-| Bottom sheet                                       | Act on one rider or session without leaving the board            | Board rider sheet                                       |
-
-Known mismatch, to be redesigned: the horse page switches between Unavailable dates and Rides with the filter pills, although it changes the view rather than narrowing a list.
+| Pattern                                              | Means                                                            | Where                                                   |
+| ---------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
+| Pill links (`.filter` with `aria-current`)           | Narrow **one list** to a category; the page stays the same       | Horses by discipline, Members by role                   |
+| Underlined tabs (`.tabs`, links with `aria-current`) | Switch between views of one item under its header                | Horse page: Unavailable dates, Rides                    |
+| Day strip and time pills                             | Pick the day or time the board shows                             | Board (`BoardDays`, `BoardTimes`)                       |
+| `sj-page-head` with a labelled button                | The page's title and its main action                             | Horses "New horse", Members "Invite", Board "Select"    |
+| Quiet back button above the title                    | Go up one level                                                  | Horse page "All horses", member profile                 |
+| Whole-row link in a list                             | Open that item                                                   | Horses list, Members list, ride rows                    |
+| Row with an icon, title, description and a chevron   | Go to a sub-page of settings                                     | Settings                                                |
+| `<details>` fold with a count                        | Hide the older or secondary part of the same content             | "Earlier (N)" unavailable dates, member level "History" |
+| Icon-only secondary pencil in the header             | Edit this item on its own page                                   | Horse page, member profile                              |
+| More menu (`MoreMenu`) next to the pencil            | Less frequent actions on this item, such as Mark left or Suspend | Member profile                                          |
+| `h2.sj-heading` sections, one after another          | Parts of one page, all visible                                   | Member profile                                          |
+| Bottom sheet                                         | Act on one rider or session without leaving the board            | Board rider sheet                                       |
 
 ### Preview before code
 
