@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Member } from '#lib/api/member-types.js';
 import {
 	isLevelledRider,
+	isStaffOnly,
 	memberErrors,
 	memberFormFrom,
 	monthKey,
@@ -110,6 +111,15 @@ describe('isLevelledRider', () => {
 		expect(isLevelledRider(layla)).toBe(true);
 		expect(isLevelledRider({ ...layla, level: null })).toBe(false);
 		expect(isLevelledRider({ ...layla, roles: ['trainer'] })).toBe(false);
+	});
+});
+
+describe('isStaffOnly', () => {
+	it('is an admin or trainer who does not ride', () => {
+		expect(isStaffOnly({ ...layla, roles: ['admin'] })).toBe(true);
+		expect(isStaffOnly({ ...layla, roles: ['trainer', 'admin'] })).toBe(true);
+		expect(isStaffOnly({ ...layla, roles: ['trainer', 'rider'] })).toBe(false);
+		expect(isStaffOnly(layla)).toBe(false);
 	});
 });
 

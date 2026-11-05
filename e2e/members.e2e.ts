@@ -63,7 +63,8 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 	await expect(owner.getByRole('heading', { name: 'Layla Hassan' })).toBeVisible();
 	await expect(owner.getByRole('textbox', { name: /^(Your name|Name)$/ })).toHaveCount(0);
 
-	await owner.goto(academyUrl(slug, '/members/invite'));
+	await owner.goto(academyUrl(slug, '/settings/staff'));
+	await owner.getByRole('link', { name: 'Invite staff' }).click();
 	await owner.getByLabel('Who are you inviting?').selectOption({ label: 'A trainer' });
 	await owner.getByLabel('Their name').fill('Omar');
 	await owner.getByLabel('Phone (optional)').fill('1012345678');
@@ -81,6 +82,16 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 		'Omar'
 	);
 
+	await owner.goto(academyUrl(slug, '/settings/staff'));
+	await owner.getByRole('link', { name: /^Omar/ }).click();
+	await expect(owner.getByRole('heading', { name: 'Omar', level: 1 })).toBeVisible();
+	await expect(owner.getByText('The board, riders and session reminders.')).toBeVisible();
+
+	await omar.goto(academyUrl(slug, '/members'));
+	await expect(omar.getByRole('heading', { name: 'Riders', level: 1 })).toBeVisible();
+	await expect(omar.getByRole('link', { name: /^Omar/ })).toHaveCount(0);
+	await omar.goto(academyUrl(slug, '/settings/staff'));
+	await expect(omar.getByRole('link', { name: /^Omar/ })).toHaveCount(0);
 	await omar.goto(academyUrl(slug, '/members'));
 	await expect(omar.getByRole('link', { name: 'WhatsApp Layla' })).toHaveCount(0);
 	await omar.getByRole('link', { name: /^Layla/ }).click();

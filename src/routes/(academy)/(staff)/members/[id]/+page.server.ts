@@ -1,7 +1,8 @@
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { isAcademyAdmin } from '#lib/academy/admin.js';
 import type { AcademyDisciplines, BookingRules, Schedule } from '#lib/api/academy-types.js';
 import type { BookingView, Member, Plan } from '#lib/api/member-types.js';
+import { isStaffOnly } from '#lib/forms/member.js';
 import { apiLoad } from '#lib/server/api.js';
 import { academyToday } from '#lib/server/today.js';
 import type { PageServerLoad } from './$types';
@@ -19,6 +20,7 @@ export const load: PageServerLoad = async (event) => {
 		admin ? apiLoad<Schedule>(event, '/api/academy/schedule') : null,
 		admin ? apiLoad<BookingRules>(event, '/api/academy/booking-rules') : null
 	]);
+	if (isStaffOnly(member)) redirect(307, `/settings/staff/${encodeURIComponent(member.id)}`);
 	const month = schedule ? academyToday(schedule.timeZone).slice(0, 7) : null;
 	const today = academyToday(tenant.academy.timeZone);
 	return {

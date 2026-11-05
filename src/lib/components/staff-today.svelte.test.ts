@@ -34,7 +34,7 @@ describe('StaffToday', () => {
 			.toHaveAttribute('href', expect.stringMatching(/\/board\?date=2026-10-25&start=18:00$/));
 		await expect.element(screen.getByRole('link', { name: /17:30/ })).not.toBeInTheDocument();
 		await expect.element(screen.getByRole('link', { name: 'Open the board' })).toBeVisible();
-		await expect.element(screen.getByRole('link', { name: 'Invite someone' })).toBeVisible();
+		await expect.element(screen.getByRole('link', { name: 'Invite rider' })).toBeVisible();
 	});
 
 	it('says so when nobody is booked today, and gives trainers no invite button', async () => {
@@ -47,7 +47,7 @@ describe('StaffToday', () => {
 		await expect.element(screen.getByText('No riders booked today.')).toBeVisible();
 		await expect.element(screen.getByRole('link', { name: 'Open the board' })).toBeVisible();
 		await expect
-			.element(screen.getByRole('link', { name: 'Invite someone' }))
+			.element(screen.getByRole('link', { name: 'Invite rider' }))
 			.not.toBeInTheDocument();
 	});
 

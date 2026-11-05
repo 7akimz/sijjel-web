@@ -1,88 +1,30 @@
 <script lang="ts">
 	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
-	import { untrack } from 'svelte';
 	import { resolve } from '$app/paths';
-	import InviteShareCard from '#lib/components/InviteShareCard.svelte';
+	import PendingInvites from '#lib/components/PendingInvites.svelte';
 	import { inactiveLabel } from '#lib/forms/member.js';
-	import { academyMark, academyName, localName, roleName } from '#lib/academy.js';
-	import { api } from '#lib/api/client.js';
-	import { ApiError, errorText } from '#lib/api/errors.js';
-	import type { CreatedAcademyInvite, PendingInvite } from '#lib/api/member-types.js';
-	import { formatDate } from '#lib/format.js';
+	import { academyMark, academyName, localName } from '#lib/academy.js';
 	import { ridersText } from '#lib/forms/subscription.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner, Button, Card, EmptyState, StatusChip } from '#lib/ui/index.js';
+	import { Banner, Button, EmptyState, StatusChip } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
-	let pending = $state<PendingInvite[]>(untrack(() => data.pending));
-	let renewed = $state<{ id: string; invite: CreatedAcademyInvite }>();
 	let notice = $state<string>();
 	let failure = $state<string>();
 
 	const filters = $derived([
 		{ id: null, label: m.members_filter_all(), href: resolve('/(academy)/(staff)/members') },
 		{
-			id: 'rider',
-			label: m.members_filter_riders(),
-			href: resolve('/(academy)/(staff)/members?filter=rider')
-		},
-		{
-			id: 'trainer',
-			label: m.members_filter_staff(),
-			href: resolve('/(academy)/(staff)/members?filter=trainer')
-		},
-		...(data.admin
-			? [
-					{
-						id: 'unpaid',
-						label: m.members_filter_unpaid(),
-						href: resolve('/(academy)/(staff)/members?filter=unpaid')
-					}
-				]
-			: [])
+			id: 'unpaid',
+			label: m.members_filter_unpaid(),
+			href: resolve('/(academy)/(staff)/members?filter=unpaid')
+		}
 	]);
 
 	const academy = $derived(data.tenant.kind === 'academy' ? data.tenant.academy : null);
 	const shareLocale = $derived(academy?.defaultLanguage ?? data.locale);
-	function shareMessage(invite: PendingInvite) {
-		const values = {
-			name: invite.name ?? '',
-			academy: academy ? academyName(academy, shareLocale) : ''
-		};
-		return invite.role === 'rider'
-			? m.invite_share_message_rider(values, { locale: shareLocale })
-			: m.invite_share_message_staff(values, { locale: shareLocale });
-	}
-
-	const toError = (e: unknown) => errorText(e instanceof ApiError ? e.code : 'internal_error');
-
-	async function renew(invite: PendingInvite) {
-		failure = notice = undefined;
-		try {
-			const created = await api<CreatedAcademyInvite>(`/academy/invites/${invite.id}/renew`, {
-				method: 'POST'
-			});
-			pending = pending.map((p) =>
-				p.id === invite.id ? { ...p, id: created.inviteId, expiresAt: created.expiresAt } : p
-			);
-			renewed = { id: created.inviteId, invite: created };
-		} catch (e) {
-			failure = toError(e);
-		}
-	}
-
-	async function cancel(invite: PendingInvite) {
-		failure = notice = undefined;
-		try {
-			await api(`/academy/invites/${invite.id}/revoke`, { method: 'POST' });
-			pending = pending.filter((p) => p.id !== invite.id);
-			notice = m.invite_cancelled();
-		} catch (e) {
-			failure = toError(e);
-		}
-	}
 </script>
 
 <svelte:head>
@@ -106,56 +48,31 @@
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 
-	{#if pending.length > 0}
-		<Card>
-			<h2 class="sj-heading">{m.members_pending()}</h2>
-			<ul class="pending" role="list">
-				{#each pending as invite (invite.id)}
-					<li>
-						<div class="row">
-							<div class="main">
-								<span class="name">{invite.name ?? '—'}</span>
-								<span class="sj-small sj-muted">
-									{roleName(invite.role, data.locale)} ·
-									{m.members_pending_expires({ date: formatDate(invite.expiresAt, data.locale) })}
-								</span>
-							</div>
-							<Button variant="quiet" icon="link" onclick={() => renew(invite)}>
-								{m.members_copy_again()}
-							</Button>
-							<Button
-								variant="quiet"
-								icon="close"
-								label={m.members_cancel_invite()}
-								onclick={() => cancel(invite)}
-							/>
-						</div>
-						{#if renewed?.id === invite.id}
-							<InviteShareCard
-								invite={renewed.invite}
-								name={invite.name ?? ''}
-								message={shareMessage(invite)}
-								phone={invite.phone}
-								locale={data.locale}
-							/>
-						{/if}
-					</li>
-				{/each}
-			</ul>
-		</Card>
+	{#if data.admin}
+		<PendingInvites
+			invites={data.pending}
+			showRole={false}
+			shareName={academy ? academyName(academy, shareLocale) : ''}
+			{shareLocale}
+			locale={data.locale}
+			onnotice={(text) => ((notice = text), (failure = undefined))}
+			onfailure={(text) => ((failure = text), (notice = undefined))}
+		/>
 	{/if}
 
-	<nav class="sj-row" aria-label={m.members_title()}>
-		{#each filters as filter (filter.id)}
-			<a
-				class="filter"
-				href={filter.href}
-				aria-current={data.filter === filter.id ? 'page' : undefined}
-			>
-				{filter.label}
-			</a>
-		{/each}
-	</nav>
+	{#if data.admin}
+		<nav class="sj-row" aria-label={m.members_title()}>
+			{#each filters as filter (filter.id)}
+				<a
+					class="filter"
+					href={filter.href}
+					aria-current={data.filter === filter.id ? 'page' : undefined}
+				>
+					{filter.label}
+				</a>
+			{/each}
+		</nav>
+	{/if}
 
 	{#if data.members.length === 0}
 		<EmptyState icon="group" title={m.members_empty_title()}>{m.members_empty_body()}</EmptyState>
@@ -168,9 +85,6 @@
 						<span class="main">
 							<span class="name">{member.displayName}</span>
 							<span class="sj-row chips">
-								{#each member.roles as role (role)}
-									<StatusChip tone="active">{roleName(role, data.locale)}</StatusChip>
-								{/each}
 								{#if member.level && member.discipline}
 									<StatusChip tone="level">
 										{localName(member.discipline, data.locale)} · {localName(
@@ -182,7 +96,7 @@
 								{#if member.plan}
 									<StatusChip tone="neutral">{localName(member.plan, data.locale)}</StatusChip>
 								{/if}
-								{#if member.paidThisMonth === false && member.roles.includes('rider')}
+								{#if member.paidThisMonth === false}
 									<StatusChip tone="pending" dot>{m.member_unpaid()}</StatusChip>
 								{/if}
 								{#if inactiveLabel(member.status)}
@@ -217,20 +131,8 @@
 		padding: 0;
 		list-style: none;
 	}
-	.sj-list li + li,
-	.pending li + li {
+	.sj-list li + li {
 		border-block-start: 1px solid var(--line);
-	}
-	.pending li {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-2);
-		padding-block: var(--space-2);
-	}
-	.row {
-		display: flex;
-		align-items: center;
-		gap: var(--space-2);
 	}
 	.member-row {
 		display: flex;

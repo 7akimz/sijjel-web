@@ -20,6 +20,8 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 		owner.getByRole('heading', { name: 'The board opens once setup is finished' })
 	).toBeVisible();
 	await owner.goto(academyUrl(slug, '/members/invite'));
+	await expect(owner.getByText(/^You can invite riders once opening hours/)).toBeVisible();
+	await owner.goto(academyUrl(slug, '/members/invite?role=staff'));
 	await expect(owner.getByLabel('Who are you inviting?')).toHaveValue('trainer');
 	await owner.goto(academyUrl(slug, '/'));
 
@@ -71,7 +73,8 @@ test('an owner sets up hours, arenas and a horse from the checklist', async ({ p
 	).toBeInViewport();
 	await owner.getByRole('link', { name: 'Setup done: invite your riders' }).click();
 	await expect(owner).toHaveURL(academyUrl(slug, '/members/invite'));
-	await expect(owner.getByLabel('Who are you inviting?')).toHaveValue('rider');
+	await expect(owner.getByRole('heading', { name: 'Invite rider' })).toBeVisible();
+	await expect(owner.getByLabel('Their name')).toBeVisible();
 	await expect(nav.getByRole('link', { name: 'Board' })).toBeVisible();
 
 	await owner.goto(academyUrl(slug, '/'));

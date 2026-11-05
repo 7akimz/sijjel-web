@@ -23,6 +23,12 @@
 			body: m.settings_plans_body()
 		},
 		{
+			href: resolve('/(academy)/(admin)/settings/staff'),
+			icon: 'badge',
+			title: m.settings_staff_title(),
+			body: m.settings_staff_body()
+		},
+		{
 			href: resolve('/(academy)/(admin)/settings/arenas'),
 			icon: 'fence',
 			title: m.settings_arenas_title(),

@@ -10,50 +10,58 @@ const props = {
 };
 
 describe('InviteMemberForm', () => {
-	it('starts on a trainer and holds riders back until setup is done', async () => {
-		const screen = render(InviteMemberForm, { ...props, ridersAllowed: false });
+	it('invites a rider without asking who they are', async () => {
+		const screen = render(InviteMemberForm, { ...props, kind: 'rider', ridersAllowed: true });
 
-		await expect.element(screen.getByLabelText('Who are you inviting?')).toHaveValue('trainer');
+		await expect.element(screen.getByLabelText('Who are you inviting?')).not.toBeInTheDocument();
+		await expect.element(screen.getByLabelText('Their name')).toBeVisible();
 		await expect
-			.element(screen.getByRole('option', { name: 'A rider' }))
-			.toHaveAttribute('disabled');
+			.element(screen.getByText('You can invite riders once opening hours', { exact: false }))
+			.not.toBeInTheDocument();
+	});
+
+	it('holds riders back until setup is done', async () => {
+		const screen = render(InviteMemberForm, { ...props, kind: 'rider', ridersAllowed: false });
+
 		await expect
 			.element(screen.getByText('You can invite riders once opening hours', { exact: false }))
 			.toBeVisible();
+		await expect.element(screen.getByLabelText('Their name')).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByRole('button', { name: 'Create invitation' }))
+			.not.toBeInTheDocument();
 	});
 
 	it("holds riders back at the package's rider limit", async () => {
 		const screen = render(InviteMemberForm, {
 			...props,
+			kind: 'rider',
 			ridersAllowed: true,
 			riderLimitReached: true
 		});
 
-		await expect.element(screen.getByLabelText('Who are you inviting?')).toHaveValue('trainer');
-		await expect
-			.element(screen.getByRole('option', { name: 'A rider' }))
-			.toHaveAttribute('disabled');
-		await expect
-			.element(screen.getByRole('option', { name: 'A trainer' }))
-			.not.toHaveAttribute('disabled');
 		await expect
 			.element(screen.getByText("You've reached your package's rider limit.", { exact: false }))
 			.toBeVisible();
+		await expect.element(screen.getByLabelText('Their name')).not.toBeInTheDocument();
 	});
 
-	it('starts on a rider once setup is done', async () => {
-		const screen = render(InviteMemberForm, { ...props, ridersAllowed: true });
+	it('invites staff as a trainer or an admin, even before setup is done', async () => {
+		const screen = render(InviteMemberForm, { ...props, kind: 'staff', ridersAllowed: false });
 
-		await expect.element(screen.getByLabelText('Who are you inviting?')).toHaveValue('rider');
+		const role = screen.getByLabelText('Who are you inviting?');
+		await expect.element(role).toHaveValue('trainer');
+		await expect.element(screen.getByRole('option', { name: 'An admin' })).toBeInTheDocument();
+		await expect.element(screen.getByRole('option', { name: 'A rider' })).not.toBeInTheDocument();
+		await expect.element(screen.getByLabelText('Discipline')).not.toBeInTheDocument();
 		await expect
 			.element(screen.getByText('You can invite riders once opening hours', { exact: false }))
 			.not.toBeInTheDocument();
 	});
 
 	it('asks a rider for no age or weight', async () => {
-		const screen = render(InviteMemberForm, { ...props, ridersAllowed: true });
+		const screen = render(InviteMemberForm, { ...props, kind: 'rider', ridersAllowed: true });
 
-		await expect.element(screen.getByLabelText('Who are you inviting?')).toHaveValue('rider');
 		await expect.element(screen.getByLabelText('Age')).not.toBeInTheDocument();
 		await expect.element(screen.getByLabelText(/Weight/)).not.toBeInTheDocument();
 	});
@@ -73,6 +81,7 @@ describe('InviteMemberForm', () => {
 		});
 		const screen = render(InviteMemberForm, {
 			...props,
+			kind: 'rider',
 			ridersAllowed: true,
 			disciplines: {
 				enabled: [
@@ -128,6 +137,7 @@ describe('InviteMemberForm', () => {
 		it('starts on a discipline that has a plan', async () => {
 			const screen = render(InviteMemberForm, {
 				...props,
+				kind: 'rider',
 				ridersAllowed: true,
 				disciplines,
 				plans: [prelimPlan]
@@ -139,6 +149,7 @@ describe('InviteMemberForm', () => {
 		it('lets a discipline with no plan be chosen and links to adding one for it', async () => {
 			const screen = render(InviteMemberForm, {
 				...props,
+				kind: 'rider',
 				ridersAllowed: true,
 				disciplines,
 				plans: [prelimPlan]
@@ -157,6 +168,7 @@ describe('InviteMemberForm', () => {
 		it('says a level has no plan and links to adding one for the discipline', async () => {
 			const screen = render(InviteMemberForm, {
 				...props,
+				kind: 'rider',
 				ridersAllowed: true,
 				disciplines,
 				plans: [prelimPlan]
@@ -176,6 +188,7 @@ describe('InviteMemberForm', () => {
 		it('links to adding a plan when the academy has none', async () => {
 			const screen = render(InviteMemberForm, {
 				...props,
+				kind: 'rider',
 				ridersAllowed: true,
 				disciplines,
 				plans: []

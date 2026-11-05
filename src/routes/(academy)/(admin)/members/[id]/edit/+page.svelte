@@ -16,6 +16,7 @@
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import {
 		isLevelledRider,
+		isStaffOnly,
 		memberErrors,
 		memberFormFrom,
 		planHint,
@@ -48,7 +49,12 @@
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
-	const profile = $derived(resolve('/(academy)/(staff)/members/[id]', { id: member.id }));
+	// An admin or trainer who doesn't ride has their page under Settings, Staff.
+	const profileOf = (of: Member) =>
+		isStaffOnly(of)
+			? resolve('/(academy)/(admin)/settings/staff/[id]', { id: of.id })
+			: resolve('/(academy)/(staff)/members/[id]', { id: of.id });
+	const profile = $derived(profileOf(member));
 	const roles = ['rider', 'trainer', 'admin'] as const;
 	const isRider = $derived(form.roles.includes('rider'));
 	const wasRider = $derived(isLevelledRider(member));
@@ -112,11 +118,11 @@
 		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
 		busy = true;
 		try {
-			await api<Member>(`/academy/members/${member.id}`, {
+			const saved = await api<Member>(`/academy/members/${member.id}`, {
 				method: 'PUT',
 				body: toMemberInput(form)
 			});
-			await goto(profile, { state: { notice: m.member_saved() } });
+			await goto(profileOf(saved), { state: { notice: m.member_saved() } });
 		} catch (e) {
 			handle(e);
 		} finally {

@@ -11,6 +11,7 @@ export const load: PageServerLoad = async (event) => {
 		apiLoad<AcademySubscription>(event, '/api/academy/subscription')
 	]);
 	return {
+		kind: event.url.searchParams.get('role') === 'staff' ? ('staff' as const) : ('rider' as const),
 		disciplines,
 		plans: plans.filter((p) => p.isActive),
 		riders: subscription.riders

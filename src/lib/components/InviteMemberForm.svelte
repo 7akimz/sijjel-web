@@ -18,6 +18,8 @@
 	import { Banner, Button, SelectField, TextField } from '#lib/ui/index.js';
 
 	type Props = {
+		/** Riders are invited from Riders, admins and trainers from Settings, Staff. */
+		kind: 'rider' | 'staff';
 		disciplines: AcademyDisciplines;
 		plans: Plan[];
 		locale: Locale;
@@ -27,6 +29,7 @@
 		oncreated: (invite: CreatedAcademyInvite, form: InviteMemberForm) => void;
 	};
 	let {
+		kind,
 		disciplines,
 		plans,
 		locale,
@@ -35,13 +38,21 @@
 		oncreated
 	}: Props = $props();
 
-	const canInviteRiders = untrack(() => ridersAllowed && !riderLimitReached);
+	const riderBlock = $derived(
+		kind !== 'rider'
+			? undefined
+			: !ridersAllowed
+				? m.invite_riders_after_setup()
+				: riderLimitReached
+					? m.subscription_rider_limit()
+					: undefined
+	);
 
 	const first = untrack(
 		() => disciplines.enabled.find((d) => disciplineHasPlan(plans, d.id)) ?? disciplines.enabled[0]
 	);
 	let form = $state<InviteMemberForm>({
-		role: canInviteRiders ? 'rider' : 'trainer',
+		role: untrack(() => (kind === 'rider' ? 'rider' : 'trainer')),
 		name: '',
 		phone: '',
 		disciplineId: first?.id ?? '',
@@ -55,11 +66,6 @@
 	let formElement = $state<HTMLFormElement>();
 
 	const roleOptions = [
-		{
-			value: 'rider',
-			label: m.invite_role_rider_option(),
-			disabled: !canInviteRiders
-		},
 		{ value: 'trainer', label: m.invite_role_trainer_option() },
 		{ value: 'admin', label: m.invite_role_admin_option() }
 	];
@@ -129,81 +135,78 @@
 	}
 </script>
 
-<form method="post" class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
-	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
-	<SelectField
-		label={m.invite_role()}
-		options={roleOptions}
-		hint={!ridersAllowed
-			? m.invite_riders_after_setup()
-			: riderLimitReached
-				? m.subscription_rider_limit()
-				: undefined}
-		bind:value={form.role as string}
-	/>
-	<TextField
-		label={m.invite_name()}
-		autocomplete="off"
-		error={fieldText(errors, 'name')}
-		required
-		bind:value={form.name}
-	/>
-	<TextField
-		label={m.invite_phone()}
-		type="text"
-		dir="ltr"
-		hint={m.invite_phone_hint()}
-		error={fieldText(errors, 'phone')}
-		bind:value={form.phone}
-	/>
-	{#if form.role === 'rider'}
-		{#if plans.length === 0}
-			<Banner tone="pending" icon="info">
-				{m.invite_no_plans()}
-				<a href={resolve(`/(academy)/(admin)/settings/plans?${addPlanQuery}`)}
-					>{m.invite_add_plan()}</a
-				>
-			</Banner>
+{#if riderBlock}
+	<Banner tone="pending" icon="info">{riderBlock}</Banner>
+{:else}
+	<form method="post" class="sj-stack" bind:this={formElement} onsubmit={submit} novalidate>
+		{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
+		{#if kind === 'staff'}
+			<SelectField label={m.invite_role()} options={roleOptions} bind:value={form.role as string} />
 		{/if}
-		<SelectField
-			label={m.invite_discipline()}
-			options={disciplineOptions}
-			error={fieldText(errors, 'disciplineId')}
-			bind:value={form.disciplineId}
+		<TextField
+			label={m.invite_name()}
+			autocomplete="off"
+			error={fieldText(errors, 'name')}
+			required
+			bind:value={form.name}
 		/>
-		<SelectField
-			label={m.invite_level()}
-			options={levelOptions}
-			error={fieldText(errors, 'levelId') ?? undefined}
-			bind:value={form.levelId}
+		<TextField
+			label={m.invite_phone()}
+			type="text"
+			dir="ltr"
+			hint={m.invite_phone_hint()}
+			error={fieldText(errors, 'phone')}
+			bind:value={form.phone}
 		/>
-		<p class="sj-small sj-muted">{m.invite_level_hint()}</p>
-		<SelectField
-			label={m.invite_plan()}
-			options={planOptions}
-			error={fieldText(errors, 'planId')}
-			bind:value={form.planId}
-		/>
-		{#if plans.length > 0 && fitting.length === 0 && chosenDiscipline}
-			<p class="sj-small">
-				{chosenLevel && disciplineHasPlan(plans, chosenDiscipline.id)
-					? m.invite_level_no_plan({
-							discipline: localName(chosenDiscipline, locale),
-							level: localName(chosenLevel, locale)
-						})
-					: m.invite_discipline_has_no_plan({ discipline: localName(chosenDiscipline, locale) })}
-				<a href={resolve(`/(academy)/(admin)/settings/plans?${addPlanQuery}`)}
-					>{m.invite_add_plan()}</a
-				>
-			</p>
+		{#if form.role === 'rider'}
+			{#if plans.length === 0}
+				<Banner tone="pending" icon="info">
+					{m.invite_no_plans()}
+					<a href={resolve(`/(academy)/(admin)/settings/plans?${addPlanQuery}`)}
+						>{m.invite_add_plan()}</a
+					>
+				</Banner>
+			{/if}
+			<SelectField
+				label={m.invite_discipline()}
+				options={disciplineOptions}
+				error={fieldText(errors, 'disciplineId')}
+				bind:value={form.disciplineId}
+			/>
+			<SelectField
+				label={m.invite_level()}
+				options={levelOptions}
+				error={fieldText(errors, 'levelId') ?? undefined}
+				bind:value={form.levelId}
+			/>
+			<p class="sj-small sj-muted">{m.invite_level_hint()}</p>
+			<SelectField
+				label={m.invite_plan()}
+				options={planOptions}
+				error={fieldText(errors, 'planId')}
+				bind:value={form.planId}
+			/>
+			{#if plans.length > 0 && fitting.length === 0 && chosenDiscipline}
+				<p class="sj-small">
+					{chosenLevel && disciplineHasPlan(plans, chosenDiscipline.id)
+						? m.invite_level_no_plan({
+								discipline: localName(chosenDiscipline, locale),
+								level: localName(chosenLevel, locale)
+							})
+						: m.invite_discipline_has_no_plan({ discipline: localName(chosenDiscipline, locale) })}
+					<a href={resolve(`/(academy)/(admin)/settings/plans?${addPlanQuery}`)}
+						>{m.invite_add_plan()}</a
+					>
+				</p>
+			{/if}
+			<SelectField
+				label={m.invite_horse()}
+				options={horseOptions}
+				bind:value={form.horseSource as string}
+			/>
 		{/if}
-		<SelectField
-			label={m.invite_horse()}
-			options={horseOptions}
-			bind:value={form.horseSource as string}
-		/>
-	{/if}
-	<div>
-		<Button type="submit" icon="send" disabled={busy}>{m.invite_create()}</Button>
-	</div>
-</form>
+		<div>
+			<Button type="submit" icon="send" disabled={busy}>{m.invite_create()}</Button>
+		</div>
+	</form>
+{/if}

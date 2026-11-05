@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import InviteMemberForm from '#lib/components/InviteMemberForm.svelte';
 	import { ridersText } from '#lib/forms/subscription.js';
 	import InviteShareCard from '#lib/components/InviteShareCard.svelte';
@@ -15,6 +16,14 @@
 	let created = $state<{ invite: CreatedAcademyInvite; form: InviteForm }>();
 	let formKey = $state(0);
 
+	const title = $derived(
+		data.kind === 'staff' ? m.invite_page_title_staff() : m.invite_page_title_new()
+	);
+	const back = $derived(
+		data.kind === 'staff'
+			? { href: resolve('/(academy)/(admin)/settings/staff'), label: m.staff_back() }
+			: { href: resolve('/(academy)/(staff)/members'), label: m.back_to_members() }
+	);
 	const academy = $derived(data.tenant.kind === 'academy' ? data.tenant.academy : null);
 	const shareLocale = $derived(academy?.defaultLanguage ?? data.locale);
 	const message = $derived.by(() => {
@@ -27,13 +36,16 @@
 </script>
 
 <svelte:head>
-	<title>{m.invite_page_title_new()}</title>
+	<title>{title}</title>
 </svelte:head>
 
 <div class="sj-page narrow">
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={back.href}>{back.label}</Button>
+	</div>
 	<div class="sj-stack">
-		<h1 class="sj-title">{m.invite_page_title_new()}</h1>
-		<p class="sj-muted">{ridersText(data.riders, data.locale)}</p>
+		<h1 class="sj-title">{title}</h1>
+		{#if data.kind === 'rider'}<p class="sj-muted">{ridersText(data.riders, data.locale)}</p>{/if}
 	</div>
 	<Card raised>
 		{#if created}
@@ -60,6 +72,7 @@
 		{:else}
 			{#key formKey}
 				<InviteMemberForm
+					kind={data.kind}
 					disciplines={data.disciplines}
 					plans={data.plans}
 					locale={data.locale}

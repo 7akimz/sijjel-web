@@ -104,7 +104,6 @@ export async function inviteRider(
 	opts: { name: string; plan: string }
 ): Promise<string> {
 	await owner.goto(academyUrl(slug, '/members/invite'));
-	await owner.getByLabel('Who are you inviting?').selectOption({ label: 'A rider' });
 	await owner.getByLabel('Their name').fill(opts.name);
 	await owner.getByLabel('Discipline').selectOption({ label: 'Dressage' });
 	await owner.getByLabel('Level').selectOption({ label: 'Intro' });

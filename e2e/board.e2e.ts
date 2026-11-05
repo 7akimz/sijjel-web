@@ -48,7 +48,7 @@ test('staff plan a session: place a rider, suggest a horse, set trainers and not
 	await owner.getByRole('button', { name: 'Add plan' }).click();
 	await expect(owner.getByText('Plan saved.')).toBeVisible();
 
-	await owner.goto(academyUrl(slug, '/members/invite'));
+	await owner.goto(academyUrl(slug, '/members/invite?role=staff'));
 	await owner.getByLabel('Who are you inviting?').selectOption({ label: 'A trainer' });
 	await owner.getByLabel('Their name').fill('Omar');
 	await owner.getByRole('button', { name: 'Create invitation' }).click();

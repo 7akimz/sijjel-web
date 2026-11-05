@@ -72,7 +72,7 @@ test('a platform admin sets up a package, academies see what they owe, and block
 	await owner.goto(academyUrl(slug, '/members/invite'));
 	await expect(owner.getByText('Riders: 2 of 2')).toBeVisible();
 	await expect(owner.getByText(/^You've reached your package's rider limit\./)).toBeVisible();
-	await expect(owner.getByRole('option', { name: 'A rider' })).toBeDisabled();
+	await expect(owner.getByLabel('Their name')).toHaveCount(0);
 
 	const layla = await browser.newPage();
 	await layla.goto(academyUrl(slug, laylaInvite));

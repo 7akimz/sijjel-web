@@ -71,6 +71,11 @@ export function isLevelledRider(member: Member): boolean {
 	return member.roles.includes('rider') && member.discipline !== null && member.level !== null;
 }
 
+/** An admin or trainer who doesn't ride: their page is under Settings, Staff. */
+export function isStaffOnly(member: Member): boolean {
+	return !member.roles.includes('rider');
+}
+
 export function memberFormFrom(m: Member): MemberForm {
 	return {
 		roles: [...m.roles],
