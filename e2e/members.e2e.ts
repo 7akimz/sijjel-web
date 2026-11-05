@@ -65,6 +65,8 @@ test('a trainer moves a rider up next month and the owner sees the history', asy
 
 	await owner.goto(academyUrl(slug, '/settings/staff'));
 	await owner.getByRole('link', { name: 'Invite staff' }).click();
+	await expect(owner.getByRole('heading', { name: 'Invite staff' })).toBeVisible();
+	await expect(owner.locator('a[aria-current="page"]').first()).toContainText('Settings');
 	await owner.getByLabel('Who are you inviting?').selectOption({ label: 'A trainer' });
 	await owner.getByLabel('Their name').fill('Omar');
 	await owner.getByLabel('Phone (optional)').fill('1012345678');

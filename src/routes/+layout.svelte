@@ -140,7 +140,12 @@
 	<meta name="mobile-web-app-capable" content="yes" />
 </svelte:head>
 
-<AppShell {brand} {nav} current={page.url.pathname} navLabel={m.nav_main({}, { locale })}>
+<AppShell
+	{brand}
+	{nav}
+	current={page.data.navPath ?? page.url.pathname}
+	navLabel={m.nav_main({}, { locale })}
+>
 	{#snippet actions()}
 		<LanguageSwitch {locale} />
 		<ThemeSwitch theme={data.theme} {locale} />

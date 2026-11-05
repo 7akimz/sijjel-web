@@ -10,8 +10,11 @@ export const load: PageServerLoad = async (event) => {
 		apiLoad<Plan[]>(event, '/api/academy/plans'),
 		apiLoad<AcademySubscription>(event, '/api/academy/subscription')
 	]);
+	const kind: 'rider' | 'staff' =
+		event.url.searchParams.get('role') === 'staff' ? 'staff' : 'rider';
 	return {
-		kind: event.url.searchParams.get('role') === 'staff' ? ('staff' as const) : ('rider' as const),
+		kind,
+		navPath: kind === 'staff' ? '/settings/staff' : undefined,
 		disciplines,
 		plans: plans.filter((p) => p.isActive),
 		riders: subscription.riders

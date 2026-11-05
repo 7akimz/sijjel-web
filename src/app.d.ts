@@ -10,6 +10,10 @@ declare global {
 			theme: Theme;
 			locale: Locale;
 		}
+		interface PageData {
+			/** The navigation item to mark as current when the page sits outside its section's path. */
+			navPath?: string;
+		}
 		interface PageState {
 			/** A message the next page shows once, such as after saving on another page. */
 			notice?: string;

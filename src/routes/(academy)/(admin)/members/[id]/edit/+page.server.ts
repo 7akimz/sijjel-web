@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { AcademyDisciplines } from '#lib/api/academy-types.js';
 import type { Member, Plan } from '#lib/api/member-types.js';
+import { isStaffOnly } from '#lib/forms/member.js';
 import { apiLoad } from '#lib/server/api.js';
 import { academyToday } from '#lib/server/today.js';
 import type { PageServerLoad } from './$types';
@@ -14,5 +15,11 @@ export const load: PageServerLoad = async (event) => {
 		apiLoad<AcademyDisciplines>(event, '/api/academy/disciplines'),
 		apiLoad<Plan[]>(event, '/api/academy/plans')
 	]);
-	return { member, disciplines, plans, today: academyToday(tenant.academy.timeZone) };
+	return {
+		member,
+		navPath: isStaffOnly(member) ? '/settings/staff' : undefined,
+		disciplines,
+		plans,
+		today: academyToday(tenant.academy.timeZone)
+	};
 };
