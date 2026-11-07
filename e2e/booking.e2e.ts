@@ -19,6 +19,11 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	const owner = await signUpOwner(browser, slug, await inviteOwner(page, name));
 	await setUpAcademy(owner, slug);
 
+	await owner.goto(academyUrl(slug, '/settings/booking-rules'));
+	await owner.getByLabel('Booking opens (days ahead)').fill('14');
+	await owner.getByRole('button', { name: 'Save' }).click();
+	await expect(owner.getByText('Booking rules saved.')).toBeVisible();
+
 	await owner.goto(academyUrl(slug, '/settings/plans'));
 	await owner.getByLabel('Name (English)').fill('Dressage, 8 a month');
 	await owner.getByLabel('Name (Arabic)').fill('ترويض، 8 في الشهر');
@@ -51,8 +56,8 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	await layla.getByRole('link', { name: 'Book a session' }).click();
 	await expect(layla.getByRole('heading', { name: 'Book a session' })).toBeVisible();
 	// The last session next week is at least six days away, well before the 12-hour cancellation
-	// cutoff and inside the 14-day booking window, whatever the time of week. It may fall in next
-	// month and leave this month's count alone.
+	// cutoff and inside the 14-day booking window the owner set, whatever the time of week. It may
+	// fall in next month and leave this month's count alone.
 	await layla.getByRole('link', { name: 'Next week' }).click();
 	await expect(layla).toHaveURL(/[?&]week=/);
 	await layla.getByRole('button', { name: 'Book', exact: true }).last().click();
