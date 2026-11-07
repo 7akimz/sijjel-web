@@ -446,6 +446,12 @@
 	.sj-slot > .sj-btn {
 		grid-column: 1 / -1;
 	}
+	.sj-slot--compact {
+		grid-template-columns: auto 1fr auto;
+	}
+	.sj-slot--compact > .sj-btn {
+		grid-column: auto;
+	}
 }
 
 /* Lists */

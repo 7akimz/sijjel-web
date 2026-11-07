@@ -546,6 +546,8 @@
 	"book_week_next": "Next week",
 	"book_week_range": "{from} to {to}",
 	"book_places_left": "Places left: {count}",
+	"book_few_left_one": "1 place left",
+	"book_few_left_two": "2 places left",
 	"book_horses_free": "Suitable horses free: {count}",
 	"book_own_horse": "On your horse",
 	"book_action": "Book",

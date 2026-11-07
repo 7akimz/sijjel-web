@@ -162,6 +162,20 @@
 				>
 					{#snippet action()}<Button variant="quiet">Cancel</Button>{/snippet}
 				</SessionSlot>
+				<SessionSlot
+					start="21:30"
+					end="22:00"
+					endLabel="to 22:00"
+					placesLeft={0}
+					capacity={0}
+					horsesFree={0}
+					horsesTotal={0}
+					state="few"
+					note="2 places left"
+					compact
+				>
+					{#snippet action()}<Button>Book</Button>{/snippet}
+				</SessionSlot>
 			</div>
 
 			<div class="sj-list">

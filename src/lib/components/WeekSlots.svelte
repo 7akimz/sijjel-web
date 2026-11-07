@@ -4,6 +4,7 @@
 	import { formatDate } from '#lib/format.js';
 	import {
 		dayName,
+		fewLeftText,
 		groupByDate,
 		shiftWeek,
 		slotReasonText,
@@ -27,6 +28,8 @@
 		// The last day that can be booked; there are no pages after it.
 		last?: string;
 		empty?: string;
+		// Riders see no place or horse counts, only how few places are left.
+		counts?: boolean;
 	};
 	let {
 		slots,
@@ -40,7 +43,8 @@
 		onbook,
 		end,
 		last,
-		empty
+		empty,
+		counts = true
 	}: Props = $props();
 
 	let pending = $state<string | null>(null);
@@ -64,12 +68,14 @@
 		if (slot.booked) return 'booked' as const;
 		if (slot.reason === 'full') return 'full' as const;
 		if (!slot.canBook) return 'no-horse' as const;
+		if (!counts) return slot.fewLeft ? ('few' as const) : ('open' as const);
 		if (school && slot.suitableHorsesFree === 1) return 'last-horse' as const;
 		return 'open' as const;
 	}
 
 	function slotNote(slot: SlotView) {
 		if (slot.reason) return slotReasonText(slot.reason, locale);
+		if (!counts) return slot.fewLeft ? fewLeftText(slot.fewLeft, locale) : '';
 		if (!school) return m.book_own_horse();
 		return m.book_horses_free({ count: slot.suitableHorsesFree ?? 0 });
 	}
@@ -120,13 +126,14 @@
 				start={slot.start}
 				end={slot.end}
 				endLabel={m.book_end({ time: slot.end })}
-				placesLeft={slot.placesLeft}
-				capacity={slot.placesLeft}
-				horsesFree={school ? (slot.suitableHorsesFree ?? 0) : 0}
-				horsesTotal={school ? (slot.suitableHorsesTotal ?? 0) : 0}
+				placesLeft={slot.placesLeft ?? 0}
+				capacity={slot.placesLeft ?? 0}
+				horsesFree={counts && school ? (slot.suitableHorsesFree ?? 0) : 0}
+				horsesTotal={counts && school ? (slot.suitableHorsesTotal ?? 0) : 0}
 				state={slotState(slot)}
-				placesLabel={m.book_places_left({ count: slot.placesLeft })}
+				placesLabel={m.book_places_left({ count: slot.placesLeft ?? 0 })}
 				note={slotNote(slot)}
+				compact={!counts}
 			>
 				{#snippet action()}
 					{#if slot.canBook && pending !== keyOf(slot)}

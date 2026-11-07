@@ -84,6 +84,10 @@ function formatDayOrNull(date: string): string | null {
 	return Number.isNaN(day.getTime()) ? null : formatDay(day);
 }
 
+export function fewLeftText(left: number, locale: Locale): string {
+	return left === 1 ? m.book_few_left_one({}, { locale }) : m.book_few_left_two({}, { locale });
+}
+
 export function windowText(days: number, locale: Locale): string {
 	return m.book_window({ days: daysText(days, locale), count: days }, { locale });
 }

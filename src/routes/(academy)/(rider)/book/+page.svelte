@@ -85,6 +85,7 @@
 		end={data.page.end}
 		last={data.page.last}
 		empty={m.book_no_slots_open()}
+		counts={false}
 		{school}
 		{busy}
 		locale={data.locale}
