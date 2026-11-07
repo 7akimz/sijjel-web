@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import Icon from './Icon.svelte';
 
-	type SlotState = 'open' | 'few' | 'last-horse' | 'no-horse' | 'full' | 'booked';
+	type SlotState = 'open' | 'last-horse' | 'no-horse' | 'full' | 'booked';
 	type Props = {
 		start: string;
 		end: string;
@@ -35,11 +35,7 @@
 
 	const closed = $derived(state === 'no-horse' || state === 'full');
 	const noteColor = $derived(
-		state === 'last-horse' || state === 'few'
-			? 'var(--brass)'
-			: closed
-				? 'var(--danger)'
-				: undefined
+		state === 'last-horse' ? 'var(--brass)' : closed ? 'var(--danger)' : undefined
 	);
 	const markers = $derived(Array.from({ length: horsesTotal }, (_, index) => index >= horsesFree));
 </script>
@@ -66,8 +62,6 @@
 					<Icon name="block" size={20} />
 				{:else if state === 'booked'}
 					<Icon name="check_circle" size={20} />
-				{:else if state === 'few'}
-					<Icon name="group" size={20} />
 				{:else if horsesTotal > 0}
 					<span class="sj-horses" aria-hidden="true">
 						{#each markers as taken, index (index)}

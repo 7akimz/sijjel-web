@@ -8,7 +8,6 @@ const slot = (date: string, start: string): SlotView => ({
 	start,
 	end: start,
 	placesLeft: 3,
-	fewLeft: null,
 	canBook: true,
 	reason: '',
 	suitableHorsesFree: 2,
@@ -105,24 +104,20 @@ describe('WeekSlots', () => {
 			.toBeVisible();
 	});
 
-	it('shows riders no counts, only how few places are left when it is 1 or 2', async () => {
-		const plenty = {
+	it('shows riders no counts or warnings, only the time and Book', async () => {
+		const plain = {
 			...slot('2026-11-07', '18:00'),
 			placesLeft: null,
 			suitableHorsesFree: null,
 			suitableHorsesTotal: null
 		};
-		const few = { ...plenty, start: '18:30', fewLeft: 2 };
-		const last = { ...plenty, start: '19:00', fewLeft: 1 };
+		const later = { ...plain, start: '18:30' };
 		const screen = render(WeekSlots, {
-			...props([plenty, few, last], '2026-11-07', vi.fn()),
+			...props([plain, later], '2026-11-07', vi.fn()),
 			counts: false
 		});
 
-		await expect.element(screen.getByText('2 places left')).toBeVisible();
-		await expect.element(screen.getByText('1 place left')).toBeVisible();
-		await expect.element(screen.getByText(/Places left/)).not.toBeInTheDocument();
-		await expect.element(screen.getByText(/Suitable horses/)).not.toBeInTheDocument();
-		expect(screen.getByRole('button', { name: 'Book', exact: true }).elements()).toHaveLength(3);
+		expect(screen.getByRole('button', { name: 'Book', exact: true }).elements()).toHaveLength(2);
+		expect(screen.container.querySelector('.sj-slot__body')?.textContent?.trim()).toBe('');
 	});
 });

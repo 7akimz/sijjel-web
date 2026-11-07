@@ -43,7 +43,6 @@ const slot = (date: string, start: string): SlotView => ({
 	start,
 	end: start,
 	placesLeft: 2,
-	fewLeft: null,
 	canBook: true,
 	reason: '',
 	suitableHorsesFree: 1,

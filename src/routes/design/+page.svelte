@@ -170,8 +170,8 @@
 					capacity={0}
 					horsesFree={0}
 					horsesTotal={0}
-					state="few"
-					note="2 places left"
+					state="open"
+					note=""
 					compact
 				>
 					{#snippet action()}<Button>Book</Button>{/snippet}

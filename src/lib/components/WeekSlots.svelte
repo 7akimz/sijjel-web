@@ -4,7 +4,6 @@
 	import { formatDate } from '#lib/format.js';
 	import {
 		dayName,
-		fewLeftText,
 		groupByDate,
 		shiftWeek,
 		slotReasonText,
@@ -28,7 +27,7 @@
 		// The last day that can be booked; there are no pages after it.
 		last?: string;
 		empty?: string;
-		// Riders see no place or horse counts, only how few places are left.
+		// Riders see no place or horse counts.
 		counts?: boolean;
 	};
 	let {
@@ -68,14 +67,14 @@
 		if (slot.booked) return 'booked' as const;
 		if (slot.reason === 'full') return 'full' as const;
 		if (!slot.canBook) return 'no-horse' as const;
-		if (!counts) return slot.fewLeft ? ('few' as const) : ('open' as const);
+		if (!counts) return 'open' as const;
 		if (school && slot.suitableHorsesFree === 1) return 'last-horse' as const;
 		return 'open' as const;
 	}
 
 	function slotNote(slot: SlotView) {
 		if (slot.reason) return slotReasonText(slot.reason, locale);
-		if (!counts) return slot.fewLeft ? fewLeftText(slot.fewLeft, locale) : '';
+		if (!counts) return '';
 		if (!school) return m.book_own_horse();
 		return m.book_horses_free({ count: slot.suitableHorsesFree ?? 0 });
 	}

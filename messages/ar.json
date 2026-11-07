@@ -546,8 +546,6 @@
 	"book_week_next": "الأسبوع التالي",
 	"book_week_range": "من {from} إلى {to}",
 	"book_places_left": "الأماكن المتبقية: {count}",
-	"book_few_left_one": "مكان واحد متبقٍ",
-	"book_few_left_two": "مكانان متبقيان",
 	"book_horses_free": "الخيول المناسبة المتاحة: {count}",
 	"book_own_horse": "على حصانك",
 	"book_action": "احجز",

@@ -129,7 +129,6 @@ export interface SlotView {
 	start: string;
 	end: string;
 	placesLeft: number | null;
-	fewLeft: number | null;
 	canBook: boolean;
 	reason: string;
 	suitableHorsesFree: number | null;

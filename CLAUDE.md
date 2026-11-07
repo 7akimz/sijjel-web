@@ -90,7 +90,7 @@ sijjel follows its own design system, the source of truth for every screen: http
 - **EmptyState**: what will appear here, why it matters, and the first step. Never a dead end; staff get the action. A muted sentence is enough for an empty sub-list inside a page ("No unavailable dates.").
 - **List rows** (`sj-list`, `sj-list__row`, `ListRow`): one member or horse with the facts staff scan for and at most one action; 64px tall, divided by `line`; name and secondary line truncate (wrap only text that must be read whole, such as notes).
 - **Fields** (`TextField`, `SelectField`, `DateRangeField`, `CheckboxField`): label always visible above, hint below, an error replaces the hint and names the fix.
-- **SessionSlot**: one bookable time; the app's signature element for riders. Staff see places and suitable horses side by side. Riders get the `compact` slot: no counts, only a note when it matters ("2 places left", Full, Booked), with the action on the same row.
+- **SessionSlot**: one bookable time; the app's signature element for riders. Staff see places and suitable horses side by side. Riders get the `compact` slot: no counts, only a note when it can't be booked or is theirs (Full, no suitable horse, Booked), with the action on the same row.
 - **AppShell**: app bar with the academy mark, navigation in the bottom bar on phones, language switch showing the other language's name.
 
 ### Patterns in the app, and what each one means
