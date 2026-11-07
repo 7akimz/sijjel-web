@@ -554,6 +554,8 @@
 	"book_confirm_action": "نعم، احجز",
 	"book_done": "تم الحجز: {day} الساعة {time}.",
 	"book_no_slots": "لا توجد حصص متاحة للحجز هذا الأسبوع.",
+	"book_window": "أيام الحجز مقدمًا: {count}",
+	"book_no_slots_open": "لا توجد حصص متاحة للحجز الآن.",
 	"book_end": "حتى {time}",
 	"staff_book_title": "الحجز لـ {rider}",
 	"staff_book_confirm": "هل تحجز {day} الساعة {time} لـ {rider}؟",

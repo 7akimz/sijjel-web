@@ -22,7 +22,8 @@ const summary: PlanSummary = {
 	paidThisMonth: true,
 	unpaidBooking: 'allow',
 	horseSource: 'school',
-	hasOwnHorse: false
+	hasOwnHorse: false,
+	bookingWindowDays: 2
 };
 
 const booking = (date: string, startsAt: string): BookingView => ({

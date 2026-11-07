@@ -57,6 +57,7 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 
 	await layla.getByRole('link', { name: 'Book a session' }).click();
 	await expect(layla.getByRole('heading', { name: 'Book a session' })).toBeVisible();
+	await expect(layla.getByText('You can book up to 14 days ahead.')).toBeVisible();
 	// The last session next week is at least six days away, well before the 12-hour cancellation
 	// cutoff and inside the 14-day booking window the owner set, whatever the time of week. It may
 	// fall in next month and leave this month's count alone.

@@ -8,8 +8,10 @@ import {
 	riderBlockText,
 	shiftWeek,
 	slotReasonText,
+	riderPage,
 	warningTexts,
-	weekStartOf
+	weekStartOf,
+	windowText
 } from './booking';
 
 const summary = (overrides: Partial<PlanSummary> = {}): PlanSummary => ({
@@ -32,6 +34,7 @@ const summary = (overrides: Partial<PlanSummary> = {}): PlanSummary => ({
 	unpaidBooking: 'allow',
 	horseSource: 'school',
 	hasOwnHorse: false,
+	bookingWindowDays: 2,
 	...overrides
 });
 
@@ -106,5 +109,42 @@ describe('warningTexts', () => {
 
 		expect(warningTexts(e, 'en')).toEqual(['Monthly limit reached', 'Month not paid']);
 		expect(warningTexts(new ApiError(409, 'full'), 'en')).toBeNull();
+	});
+});
+
+describe('riderPage', () => {
+	it('shows today to the end of a short booking window on one page', () => {
+		expect(riderPage('2026-11-07', 2, null)).toEqual({
+			start: '2026-11-07',
+			end: '2026-11-09',
+			last: '2026-11-09'
+		});
+	});
+
+	it('pages a long window seven days at a time from today, ending at its last day', () => {
+		expect(riderPage('2026-11-07', 14, '2026-11-14')).toEqual({
+			start: '2026-11-14',
+			end: '2026-11-20',
+			last: '2026-11-21'
+		});
+		expect(riderPage('2026-11-07', 14, '2026-11-21').end).toBe('2026-11-21');
+	});
+
+	it('opens the page holding the date asked for', () => {
+		expect(riderPage('2026-11-07', 14, '2026-11-16').start).toBe('2026-11-14');
+	});
+
+	it('falls back to today for a date before today, after the window or not a date', () => {
+		for (const asked of ['2026-11-01', '2026-11-22', 'next', '2026-13-40']) {
+			expect(riderPage('2026-11-07', 14, asked).start).toBe('2026-11-07');
+		}
+	});
+});
+
+describe('windowText', () => {
+	it('says how far ahead a rider can book', () => {
+		expect(windowText(2, 'en')).toBe('You can book up to 2 days ahead.');
+		expect(windowText(1, 'en')).toBe('You can book up to 1 day ahead.');
+		expect(windowText(2, 'ar')).toBe('أيام الحجز مقدمًا: 2');
 	});
 });

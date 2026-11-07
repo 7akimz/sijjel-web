@@ -9,10 +9,11 @@
 		bookingErrorText,
 		dayName,
 		riderBlockReason,
-		riderBlockText
+		riderBlockText,
+		windowText
 	} from '#lib/forms/booking.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner } from '#lib/ui/index.js';
+	import { Banner, Icon } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -63,6 +64,12 @@
 				total: data.summary.lessonsPerMonth
 			})}
 		</p>
+		<p class="sj-muted window">
+			<Icon name="event_available" size={20} />{windowText(
+				data.summary.bookingWindowDays,
+				data.locale
+			)}
+		</p>
 	</div>
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
@@ -73,8 +80,11 @@
 
 	<WeekSlots
 		slots={data.slots}
-		week={data.week}
-		firstWeek={data.firstWeek}
+		week={data.page.start}
+		firstWeek={data.today}
+		end={data.page.end}
+		last={data.page.last}
+		empty={m.book_no_slots_open()}
 		{school}
 		{busy}
 		locale={data.locale}
@@ -83,3 +93,11 @@
 		onbook={book}
 	/>
 </div>
+
+<style>
+	.window {
+		display: flex;
+		align-items: center;
+		gap: var(--space-1);
+	}
+</style>

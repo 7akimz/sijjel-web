@@ -2,6 +2,7 @@ import { ApiError, errorText } from '#lib/api/errors.js';
 import type { PlanSummary, SlotView } from '#lib/api/member-types.js';
 import type { Locale } from '#lib/api/types.js';
 import { m } from '#lib/paraglide/messages.js';
+import { daysText } from './subscription.js';
 
 type MessageFn = (inputs: object, options: { locale?: Locale }) => string;
 const messages = m as unknown as Record<string, MessageFn | undefined>;
@@ -45,6 +46,46 @@ export function weekEndOf(start: string): string {
 	const day = parseDay(start);
 	day.setUTCDate(day.getUTCDate() + 6);
 	return formatDay(day);
+}
+
+const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+
+function addDays(date: string, days: number): string {
+	const day = parseDay(date);
+	day.setUTCDate(day.getUTCDate() + days);
+	return formatDay(day);
+}
+
+// A rider's booking pages run seven days at a time from today and stop at the last day they can
+// book. A date outside that range opens the first page.
+export function riderPage(
+	today: string,
+	windowDays: number,
+	asked: string | null
+): { start: string; end: string; last: string } {
+	const last = addDays(today, windowDays);
+	let start = today;
+	if (
+		asked &&
+		isoDate.test(asked) &&
+		formatDayOrNull(asked) === asked &&
+		asked > today &&
+		asked <= last
+	) {
+		const since = Math.round((parseDay(asked).getTime() - parseDay(today).getTime()) / 86_400_000);
+		start = addDays(today, since - (since % 7));
+	}
+	const weekEnd = addDays(start, 6);
+	return { start, end: weekEnd < last ? weekEnd : last, last };
+}
+
+function formatDayOrNull(date: string): string | null {
+	const day = parseDay(date);
+	return Number.isNaN(day.getTime()) ? null : formatDay(day);
+}
+
+export function windowText(days: number, locale: Locale): string {
+	return m.book_window({ days: daysText(days, locale), count: days }, { locale });
 }
 
 export function dayName(date: string, locale?: Locale): string {

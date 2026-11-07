@@ -64,4 +64,43 @@ describe('WeekSlots', () => {
 			.element(screen.getByRole('button', { name: 'Book anyway' }))
 			.not.toBeInTheDocument();
 	});
+
+	it('leaves out week paging when every bookable day fits on one page', async () => {
+		const screen = render(WeekSlots, {
+			...props([slot('2026-11-07', '18:00')], '2026-11-07', vi.fn()),
+			firstWeek: '2026-11-07',
+			end: '2026-11-09',
+			last: '2026-11-09'
+		});
+
+		await expect.element(screen.getByText('Saturday · 7 November 2026')).toBeVisible();
+		await expect.element(screen.getByRole('navigation')).not.toBeInTheDocument();
+	});
+
+	it('stops paging at the last bookable day and names a one-day page by its date', async () => {
+		const screen = render(WeekSlots, {
+			...props([slot('2026-11-21', '18:00')], '2026-11-21', vi.fn()),
+			firstWeek: '2026-11-07',
+			end: '2026-11-21',
+			last: '2026-11-21'
+		});
+
+		await expect
+			.element(screen.getByRole('link', { name: 'Previous week' }))
+			.toHaveAttribute('href', '/book?week=2026-11-14');
+		await expect.element(screen.getByRole('link', { name: 'Next week' })).not.toBeInTheDocument();
+		await expect.element(screen.getByRole('button', { name: 'Next week' })).toBeDisabled();
+		await expect.element(screen.getByText('21 November 2026', { exact: true })).toBeVisible();
+	});
+
+	it('says why the page is empty in the words it is given', async () => {
+		const screen = render(WeekSlots, {
+			...props([], '2026-11-07', vi.fn()),
+			empty: 'No sessions open for booking right now.'
+		});
+
+		await expect
+			.element(screen.getByRole('heading', { name: 'No sessions open for booking right now.' }))
+			.toBeVisible();
+	});
 });

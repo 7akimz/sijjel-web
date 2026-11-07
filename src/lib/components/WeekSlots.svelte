@@ -22,9 +22,26 @@
 		weekHref: (week: string) => string;
 		confirmText: (slot: SlotView) => string;
 		onbook: (slot: SlotView, confirm: boolean) => Promise<string[] | null>;
+		// The last day this page shows, when it isn't the end of the week.
+		end?: string;
+		// The last day that can be booked; there are no pages after it.
+		last?: string;
+		empty?: string;
 	};
-	let { slots, week, firstWeek, school, busy, locale, weekHref, confirmText, onbook }: Props =
-		$props();
+	let {
+		slots,
+		week,
+		firstWeek,
+		school,
+		busy,
+		locale,
+		weekHref,
+		confirmText,
+		onbook,
+		end,
+		last,
+		empty
+	}: Props = $props();
 
 	let pending = $state<string | null>(null);
 	let warnings = $state<string[] | null>(null);
@@ -36,6 +53,10 @@
 	});
 
 	const days = $derived(groupByDate(slots));
+	const weekEnd = $derived(end ?? weekEndOf(week));
+	const nextWeek = $derived(shiftWeek(week, 1));
+	const hasNext = $derived(!last || nextWeek <= last);
+	const paged = $derived(week > firstWeek || hasNext);
 	const keyOf = (slot: SlotView) => `${slot.date} ${slot.start}`;
 	const dayDate = (date: string) => formatDate(`${date}T00:00:00Z`, locale);
 
@@ -60,26 +81,36 @@
 	}
 </script>
 
-<nav class="week" aria-label={m.book_title()}>
-	{#if week <= firstWeek}
-		<Button variant="quiet" disabled
-			><Icon name="chevron_left" directional />{m.book_week_prev()}</Button
-		>
-	{:else}
-		<Button variant="quiet" href={weekHref(shiftWeek(week, -1))}
-			><Icon name="chevron_left" directional />{m.book_week_prev()}</Button
-		>
-	{/if}
-	<span class="sj-small">
-		{m.book_week_range({ from: dayDate(week), to: dayDate(weekEndOf(week)) })}
-	</span>
-	<Button variant="quiet" href={weekHref(shiftWeek(week, 1))}
-		>{m.book_week_next()}<Icon name="chevron_right" directional /></Button
-	>
-</nav>
+{#if paged}
+	<nav class="week" aria-label={m.book_title()}>
+		{#if week <= firstWeek}
+			<Button variant="quiet" disabled
+				><Icon name="chevron_left" directional />{m.book_week_prev()}</Button
+			>
+		{:else}
+			<Button variant="quiet" href={weekHref(shiftWeek(week, -1))}
+				><Icon name="chevron_left" directional />{m.book_week_prev()}</Button
+			>
+		{/if}
+		<span class="sj-small">
+			{weekEnd === week
+				? dayDate(week)
+				: m.book_week_range({ from: dayDate(week), to: dayDate(weekEnd) })}
+		</span>
+		{#if hasNext}
+			<Button variant="quiet" href={weekHref(nextWeek)}
+				>{m.book_week_next()}<Icon name="chevron_right" directional /></Button
+			>
+		{:else}
+			<Button variant="quiet" disabled
+				>{m.book_week_next()}<Icon name="chevron_right" directional /></Button
+			>
+		{/if}
+	</nav>
+{/if}
 
 {#if days.length === 0}
-	<EmptyState icon="event_busy" title={m.book_no_slots()} />
+	<EmptyState icon="event_busy" title={empty ?? m.book_no_slots()} />
 {/if}
 {#each days as day (day.date)}
 	<section class="sj-stack">

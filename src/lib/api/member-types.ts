@@ -162,6 +162,7 @@ export interface PlanSummary {
 	unpaidBooking: 'allow' | 'block';
 	horseSource: HorseSource;
 	hasOwnHorse: boolean;
+	bookingWindowDays: number;
 }
 
 export interface AffectedBooking {
