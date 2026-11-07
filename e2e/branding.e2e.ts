@@ -44,8 +44,10 @@ test('an owner brands their academy and visitors see it', async ({ page, browser
 		.getByLabel('Upload cover photo')
 		.setInputFiles(await drawImage(owner, 2000, 1200, 'image/jpeg'));
 	await owner.getByLabel('Welcome line (English)').fill('Flatwork in Cairo');
+	await owner.setViewportSize({ width: 390, height: 844 });
 	await owner.getByRole('button', { name: 'Save' }).click();
-	await expect(owner.getByText('Saved.')).toBeVisible();
+	await expect(owner.getByText('Saved.')).toBeInViewport();
+	await owner.setViewportSize({ width: 1280, height: 720 });
 
 	const visitor = await browser.newPage();
 	await visitor.goto(academyUrl(slug, '/'));

@@ -19,10 +19,12 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	const owner = await signUpOwner(browser, slug, await inviteOwner(page, name));
 	await setUpAcademy(owner, slug);
 
+	await owner.setViewportSize({ width: 390, height: 844 });
 	await owner.goto(academyUrl(slug, '/settings/booking-rules'));
 	await owner.getByLabel('Booking opens (days ahead)').fill('14');
 	await owner.getByRole('button', { name: 'Save' }).click();
-	await expect(owner.getByText('Booking rules saved.')).toBeVisible();
+	await expect(owner.getByText('Booking rules saved.')).toBeInViewport();
+	await owner.setViewportSize({ width: 1280, height: 720 });
 
 	await owner.goto(academyUrl(slug, '/settings/plans'));
 	await owner.getByLabel('Name (English)').fill('Dressage, 8 a month');

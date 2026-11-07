@@ -6,6 +6,7 @@
 	import type { Me } from '#lib/api/types.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { m } from '#lib/paraglide/messages.js';
+	import { reveal } from '#lib/reveal.js';
 	import { Banner, Button, TextField } from '#lib/ui/index.js';
 
 	type Props = { me: Me; onsaved: (me: Me) => void };
@@ -19,6 +20,7 @@
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let saved = $state(false);
+	let saves = $state(0);
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
@@ -37,6 +39,7 @@
 				body: { displayName: displayName.trim(), phone: phone.trim(), email: email.trim() || null }
 			});
 			saved = true;
+			saves++;
 			onsaved(updated);
 		} catch (e) {
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
@@ -50,7 +53,9 @@
 	}
 </script>
 
-{#if saved}<Banner icon="check_circle">{m.account_saved()}</Banner>{/if}
+{#if saved}
+	<div use:reveal={saves}><Banner icon="check_circle">{m.account_saved()}</Banner></div>
+{/if}
 {#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 
 <form method="post" class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>

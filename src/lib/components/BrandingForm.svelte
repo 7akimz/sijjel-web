@@ -6,6 +6,7 @@
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { imagePixels, loadImage, resizeImage } from '#lib/forms/image.js';
 	import { m } from '#lib/paraglide/messages.js';
+	import { reveal } from '#lib/reveal.js';
 	import { accentVars } from '#lib/theme/accent.js';
 	import { suggestColours, swatchesFor } from '#lib/theme/logo-colours.js';
 	import { Banner, Button, Card, Icon, StatusChip, TextField } from '#lib/ui/index.js';
@@ -31,6 +32,7 @@
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let saved = $state(false);
+	let saves = $state(0);
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
@@ -133,6 +135,7 @@
 				body: { primaryColor: colour, welcomeTextEn: welcomeEn, welcomeTextAr: welcomeAr }
 			});
 			saved = true;
+			saves++;
 			onsaved(current);
 		} catch (e) {
 			const error = asApiError(e);
@@ -176,7 +179,9 @@
 	</Card>
 {/snippet}
 
-{#if saved}<Banner icon="check_circle">{m.branding_saved()}</Banner>{/if}
+{#if saved}
+	<div use:reveal={saves}><Banner icon="check_circle">{m.branding_saved()}</Banner></div>
+{/if}
 {#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 
 <form method="post" class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>

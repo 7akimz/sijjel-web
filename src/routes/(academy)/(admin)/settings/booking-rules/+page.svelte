@@ -6,6 +6,7 @@
 	import { bookingRulesErrors, wholeNumber } from '#lib/forms/booking-rules.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { m } from '#lib/paraglide/messages.js';
+	import { reveal } from '#lib/reveal.js';
 	import { Banner, Button, Card, SelectField, TextField } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
@@ -21,6 +22,7 @@
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let saved = $state(false);
+	let saves = $state(0);
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
@@ -47,6 +49,7 @@
 		try {
 			await api('/academy/booking-rules', { method: 'PUT', body: rules });
 			saved = true;
+			saves++;
 		} catch (e) {
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
@@ -68,7 +71,9 @@
 		<p class="sj-muted">{m.rules_intro()}</p>
 	</div>
 
-	{#if saved}<Banner icon="check_circle">{m.rules_saved()}</Banner>{/if}
+	{#if saved}
+		<div use:reveal={saves}><Banner icon="check_circle">{m.rules_saved()}</Banner></div>
+	{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 
 	<form method="post" class="sj-stack" bind:this={formElement} onsubmit={save} novalidate>
