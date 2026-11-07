@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
-import { AppShell, Button, Icon, SessionSlot, StatusChip, TextField } from './index';
+import { AppShell, Banner, Button, Icon, SessionSlot, StatusChip, TextField } from './index';
 
 const text = (value: string) => createRawSnippet(() => ({ render: () => `<span>${value}</span>` }));
 
@@ -132,5 +132,30 @@ describe('AppShell', () => {
 		expect(disabled).toHaveLength(2);
 		expect(disabled[0].textContent).toContain('Board');
 		expect(container.querySelectorAll('a[href="/"]').length).toBeGreaterThan(0);
+	});
+});
+
+describe('Banner', () => {
+	afterEach(() => vi.restoreAllMocks());
+
+	it('scrolls an error into view when it appears, since the button that failed can sit far below it', () => {
+		const scroll = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {});
+
+		const { container } = render(Banner, {
+			tone: 'danger',
+			icon: 'error',
+			children: text('Failed')
+		});
+
+		expect(scroll).toHaveBeenCalledOnce();
+		expect(scroll.mock.contexts[0]).toBe(container.querySelector('.sj-banner'));
+	});
+
+	it('leaves other notices where they are', () => {
+		const scroll = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {});
+
+		render(Banner, { icon: 'check_circle', children: text('Saved') });
+
+		expect(scroll).not.toHaveBeenCalled();
 	});
 });

@@ -86,7 +86,7 @@ sijjel follows its own design system, the source of truth for every screen: http
   - danger: destructive, always confirmed first;
   - icon-only (`label` prop): only for a familiar action on an item, such as the Edit pencil, with an `aria-label`.
 - **StatusChip**: labels a state or category in one to three words; never a button. Status chips have a dot and a word, level chips use the accent-soft, neutral chips are for roles, kinds and ranges.
-- **Banner**: a state that applies to the whole page or the action just taken (saved, pending, error), inline at the top of the content it concerns.
+- **Banner**: a state that applies to the whole page or the action just taken (saved, pending, error), inline at the top of the content it concerns. A danger banner scrolls itself into view when it appears; wrap a saved banner in `use:reveal={saves}` so it does too.
 - **EmptyState**: what will appear here, why it matters, and the first step. Never a dead end; staff get the action. A muted sentence is enough for an empty sub-list inside a page ("No unavailable dates.").
 - **List rows** (`sj-list`, `sj-list__row`, `ListRow`): one member or horse with the facts staff scan for and at most one action; 64px tall, divided by `line`; name and secondary line truncate (wrap only text that must be read whole, such as notes).
 - **Fields** (`TextField`, `SelectField`, `DateRangeField`, `CheckboxField`): label always visible above, hint below, an error replaces the hint and names the fix.
