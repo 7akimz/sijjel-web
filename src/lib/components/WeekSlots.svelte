@@ -92,7 +92,7 @@
 				><Icon name="chevron_left" directional />{m.book_week_prev()}</Button
 			>
 		{/if}
-		<span class="sj-small">
+		<span class="sj-small range">
 			{weekEnd === week
 				? dayDate(week)
 				: m.book_week_range({ from: dayDate(week), to: dayDate(weekEnd) })}
@@ -173,11 +173,28 @@
 
 <style>
 	.week {
-		display: flex;
-		align-items: center;
+		display: grid;
+		grid-template-columns: auto auto;
+		grid-template-areas: 'range range' 'prev next';
 		justify-content: space-between;
-		gap: var(--space-2);
-		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-1) var(--space-2);
+	}
+	.week > :global(:first-child) {
+		grid-area: prev;
+	}
+	.range {
+		grid-area: range;
+		justify-self: center;
+	}
+	.week > :global(:last-child) {
+		grid-area: next;
+	}
+	@media (min-width: 720px) {
+		.week {
+			grid-template-columns: auto auto auto;
+			grid-template-areas: 'prev range next';
+		}
 	}
 	.confirm {
 		display: flex;
