@@ -60,6 +60,11 @@
 		const iso = `${date}T00:00:00Z`;
 		return `${formatWeekday(iso, locale)} ${formatDayMonth(iso, locale)}`;
 	};
+	// The reason follows in its own <bdi>, so the separator ends the label.
+	const closedLabel = (date: string, withReason: boolean) => {
+		const label = m.book_month_closed({ date: dateLabel(date) }, { locale });
+		return withReason ? `${label} · ` : label;
+	};
 	const closedOn = (weekday: number) =>
 		view.closed.filter((c) => new Date(`${c.date}T00:00:00Z`).getUTCDay() === weekday);
 
@@ -122,8 +127,8 @@
 			<p class="daynote sj-small">
 				<Icon name="event_busy" size={20} />
 				<span
-					>{m.book_month_closed({ date: dateLabel(closed.date) }, { locale })}{#if closed.reason}
-						· <bdi>{closed.reason}</bdi>{/if}</span
+					>{closedLabel(closed.date, !!closed.reason)}{#if closed.reason}<bdi>{closed.reason}</bdi
+						>{/if}</span
 				>
 			</p>
 		{/each}
