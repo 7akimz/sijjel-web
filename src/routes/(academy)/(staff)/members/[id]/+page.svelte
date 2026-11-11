@@ -10,7 +10,10 @@
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { AffectedBooking, BookingView, Member } from '#lib/api/member-types.js';
-	import { formatDate, formatMonth } from '#lib/format.js';
+	import { formatDate, formatDayMonth, formatMonth, formatWeekday } from '#lib/format.js';
+	import { weekOfDate } from '#lib/forms/book-month.js';
+	import { slotReasonText } from '#lib/forms/booking.js';
+	import { sessionsText } from '#lib/forms/horse-rides.js';
 	import { inactiveLabel, isLevelledRider, profileChips } from '#lib/forms/member.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, MoreMenu, StatusChip, type MoreMenuItem } from '#lib/ui/index.js';
@@ -22,6 +25,7 @@
 	let bookings = $state<BookingView[]>(untrack(() => data.bookings));
 	let notice = $state<string | undefined>(untrack(() => page.state.notice));
 	let failure = $state<string>();
+	let skipped = $state(untrack(() => page.state.skipped ?? []));
 	let affected = $state<{ bookings: AffectedBooking[]; retry?: () => void }>();
 
 	const isRider = $derived(member.roles.includes('rider'));
@@ -43,8 +47,15 @@
 	]);
 	let paying = $state(false);
 
+	const shortDate = (date: string) => {
+		const iso = `${date}T00:00:00Z`;
+		return `${formatWeekday(iso, data.locale)} ${formatDayMonth(iso, data.locale)}`;
+	};
+	const bookHref = $derived(resolve('/(academy)/(staff)/members/[id]/book', { id: member.id }));
+
 	function clear() {
 		notice = failure = undefined;
+		skipped = [];
 		affected = undefined;
 	}
 
@@ -204,6 +215,30 @@
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
+	{#if skipped.length > 0}
+		<Banner tone="pending" icon="event_busy">
+			<p class="skipped-title">
+				{skipped.length === 1
+					? m.book_month_skipped_one()
+					: m.book_month_skipped_other({ sessions: sessionsText(skipped.length, data.locale) })}
+			</p>
+			<ul class="skipped" role="list">
+				{#each skipped as s (s.date)}
+					<li>
+						<span
+							>{shortDate(s.date)} · <span dir="ltr">{s.start}</span>: {slotReasonText(
+								s.reason,
+								data.locale
+							)}</span
+						>
+						<!-- The book page's week is a query on its resolved route. -->
+						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+						<a href={`${bookHref}?week=${weekOfDate(s.date)}`}>{m.book_month_another()}</a>
+					</li>
+				{/each}
+			</ul>
+		</Banner>
+	{/if}
 	{#if affected}
 		<AffectedBookings
 			bookings={affected.bookings}
@@ -236,12 +271,17 @@
 			<div class="section-head">
 				<h2 class="sj-heading">{m.member_bookings()}</h2>
 				{#if member.status === 'active'}
-					<Button
-						variant={bookVariant}
-						icon="event_available"
-						href={resolve('/(academy)/(staff)/members/[id]/book', { id: member.id })}
-						>{m.member_book()}</Button
-					>
+					<div class="sj-row">
+						<Button
+							variant="secondary"
+							icon="date_range"
+							href={resolve('/(academy)/(staff)/members/[id]/book-month', { id: member.id })}
+							>{m.member_book_month()}</Button
+						>
+						<Button variant={bookVariant} icon="event_available" href={bookHref}
+							>{m.member_book()}</Button
+						>
+					</div>
 				{/if}
 			</div>
 			{#if upcoming.length === 0}
@@ -338,6 +378,15 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--space-3);
+		flex-wrap: wrap;
+	}
+	.skipped-title {
+		margin: 0;
+	}
+	.skipped li {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1) var(--space-2);
 	}
 	ul {
 		margin: 0;

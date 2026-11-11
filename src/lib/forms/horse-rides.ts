@@ -4,7 +4,7 @@ import { formatDate, formatWeekday } from '#lib/format.js';
 import { m } from '#lib/paraglide/messages.js';
 import { countText } from './subscription.js';
 
-function sessionsText(n: number, locale: Locale): string {
+export function sessionsText(n: number, locale: Locale): string {
 	return countText(n, {
 		one: () => m.count_sessions_one({}, { locale }),
 		two: () => m.count_sessions_two({}, { locale }),

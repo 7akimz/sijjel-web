@@ -95,3 +95,66 @@ test('an owner invites a rider who books and cancels a session', async ({ page, 
 	await expect(row).toBeVisible();
 	await expect(row.getByText('Unpaid this month')).toHaveCount(0);
 });
+
+test('staff book a month of fixed days for a rider, who then sees them', async ({
+	page,
+	browser
+}) => {
+	test.slow();
+	const slug = `month${Date.now().toString(36)}`;
+	await signInAsPlatformAdmin(page);
+	await expect(page).toHaveURL(platformUrl('/platform/academies'));
+	const { name } = await createAcademy(page, slug);
+	const owner = await signUpOwner(browser, slug, await inviteOwner(page, name));
+	await setUpAcademy(owner, slug);
+
+	await owner.goto(academyUrl(slug, '/settings/plans'));
+	await owner.getByLabel('Name (English)').fill('Dressage, 12 a month');
+	await owner.getByLabel('Name (Arabic)').fill('ترويض، 12 في الشهر');
+	await owner.getByLabel('Lessons a month').fill('12');
+	await owner.getByLabel('Monthly price').fill('1500');
+	await owner.getByRole('button', { name: 'Add plan' }).click();
+	await expect(owner.getByText('Plan saved.')).toBeVisible();
+
+	const invitePath = await inviteRider(owner, slug, {
+		name: 'Layla',
+		plan: 'Dressage, 12 a month'
+	});
+	const layla = await browser.newPage();
+	await layla.goto(academyUrl(slug, invitePath));
+	await layla.getByLabel('Your name').fill('Layla');
+	await layla.getByLabel('Phone', { exact: true }).fill(e2ePhone(`layla-${slug}`));
+	await layla.getByLabel('Email').fill(`layla-${slug}@example.test`);
+	await layla.getByLabel('Password', { exact: true }).fill('RiderPassw0rd');
+	await layla.getByRole('button', { name: 'Create your account' }).click();
+	await expect(layla).toHaveURL(academyUrl(slug, '/'));
+
+	await owner.setViewportSize({ width: 390, height: 844 });
+	await owner.goto(academyUrl(slug, '/members'));
+	await owner.getByRole('link', { name: /^Layla/ }).click();
+	await owner.getByRole('link', { name: 'Book a month' }).click();
+	await expect(owner.getByRole('heading', { name: 'Book a month for Layla' })).toBeVisible();
+	// Next month always has every 18:00 session still ahead of it, whatever today is.
+	const next = owner.getByRole('link', { name: 'Next month' });
+	if (await next.isVisible()) await next.click();
+	await expect(owner.getByRole('button', { name: 'Next month' })).toBeDisabled();
+
+	const sixPm = owner.getByRole('button', { name: /^18:00 \d+ of \d+$/ });
+	await sixPm.nth(0).click();
+	await sixPm.nth(1).click();
+	await expect(sixPm.nth(0)).toHaveAttribute('aria-pressed', 'true');
+	const book = owner.getByRole('button', { name: /^Book \d+ sessions$/ });
+	await expect(book).toBeInViewport();
+	const sessions = Number((await book.textContent())?.match(/\d+/)?.[0]);
+	expect(sessions).toBeGreaterThanOrEqual(8);
+	await book.click();
+	await owner.getByRole('button', { name: 'Yes, book it' }).click();
+
+	await expect(
+		owner.getByText(new RegExp(`^Booked ${sessions} sessions for Layla in \\w+\\.$`))
+	).toBeVisible();
+	await expect(owner.getByRole('heading', { name: 'Layla' })).toBeVisible();
+
+	await layla.reload();
+	await expect(layla.getByText('School horse').first()).toBeVisible();
+});

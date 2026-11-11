@@ -102,6 +102,7 @@ Keep this list current. A new use of a pattern must mean the same thing as the u
 | Pill links (`.filter` with `aria-current`)           | Narrow **one list** to a category; the page stays the same       | Horses by discipline, Riders by payment                                         |
 | Underlined tabs (`.tabs`, links with `aria-current`) | Switch between views of one item under its header                | Horse page: Unavailable dates, Rides; rider page: Profile, Rides                |
 | Day strip and time pills                             | Pick the day or time the board shows                             | Board (`BoardDays`, `BoardTimes`)                                               |
+| Time pills with a count and `aria-pressed`           | Choose a time; the count is how many dates it is free on         | Book a month (`BookMonth`): one time per weekday                                |
 | `sj-page-head` with a labelled button                | The page's title and its main action                             | Horses "New horse", Riders "Invite rider", Staff "Invite staff", Board "Select" |
 | Quiet back button above the title                    | Go up one level                                                  | Horse page "All horses", rider and staff profiles, Staff "Settings"             |
 | Whole-row link in a list                             | Open that item                                                   | Horses list, Riders list, Staff list, ride rows                                 |

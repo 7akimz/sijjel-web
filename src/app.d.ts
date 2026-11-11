@@ -17,6 +17,8 @@ declare global {
 		interface PageState {
 			/** A message the next page shows once, such as after saving on another page. */
 			notice?: string;
+			/** Sessions a month booking couldn't book, for the rider profile to offer another day. */
+			skipped?: { date: string; start: string; reason: string }[];
 		}
 	}
 }

@@ -191,3 +191,41 @@ export type RiderRides = {
 	month: string | null;
 	rides: RiderRide[];
 };
+
+/** One date of a weekly time in a month, and why staff can't book the rider into it. */
+export interface MonthDate {
+	date: string;
+	canBook: boolean;
+	reason: string;
+}
+
+export interface MonthTime {
+	start: string;
+	end: string;
+	dates: MonthDate[];
+}
+
+export interface MonthDay {
+	weekday: number;
+	times: MonthTime[];
+}
+
+export interface MonthPick {
+	weekday: number;
+	start: string;
+}
+
+/** Everything staff need to book a month of fixed days for a rider. */
+export interface MonthView {
+	month: string;
+	days: MonthDay[];
+	closed: { date: string; reason: string | null }[];
+	/** The rider's usual time on each weekday this month. */
+	current: MonthPick[];
+	limit: { lessonsPerMonth: number | null; booked: number; monthUnpaid: boolean };
+}
+
+export interface MonthResult {
+	booked: { date: string; start: string }[];
+	skipped: { date: string; start: string; reason: string }[];
+}
