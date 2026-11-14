@@ -102,6 +102,16 @@ export function daysText(n: number, locale: Locale): string {
 	});
 }
 
+/** "30 free days start when setup is finished." */
+export function waitingText(n: number, locale: Locale): string {
+	return countText(n, {
+		one: () => m.subscription_waiting_one({}, { locale }),
+		two: () => m.subscription_waiting_two({}, { locale }),
+		few: (count) => m.subscription_waiting_few({ count }, { locale }),
+		many: (count) => m.subscription_waiting_many({ count }, { locale })
+	});
+}
+
 export function riderCountText(n: number, locale: Locale): string {
 	return countText(n, {
 		one: () => m.count_riders_one({}, { locale }),

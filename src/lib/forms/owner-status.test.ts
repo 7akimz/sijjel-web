@@ -5,9 +5,11 @@ import {
 	ownerChip,
 	ownerDateText,
 	ownerEntryText,
+	ownerRowAction,
 	ownerStatusText,
 	ownerStatusTone,
-	setupChip
+	setupChip,
+	showsSetup
 } from './owner-status';
 
 const now = new Date('2026-11-14T10:00:00Z');
@@ -118,5 +120,18 @@ describe('owner wording', () => {
 		expect(text).toContain('Paid month');
 		expect(text).not.toContain('admin@sijjel.com');
 		expect(ownerEntryText(entry({}), false, 'en')).not.toMatch(/free/i);
+	});
+});
+
+describe('ownerRowAction', () => {
+	it('sends again while an invite waits, invites when none, and nothing once joined', () => {
+		expect(ownerRowAction(owner({ state: 'pending', inviteId: 'i' }))).toBe('send_again');
+		expect(ownerRowAction(owner({ state: 'expired', inviteId: 'i' }))).toBe('send_again');
+		expect(ownerRowAction(owner({}))).toBe('invite');
+		expect(ownerRowAction(owner({ state: 'joined', name: 'Omar' }))).toBeNull();
+	});
+	it('shows setup only once someone joined', () => {
+		expect(showsSetup(owner({ state: 'joined' }))).toBe(true);
+		expect(showsSetup(owner({ state: 'pending' }))).toBe(false);
 	});
 });

@@ -27,7 +27,8 @@
 
 	let sub = $state(untrack(() => subscription));
 	let packageId = $state(untrack(() => subscription.package?.id ?? ''));
-	let freeDays = $state<string | number | null>(30);
+	let freeDays = $state<string | number | null>(untrack(() => subscription.trialDaysWaiting ?? 30));
+	let startAfterSetup = $state(true);
 	let amount = $state<string | number | null>(
 		untrack(() => subscription.package?.monthlyPrice ?? '')
 	);
@@ -97,7 +98,7 @@
 		}
 		const body =
 			sub.entries.length === 0
-				? { packageId: packageId || null, freeDays: free }
+				? { packageId: packageId || null, freeDays: free, startAfterSetup }
 				: { packageId: packageId || null };
 		if (await send('/package', 'PUT', body)) amount = sub.package?.monthlyPrice ?? '';
 	}
@@ -133,6 +134,11 @@
 		if (!(await send('/free-time', 'POST', { days: n, note: freeNote.trim() || null }))) return;
 		days = '';
 		freeNote = '';
+	}
+
+	function startTrial() {
+		start('package');
+		send('/trial/start', 'POST');
 	}
 
 	function undo() {
@@ -185,14 +191,23 @@
 					error={fieldText(shown('package'), 'freeDays')}
 					bind:value={freeDays}
 				/>
+				<CheckboxField label={m.subscription_start_after_setup()} bind:checked={startAfterSetup} />
+				<span class="sj-hint">{m.subscription_start_after_setup_hint()}</span>
 			{/if}
 			<div class="sj-row">
 				<Button type="submit" disabled={busy}>{m.subscription_save_package()}</Button>
+				{#if sub.status === 'trial_waiting'}
+					<Button variant="quiet" icon="play_arrow" disabled={busy} onclick={startTrial}>
+						{m.subscription_start_trial_now()}
+					</Button>
+				{/if}
 			</div>
 		</form>
 	</Card>
 
-	{#if sub.package}
+	{#if sub.status === 'trial_waiting'}
+		<p class="sj-muted">{m.subscription_waiting_cards()}</p>
+	{:else if sub.package}
 		<Card>
 			<form method="post" class="sj-stack" onsubmit={markPaid} novalidate>
 				<h2 class="sj-heading">{m.subscription_mark_paid_title()}</h2>

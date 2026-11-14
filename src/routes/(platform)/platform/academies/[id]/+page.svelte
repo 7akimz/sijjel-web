@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { academyName } from '#lib/academy.js';
+	import AcademyOwner from '#lib/components/AcademyOwner.svelte';
+	import AcademySetup from '#lib/components/AcademySetup.svelte';
 	import AcademySubscription from '#lib/components/AcademySubscription.svelte';
 	import type { AcademySubscription as Subscription } from '#lib/api/subscription-types.js';
 	import { formatDate } from '#lib/format.js';
-	import { ridersText, statusText, statusTone } from '#lib/forms/subscription.js';
+	import { showsSetup } from '#lib/forms/owner-status.js';
+	import { ridersText, statusText, statusTone, waitingText } from '#lib/forms/subscription.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { StatusChip } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -14,6 +17,7 @@
 	let current = $state<{ academyId: string; sub: Subscription }>();
 	const sub = $derived(current?.academyId === data.academy.id ? current.sub : data.subscription);
 	const name = $derived(academyName(data.academy, data.locale));
+	const now = new Date();
 </script>
 
 <svelte:head>
@@ -31,7 +35,9 @@
 			{#if sub.blocked}<StatusChip tone="danger">{m.subscription_blocked()}</StatusChip>{/if}
 			<StatusChip tone="neutral">{ridersText(sub.riders, data.locale)}</StatusChip>
 		</div>
-		{#if sub.paidUntil}
+		{#if sub.trialDaysWaiting}
+			<p class="sj-muted">{waitingText(sub.trialDaysWaiting, data.locale)}</p>
+		{:else if sub.paidUntil}
 			<p class="sj-muted">
 				{m.subscription_paid_until({ date: formatDate(sub.paidUntil, data.locale) })}
 			</p>
@@ -39,6 +45,10 @@
 	</div>
 
 	{#key data.academy.id}
+		<AcademyOwner academy={data.academy} {now} locale={data.locale} />
+		{#if showsSetup(data.academy.owner)}
+			<AcademySetup setup={data.academy.setup} locale={data.locale} />
+		{/if}
 		<AcademySubscription
 			academyId={data.academy.id}
 			subscription={data.subscription}

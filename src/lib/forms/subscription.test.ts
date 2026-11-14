@@ -11,7 +11,8 @@ import {
 	sortByUrgency,
 	statusFilters,
 	statusText,
-	statusTone
+	statusTone,
+	waitingText
 } from './subscription';
 
 const academy = (nameEn: string, extra: Partial<AcademySummary>): AcademySummary => ({
@@ -50,6 +51,10 @@ describe('the waiting trial', () => {
 	it('reads as waiting for setup on the platform', () => {
 		expect(statusText('trial_waiting', 'en')).toBe('Trial waits for setup');
 		expect(statusTone('trial_waiting', false)).toBe('pending');
+	});
+	it('says how many free days wait', () => {
+		expect(waitingText(30, 'en')).toBe('30 free days start when setup is finished.');
+		expect(waitingText(1, 'en')).toBe('1 free day starts when setup is finished.');
 	});
 	it('can be filtered', () => {
 		expect(statusFilters).toContain('trial_waiting');

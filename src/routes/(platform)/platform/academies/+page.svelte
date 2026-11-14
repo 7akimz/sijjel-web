@@ -5,8 +5,17 @@
 	import InviteShareCard from '#lib/components/InviteShareCard.svelte';
 	import OwnerInviteForm from '#lib/components/OwnerInviteForm.svelte';
 	import NewAcademyForm from '#lib/components/NewAcademyForm.svelte';
-	import type { AcademySummary, CreatedInvite } from '#lib/api/types.js';
+	import { api } from '#lib/api/client.js';
+	import { ApiError, errorText } from '#lib/api/errors.js';
+	import type { AcademySummary, CreatedInvite, OwnerStatus } from '#lib/api/types.js';
 	import { formatDayMonth } from '#lib/format.js';
+	import {
+		ownerChip,
+		ownerRowAction,
+		pendingOwner,
+		setupChip,
+		showsSetup
+	} from '#lib/forms/owner-status.js';
 	import {
 		matchesFilter,
 		monthsText,
@@ -26,7 +35,13 @@
 	let created = $state<AcademySummary[]>([]);
 	let creating = $state(false);
 	let notice = $state<string>();
-	let invites = $state<Record<string, { invite: CreatedInvite; name: string }>>({});
+	let invites = $state<Record<string, { invite: CreatedInvite; name: string; renewed: boolean }>>(
+		{}
+	);
+	let owners = $state<Record<string, OwnerStatus>>({});
+	let sending = $state<string>();
+	let failure = $state<string>();
+	const now = new Date();
 	let inviting = $state<string>();
 	let filter = $state<StatusFilter>('all');
 
@@ -58,9 +73,30 @@
 		notice = m.academy_created();
 	}
 
+	const ownerOf = (a: AcademySummary) => owners[a.id] ?? a.owner;
+
 	function onInvited(academy: AcademySummary, invite: CreatedInvite, name: string) {
-		invites = { ...invites, [academy.id]: { invite, name } };
+		invites = { ...invites, [academy.id]: { invite, name, renewed: false } };
+		owners = { ...owners, [academy.id]: pendingOwner(invite, name || null, now) };
 		inviting = undefined;
+	}
+
+	async function sendAgain(academy: AcademySummary) {
+		const owner = ownerOf(academy);
+		if (!owner.inviteId) return;
+		failure = undefined;
+		sending = academy.id;
+		try {
+			const invite = await api<CreatedInvite>(`/platform/invites/${owner.inviteId}/renew`, {
+				method: 'POST'
+			});
+			invites = { ...invites, [academy.id]: { invite, name: owner.name ?? '', renewed: true } };
+			owners = { ...owners, [academy.id]: pendingOwner(invite, owner.name, now) };
+		} catch (e) {
+			failure = errorText(e instanceof ApiError ? e.code : 'internal_error');
+		} finally {
+			sending = undefined;
+		}
 	}
 </script>
 
@@ -79,6 +115,7 @@
 	</div>
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
+	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 
 	{#if creating}
 		<NewAcademyForm
@@ -110,6 +147,9 @@
 		<ul class="sj-list" role="list">
 			{#each academies as academy (academy.id)}
 				{@const name = academyName(academy, data.locale)}
+				{@const owner = ownerOf(academy)}
+				{@const chip = ownerChip(owner, now, data.locale)}
+				{@const action = ownerRowAction(owner)}
 				<li class="academy">
 					<ListRow
 						initials={academyMark(academy.nameEn)}
@@ -118,14 +158,25 @@
 						subtitleDir="ltr"
 					>
 						{#snippet trailing()}
-							<Button
-								variant="secondary"
-								icon="person_add"
-								disabled={inviting === academy.id}
-								onclick={() => (inviting = academy.id)}
-							>
-								{m.academy_invite_owner()}
-							</Button>
+							{#if action === 'send_again' && !invites[academy.id]}
+								<Button
+									variant="secondary"
+									icon="send"
+									disabled={sending === academy.id}
+									onclick={() => sendAgain(academy)}
+								>
+									{m.owner_send_again()}
+								</Button>
+							{:else if action === 'invite'}
+								<Button
+									variant="secondary"
+									icon="person_add"
+									disabled={inviting === academy.id}
+									onclick={() => (inviting = academy.id)}
+								>
+									{m.academy_invite_owner()}
+								</Button>
+							{/if}
 						{/snippet}
 					</ListRow>
 					<div class="details sj-stack">
@@ -133,12 +184,9 @@
 							{#each academy.disciplines as key (key)}
 								<StatusChip tone="level">{disciplineNames.get(key) ?? key}</StatusChip>
 							{/each}
-							{#if academy.ownerCount > 0}
-								<StatusChip tone="active" dot>
-									{m.academy_owners({ count: academy.ownerCount })}
-								</StatusChip>
-							{:else}
-								<StatusChip tone="pending" dot>{m.academy_no_owner()}</StatusChip>
+							<StatusChip tone={chip.tone} dot>{chip.text}</StatusChip>
+							{#if showsSetup(owner)}
+								<StatusChip tone="neutral">{setupChip(academy.setup, data.locale)}</StatusChip>
 							{/if}
 						</div>
 						<div class="sj-row">
@@ -185,6 +233,7 @@
 								name={sent.name}
 								message={m.invite_share_message_owner({ name: sent.name, academy: name })}
 								phone={sent.invite.phone}
+								renewed={sent.renewed}
 								locale={data.locale}
 							/>
 						{/if}

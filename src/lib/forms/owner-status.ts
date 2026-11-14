@@ -1,5 +1,5 @@
 import type { SubscriptionEntry, SubscriptionStatus } from '#lib/api/subscription-types.js';
-import type { Locale, OwnerStatus, SetupSummary } from '#lib/api/types.js';
+import type { CreatedInvite, Locale, OwnerStatus, SetupSummary } from '#lib/api/types.js';
 import { formatDate, formatDayMonth } from '#lib/format.js';
 import { m } from '#lib/paraglide/messages.js';
 import { daysText, entryText, statusText, statusTone, type StatusTone } from './subscription';
@@ -82,3 +82,36 @@ export function ownerEntryText(e: SubscriptionEntry, isFirst: boolean, locale: L
 				' · '
 			);
 }
+
+/** "11 Nov, 3 days ago": when an owner invite was sent. */
+export function sentText(sentAt: string, now: Date, locale: Locale): string {
+	const days = daysSince(sentAt, now);
+	const ago =
+		days <= 0
+			? m.owner_ago_today({}, { locale })
+			: days === 1
+				? m.owner_ago_yesterday({}, { locale })
+				: m.owner_ago_days({ days: daysText(days, locale) }, { locale });
+	return m.owner_sent_on({ date: formatDayMonth(sentAt, locale), ago }, { locale });
+}
+
+/** The owner status right after an invite is created or sent again. */
+export function pendingOwner(invite: CreatedInvite, name: string | null, now: Date): OwnerStatus {
+	return {
+		state: 'pending',
+		name,
+		inviteId: invite.inviteId,
+		sentAt: now.toISOString(),
+		expiresAt: invite.expiresAt,
+		joinedAt: null
+	};
+}
+
+/** The button on an Academies list row: send the waiting invite again, or invite an owner. */
+export function ownerRowAction(o: OwnerStatus): 'send_again' | 'invite' | null {
+	if (o.state === 'pending' || o.state === 'expired') return 'send_again';
+	return o.state === 'none' ? 'invite' : null;
+}
+
+/** Setup progress means something only once an owner has joined. */
+export const showsSetup = (o: OwnerStatus) => o.state === 'joined';

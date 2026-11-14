@@ -16,8 +16,10 @@
 		message: string;
 		phone: string | null;
 		locale: Locale;
+		/** The link replaces an earlier one, which no longer works. */
+		renewed?: boolean;
 	};
-	let { invite, name, message, phone, locale }: Props = $props();
+	let { invite, name, message, phone, locale, renewed = false }: Props = $props();
 
 	let qr = $state('');
 	const whatsapp = $derived(whatsappLink(invite.url, message, phone));
@@ -30,7 +32,9 @@
 <div class="sj-stack">
 	<Banner icon="check_circle">
 		<strong>{m.invite_ready()}</strong>
-		{m.invite_ready_body({ name, date: formatDate(invite.expiresAt, locale) })}
+		{renewed
+			? m.invite_renewed_body({ name, date: formatDate(invite.expiresAt, locale) })
+			: m.invite_ready_body({ name, date: formatDate(invite.expiresAt, locale) })}
 	</Banner>
 	<!-- wa.me is an external WhatsApp address, not a route of this app. -->
 	<!-- eslint-disable svelte/no-navigation-without-resolve -->

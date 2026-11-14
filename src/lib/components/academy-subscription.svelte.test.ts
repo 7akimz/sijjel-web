@@ -84,7 +84,59 @@ const props = (s: Subscription) => ({
 	onchange: () => {}
 });
 
+const waiting = subscription({
+	status: 'trial_waiting',
+	paidUntil: null,
+	entries: [],
+	trialDaysWaiting: 45
+});
+
 describe('AcademySubscription', () => {
+	it('lets the free days wait for setup by default', async () => {
+		const calls = stubFetch();
+		const screen = render(AcademySubscription, props(none));
+		const box = screen.getByLabelText('Start the free days when setup is finished');
+
+		await expect.element(box).toBeChecked();
+		await box.click();
+		await screen.getByLabelText('Package').selectOptions('Starter');
+		await screen.getByRole('button', { name: 'Save package' }).click();
+
+		await expect.poll(() => calls.length).toBe(1);
+		expect(calls[0].body).toEqual({ packageId: 'starter', freeDays: 30, startAfterSetup: false });
+	});
+
+	it('shows what waits and starts it on request', async () => {
+		const calls = stubFetch();
+		const screen = render(AcademySubscription, props(waiting));
+
+		await expect.element(screen.getByLabelText('Free days to start with')).toHaveValue(45);
+		await expect
+			.element(screen.getByLabelText('Start the free days when setup is finished'))
+			.toBeChecked();
+		await expect
+			.element(screen.getByRole('heading', { name: 'Mark month paid' }))
+			.not.toBeInTheDocument();
+		await expect
+			.element(screen.getByText('Payments and free time open once the trial starts.'))
+			.toBeVisible();
+
+		await screen.getByRole('button', { name: 'Start the trial now' }).click();
+
+		await expect.poll(() => calls.length).toBe(1);
+		expect(calls[0]).toMatchObject({
+			url: '/api/platform/academies/a1/trial/start',
+			method: 'POST'
+		});
+	});
+
+	it('has no Start the trial now when nothing waits', async () => {
+		const screen = render(AcademySubscription, props(none));
+		await expect
+			.element(screen.getByRole('button', { name: 'Start the trial now' }))
+			.not.toBeInTheDocument();
+	});
+
 	it('offers free days only before the first entry', async () => {
 		const calls = stubFetch();
 		const screen = render(AcademySubscription, props(none));
@@ -97,7 +149,7 @@ describe('AcademySubscription', () => {
 		expect(calls[0]).toEqual({
 			url: '/api/platform/academies/a1/package',
 			method: 'PUT',
-			body: { packageId: 'starter', freeDays: 30 }
+			body: { packageId: 'starter', freeDays: 30, startAfterSetup: true }
 		});
 		await expect.element(screen.getByLabelText('Free days to start with')).not.toBeInTheDocument();
 	});
