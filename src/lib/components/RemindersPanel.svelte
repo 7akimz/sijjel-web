@@ -114,8 +114,11 @@
 		<Banner tone="pending" icon="block">{m.reminders_blocked({}, { locale })}</Banner>
 	{:else if current === 'off'}
 		<div>
-			<Button icon="notifications_active" disabled={busy} onclick={turnOn}
-				>{copy.turnOn({}, { locale })}</Button
+			<Button
+				variant={audience === 'rider' ? 'secondary' : 'primary'}
+				icon="notifications_active"
+				disabled={busy}
+				onclick={turnOn}>{copy.turnOn({}, { locale })}</Button
 			>
 		</div>
 	{:else if current === 'on'}
