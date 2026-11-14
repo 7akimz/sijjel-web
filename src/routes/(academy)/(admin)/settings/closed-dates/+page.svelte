@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { academyName } from '#lib/academy.js';
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
@@ -12,7 +13,10 @@
 		splitByToday,
 		toDateRangeInput
 	} from '#lib/forms/closed-dates.js';
+	import { closureShareText } from '#lib/forms/closure-share.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
+	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
+	import { whatsappLink } from '#lib/share.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, DateRangeField, EmptyState, TextField } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -25,7 +29,7 @@
 	let reason = $state('');
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
-	let notice = $state<string>();
+	let saved = $state<{ range: ClosedRange; cancelled: boolean }>();
 	let busy = $state(false);
 	let affected = $state<{ bookings: AffectedBooking[]; form: DateRangeForm }>();
 	let formElement = $state<HTMLFormElement>();
@@ -33,6 +37,12 @@
 	const split = $derived(splitByToday(closures, data.today));
 	const upcoming = $derived(split.upcoming);
 	const past = $derived(split.past);
+	const academy = $derived(data.tenant.kind === 'academy' ? data.tenant.academy : null);
+	const shareText = $derived(
+		saved && academy
+			? closureShareText(saved.range, academyName(academy, data.locale), data.locale)
+			: ''
+	);
 
 	function add(event: SubmitEvent) {
 		event.preventDefault();
@@ -42,7 +52,7 @@
 	// Confirming resends the range whose bookings were listed, even if the fields changed since.
 	async function submit(form: DateRangeForm, confirm: boolean) {
 		failure = undefined;
-		notice = undefined;
+		saved = undefined;
 		affected = undefined;
 		errors = closedRangeErrors(form);
 		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
@@ -54,7 +64,7 @@
 			});
 			closures = [...closures, created];
 			from = to = reason = '';
-			notice = m.closed_added();
+			saved = { range: created, cancelled: confirm };
 		} catch (e) {
 			const error = e instanceof ApiError ? e : new ApiError(0, 'internal_error');
 			errors = error.fields;
@@ -72,7 +82,7 @@
 
 	async function remove(range: ClosedRange) {
 		failure = undefined;
-		notice = undefined;
+		saved = undefined;
 		try {
 			await api(`/academy/closed-dates/${range.id}`, { method: 'DELETE' });
 			closures = closures.filter((r) => r.id !== range.id);
@@ -112,7 +122,28 @@
 		<p class="sj-muted">{m.closed_intro()}</p>
 	</div>
 
-	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
+	{#if saved}
+		<Banner icon="check_circle">
+			<div class="sj-stack saved">
+				<p>
+					<strong>{m.closure_saved({ dates: formatRange(saved.range, data.locale) })}</strong>
+					{saved.cancelled ? m.closure_saved_notified() : m.closure_saved_share()}
+				</p>
+				<p class="share sj-small">{shareText} {data.bookUrl}</p>
+				<!-- wa.me is an external WhatsApp address, not a route of this app. -->
+				<!-- eslint-disable svelte/no-navigation-without-resolve -->
+				<a
+					class="sj-btn sj-btn--secondary whatsapp"
+					href={whatsappLink(data.bookUrl, shareText)}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<WhatsAppIcon />{m.closure_share_action()}
+				</a>
+				<!-- eslint-enable svelte/no-navigation-without-resolve -->
+			</div>
+		</Banner>
+	{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
 	{#if affected}
 		<AffectedBookings
@@ -165,6 +196,23 @@
 </div>
 
 <style>
+	.saved {
+		gap: var(--space-3);
+	}
+	.saved p {
+		margin: 0;
+	}
+	.share {
+		padding: var(--space-3);
+		background: var(--surface);
+		color: var(--ink);
+		border: 1px solid var(--line);
+		border-radius: var(--radius-md);
+		white-space: pre-wrap;
+	}
+	.whatsapp {
+		align-self: flex-start;
+	}
 	ul {
 		margin: 0;
 		padding: 0;

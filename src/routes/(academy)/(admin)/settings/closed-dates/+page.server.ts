@@ -8,5 +8,9 @@ export const load: PageServerLoad = async (event) => {
 		apiLoad<ClosedRange[]>(event, '/api/academy/closed-dates'),
 		apiLoad<Schedule>(event, '/api/academy/schedule')
 	]);
-	return { closures, today: academyToday(schedule.timeZone) };
+	return {
+		closures,
+		today: academyToday(schedule.timeZone),
+		bookUrl: new URL('/book', event.url.origin).href
+	};
 };

@@ -269,7 +269,6 @@
 	"closed_delete": "Delete {dates}",
 	"closed_empty_title": "No closed dates",
 	"closed_empty_body": "Add holidays and other days with no sessions.",
-	"closed_added": "Closed dates added.",
 	"ladder_remove_in_use": "Level {number} is used by a horse",
 	"ladder_inverts_horses": "This order would put {horses} outside their level range.",
 	"disciplines_page_title": "Disciplines and levels",
@@ -824,5 +823,11 @@
 	"book_month_none_booked": "Nothing was booked for {rider} in {month}.",
 	"book_month_skipped_one": "1 session wasn't booked:",
 	"book_month_skipped_other": "{sessions} weren't booked:",
-	"book_month_another": "Book another day"
+	"book_month_another": "Book another day",
+	"closure_share_one": "{academy} is closed on {day}{reason}. Sessions that day are cancelled; please book another day in the app:",
+	"closure_share_range": "{academy} is closed from {from} to {to}{reason}. Sessions on those days are cancelled; please book another day in the app:",
+	"closure_saved": "Closed {dates}.",
+	"closure_saved_notified": "Riders booked then get a notification. Tell everyone else in your academy's WhatsApp group:",
+	"closure_saved_share": "Tell your academy's WhatsApp group:",
+	"closure_share_action": "Share on WhatsApp"
 }

@@ -269,7 +269,6 @@
 	"closed_delete": "حذف {dates}",
 	"closed_empty_title": "لا توجد أيام إغلاق",
 	"closed_empty_body": "أضف العطل والأيام الأخرى بلا حصص.",
-	"closed_added": "تمت إضافة أيام الإغلاق.",
 	"ladder_remove_in_use": "المستوى {number} مستخدم لحصان",
 	"ladder_inverts_horses": "هذا الترتيب يُخرج {horses} عن نطاق مستوياتها.",
 	"disciplines_page_title": "التخصصات والمستويات",
@@ -824,5 +823,11 @@
 	"book_month_none_booked": "لم يُحجز شيء لـ{rider} في {month}.",
 	"book_month_skipped_one": "حصة لم تُحجز:",
 	"book_month_skipped_other": "لم تُحجز {sessions}:",
-	"book_month_another": "احجز يومًا آخر"
+	"book_month_another": "احجز يومًا آخر",
+	"closure_share_one": "{academy} مغلقة يوم {day}{reason}. أُلغيت حصص ذلك اليوم؛ يرجى حجز يوم آخر من التطبيق:",
+	"closure_share_range": "{academy} مغلقة من {from} إلى {to}{reason}. أُلغيت حصص تلك الأيام؛ يرجى حجز يوم آخر من التطبيق:",
+	"closure_saved": "أُغلقت {dates}.",
+	"closure_saved_notified": "يصل إشعار للفرسان الذين حجزوا في هذه الأيام. أخبر الباقين في مجموعة واتساب الخاصة بالأكاديمية:",
+	"closure_saved_share": "أخبر مجموعة واتساب الخاصة بالأكاديمية:",
+	"closure_share_action": "شارك على واتساب"
 }
