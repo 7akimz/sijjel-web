@@ -1,4 +1,9 @@
-export type SubscriptionStatus = 'no_package' | 'free' | 'paid' | 'due_soon' | 'unpaid';
+/**
+ * trial_waiting is free days waiting for setup, as the platform sees it; the academy's own admins
+ * see the same state as not_started.
+ */
+export type SubscriptionStatus =
+	'no_package' | 'trial_waiting' | 'not_started' | 'free' | 'paid' | 'due_soon' | 'unpaid';
 
 /** A tier academies pay sijjel for. A null rider limit is unlimited. */
 export interface Package {
@@ -48,6 +53,8 @@ export interface AcademySubscription {
 	blocked: boolean;
 	riders: Riders;
 	entries: SubscriptionEntry[];
+	/** Free days waiting for setup; platform only. */
+	trialDaysWaiting?: number;
 }
 
 /** What an academy's admins are told about their subscription. */

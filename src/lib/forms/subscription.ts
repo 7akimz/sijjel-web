@@ -13,7 +13,7 @@ export type StatusTone = 'active' | 'pending' | 'danger' | 'stone' | 'neutral';
 
 export function statusTone(status: SubscriptionStatus, blocked: boolean): StatusTone {
 	if (blocked || status === 'unpaid') return 'danger';
-	if (status === 'due_soon') return 'pending';
+	if (status === 'due_soon' || status === 'trial_waiting') return 'pending';
 	if (status === 'paid') return 'active';
 	if (status === 'free') return 'neutral';
 	return 'stone';
@@ -22,6 +22,8 @@ export function statusTone(status: SubscriptionStatus, blocked: boolean): Status
 export function statusText(status: SubscriptionStatus, locale: Locale): string {
 	const texts: Record<SubscriptionStatus, () => string> = {
 		no_package: () => m.subscription_status_no_package({}, { locale }),
+		trial_waiting: () => m.subscription_status_trial_waiting({}, { locale }),
+		not_started: () => m.subscription_status_not_started({}, { locale }),
 		free: () => m.subscription_status_free({}, { locale }),
 		paid: () => m.subscription_status_paid({}, { locale }),
 		due_soon: () => m.subscription_status_due_soon({}, { locale }),
@@ -31,13 +33,14 @@ export function statusText(status: SubscriptionStatus, locale: Locale): string {
 }
 
 export type StatusFilter =
-	'all' | 'unpaid' | 'due_soon' | 'blocked' | 'free' | 'paid' | 'no_package';
+	'all' | 'unpaid' | 'due_soon' | 'blocked' | 'trial_waiting' | 'free' | 'paid' | 'no_package';
 
 export const statusFilters: StatusFilter[] = [
 	'all',
 	'unpaid',
 	'due_soon',
 	'blocked',
+	'trial_waiting',
 	'free',
 	'paid',
 	'no_package'

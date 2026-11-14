@@ -9,6 +9,8 @@ import {
 	riderCountText,
 	ridersText,
 	sortByUrgency,
+	statusFilters,
+	statusText,
 	statusTone
 } from './subscription';
 
@@ -26,7 +28,33 @@ const academy = (nameEn: string, extra: Partial<AcademySummary>): AcademySummary
 	paidUntil: null,
 	monthsUnpaid: 0,
 	blocked: false,
+	owner: {
+		state: 'joined',
+		name: 'Owner',
+		inviteId: null,
+		sentAt: null,
+		expiresAt: null,
+		joinedAt: null
+	},
+	setup: {
+		done: 4,
+		total: 4,
+		steps: { hours: true, arenas: true, horses: true, plans: true },
+		finished: true,
+		doneOn: null
+	},
 	...extra
+});
+
+describe('the waiting trial', () => {
+	it('reads as waiting for setup on the platform', () => {
+		expect(statusText('trial_waiting', 'en')).toBe('Trial waits for setup');
+		expect(statusTone('trial_waiting', false)).toBe('pending');
+	});
+	it('can be filtered', () => {
+		expect(statusFilters).toContain('trial_waiting');
+		expect(matchesFilter(academy('A', { status: 'trial_waiting' }), 'trial_waiting')).toBe(true);
+	});
 });
 
 describe('sortByUrgency', () => {

@@ -83,6 +83,31 @@ export interface AcademySummary {
 	paidUntil: string | null;
 	monthsUnpaid: number;
 	blocked: boolean;
+	owner: OwnerStatus;
+	setup: SetupSummary;
+	trialDaysWaiting?: number;
+}
+
+/**
+ * Where an academy stands with its owner. The invite fields describe the newest owner invite not
+ * accepted yet; name and joinedAt the first owner to join once joined.
+ */
+export interface OwnerStatus {
+	state: 'none' | 'pending' | 'expired' | 'joined';
+	name: string | null;
+	inviteId: string | null;
+	sentAt: string | null;
+	expiresAt: string | null;
+	joinedAt: string | null;
+}
+
+/** The owner's setup progress; finished stays true once reached. */
+export interface SetupSummary {
+	done: number;
+	total: number;
+	steps: { hours: boolean; arenas: boolean; horses: boolean; plans: boolean };
+	finished: boolean;
+	doneOn: string | null;
 }
 
 export interface CreatedInvite {
