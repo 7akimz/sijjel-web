@@ -1,4 +1,5 @@
 <script lang="ts">
+	import NotifyOffer from '#lib/components/NotifyOffer.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import WeekSlots from '#lib/components/WeekSlots.svelte';
@@ -72,7 +73,14 @@
 		</p>
 	</div>
 
-	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
+	{#if notice}
+		<Banner icon="check_circle">
+			<div class="sj-stack done">
+				<strong>{notice}</strong>
+				<NotifyOffer publicKey={data.publicKey} locale={data.locale} />
+			</div>
+		</Banner>
+	{/if}
 	{#if failure}<Banner icon="error" tone="danger">{failure}</Banner>{/if}
 	{#if blocked}
 		<Banner icon="info" tone="pending">{riderBlockText(blocked, data.locale)}</Banner>
@@ -96,6 +104,9 @@
 </div>
 
 <style>
+	.done {
+		gap: var(--space-2);
+	}
 	.window {
 		display: flex;
 		align-items: center;

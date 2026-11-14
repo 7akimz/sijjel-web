@@ -36,6 +36,7 @@ const booking = (date: string, startsAt: string): BookingView => ({
 	ownHorseName: null,
 	status: 'active',
 	cancelledByAcademy: false,
+	cancelReason: null,
 	canCancel: false
 });
 
@@ -68,6 +69,23 @@ describe('RiderHome', () => {
 		await screen.getByRole('button', { name: 'Cancel' }).click();
 
 		await expect.element(screen.getByText('Left this month: 2 of 2')).toBeVisible();
+	});
+
+	it('says why the academy cancelled a session', async () => {
+		const cancelled = (date: string, cancelReason: string | null): BookingView => ({
+			...booking(date, `${date}T15:00:00Z`),
+			status: 'cancelled',
+			cancelledByAcademy: true,
+			cancelReason
+		});
+		const screen = render(RiderHome, {
+			summary,
+			locale: 'en',
+			bookings: [cancelled('2099-01-03', 'Spring show'), cancelled('2099-01-04', null)]
+		});
+
+		await expect.element(screen.getByText('Cancelled: Spring show')).toBeVisible();
+		await expect.element(screen.getByText('Cancelled by the academy')).toBeVisible();
 	});
 });
 

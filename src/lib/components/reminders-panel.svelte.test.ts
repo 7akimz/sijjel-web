@@ -108,4 +108,21 @@ describe('RemindersPanel', () => {
 		await expect.element(screen.getByText(/couldn't reach this phone/)).toBeVisible();
 		await expect.element(screen.getByText(/Test sent/)).not.toBeInTheDocument();
 	});
+
+	it('speaks to riders about cancellations', async () => {
+		const device = fakeDevice();
+		const screen = render(RemindersPanel, {
+			publicKey: 'key',
+			locale: 'en',
+			device,
+			audience: 'rider'
+		});
+		await expect
+			.element(
+				screen.getByText('Get a notification on this phone if the academy cancels your session.')
+			)
+			.toBeVisible();
+		await screen.getByRole('button', { name: 'Turn on notifications' }).click();
+		await expect.element(screen.getByText('Notifications are on for this phone.')).toBeVisible();
+	});
 });

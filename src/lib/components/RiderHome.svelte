@@ -49,6 +49,11 @@
 	const when = (b: BookingView) =>
 		`${dayName(b.date, locale)} · ${formatDate(`${b.date}T00:00:00Z`, locale)}`;
 
+	const academyCancelText = (b: BookingView) =>
+		b.cancelReason
+			? m.booking_cancelled_reason({ reason: b.cancelReason })
+			: m.booking_cancelled_by_academy();
+
 	async function cancel(booking: BookingView) {
 		notice = '';
 		failure = '';
@@ -121,7 +126,7 @@
 				state={booking.status === 'active' ? 'booked' : 'full'}
 				placesLabel={when(booking)}
 				note={booking.status === 'cancelled'
-					? m.booking_cancelled_by_academy()
+					? academyCancelText(booking)
 					: (booking.ownHorseName ?? m.booking_school_horse())}
 			>
 				{#snippet action()}
@@ -148,9 +153,7 @@
 						<span>{when(booking)} <span dir="ltr">{booking.start}</span></span>
 						<span class="sj-small sj-muted">
 							{#if booking.status === 'cancelled'}
-								{booking.cancelledByAcademy
-									? m.booking_cancelled_by_academy()
-									: m.booking_cancelled()}
+								{booking.cancelledByAcademy ? academyCancelText(booking) : m.booking_cancelled()}
 							{:else}
 								{booking.ownHorseName ?? m.booking_school_horse()}
 							{/if}

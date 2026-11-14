@@ -147,6 +147,7 @@ export interface BookingView {
 	ownHorseName: string | null;
 	status: 'active' | 'cancelled';
 	cancelledByAcademy: boolean;
+	cancelReason: string | null;
 	canCancel: boolean;
 }
 
