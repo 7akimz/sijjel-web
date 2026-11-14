@@ -115,4 +115,20 @@ describe('SubscriptionBanner', () => {
 		const screen = render(SubscriptionBanner, { membership: membership({}), locale: 'en' });
 		expect(screen.container.textContent?.trim()).toBe('');
 	});
+
+	it('says nothing before the first month starts', async () => {
+		const screen = render(SubscriptionBanner, {
+			membership: membership({
+				subscription: {
+					status: 'not_started',
+					paidUntil: null,
+					monthsUnpaid: 0,
+					amountUnpaid: 0,
+					blocked: false
+				}
+			}),
+			locale: 'en'
+		});
+		expect(screen.container.textContent?.trim()).toBe('');
+	});
 });

@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { localName } from '#lib/academy.js';
-	import { formatDate } from '#lib/format.js';
 	import {
-		entryText,
-		monthsText,
-		ridersText,
-		statusText,
-		statusTone
-	} from '#lib/forms/subscription.js';
+		ownerDateText,
+		ownerEntryText,
+		ownerStatusText,
+		ownerStatusTone
+	} from '#lib/forms/owner-status.js';
+	import { monthsText, ridersText } from '#lib/forms/subscription.js';
 	import { formatMoney } from '#lib/money.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Card, EmptyState, StatusChip } from '#lib/ui/index.js';
@@ -16,6 +15,12 @@
 	let { data }: PageProps = $props();
 
 	const sub = $derived(data.subscription);
+	const status = $derived(ownerStatusText(sub.status, data.locale));
+	const dateLine = $derived(ownerDateText(sub.status, sub.paidUntil, data.locale));
+	const started = $derived(sub.status !== 'not_started');
+	// The owner page shows the newest entries; the oldest in view is the academy's first only when
+	// every entry fits.
+	const shownAll = $derived(sub.entries.length < 6);
 </script>
 
 <svelte:head>
@@ -39,17 +44,15 @@
 					})}
 				</p>
 				<p>{ridersText(sub.riders, data.locale)}</p>
-				<div class="sj-row">
-					<StatusChip tone={statusTone(sub.status, sub.blocked)}>
-						{statusText(sub.status, data.locale)}
-					</StatusChip>
-					{#if sub.blocked}<StatusChip tone="danger">{m.subscription_blocked()}</StatusChip>{/if}
-				</div>
-				{#if sub.paidUntil}
-					<p class="sj-muted">
-						{m.subscription_paid_until({ date: formatDate(sub.paidUntil, data.locale) })}
-					</p>
+				{#if status || sub.blocked}
+					<div class="sj-row">
+						{#if status}
+							<StatusChip tone={ownerStatusTone(sub.status, sub.blocked)}>{status}</StatusChip>
+						{/if}
+						{#if sub.blocked}<StatusChip tone="danger">{m.subscription_blocked()}</StatusChip>{/if}
+					</div>
 				{/if}
+				{#if dateLine}<p class="sj-muted">{dateLine}</p>{/if}
 				{#if sub.status === 'unpaid'}
 					<p>
 						{m.subscription_unpaid_owed({
@@ -58,7 +61,7 @@
 						})}
 					</p>
 				{/if}
-				<p class="sj-muted">{m.subscription_how_to_pay()}</p>
+				{#if started}<p class="sj-muted">{m.subscription_how_to_pay()}</p>{/if}
 			</div>
 		</Card>
 
@@ -67,8 +70,10 @@
 				<div class="sj-stack">
 					<h2 class="sj-heading">{m.subscription_recent()}</h2>
 					<ul class="entries" role="list">
-						{#each sub.entries as e (e.id)}
-							<li>{entryText(e, data.locale, { withMadeBy: false })}</li>
+						{#each sub.entries as e, i (e.id)}
+							<li>
+								{ownerEntryText(e, shownAll && i === sub.entries.length - 1, data.locale)}
+							</li>
 						{/each}
 					</ul>
 				</div>
