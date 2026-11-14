@@ -2,6 +2,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import AccountForm from '#lib/components/AccountForm.svelte';
+	import RemindersPanel from '#lib/components/RemindersPanel.svelte';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Card } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -24,6 +25,14 @@
 	<Card>
 		<AccountForm me={data.user} onsaved={saved} />
 	</Card>
+	{#if data.publicKey}
+		<Card>
+			<section class="sj-stack">
+				<h2 class="sj-heading">{m.notify_title()}</h2>
+				<RemindersPanel publicKey={data.publicKey} locale={data.locale} audience="rider" />
+			</section>
+		</Card>
+	{/if}
 </div>
 
 <style>
