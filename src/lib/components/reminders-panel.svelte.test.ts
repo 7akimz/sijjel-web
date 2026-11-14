@@ -118,9 +118,7 @@ describe('RemindersPanel', () => {
 			audience: 'rider'
 		});
 		await expect
-			.element(
-				screen.getByText('Get a notification on this phone if the academy cancels your session.')
-			)
+			.element(screen.getByText('Get notifications on this phone when your sessions change.'))
 			.toBeVisible();
 		await screen.getByRole('button', { name: 'Turn on notifications' }).click();
 		await expect.element(screen.getByText('Notifications are on for this phone.')).toBeVisible();

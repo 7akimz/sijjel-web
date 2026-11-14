@@ -29,7 +29,7 @@ function fakeDevice(env: Partial<DeviceEnv> = {}) {
 	} satisfies Device;
 }
 
-const question = 'Get a notification if the academy cancels it?';
+const question = 'Want to hear about changes like this straight away?';
 
 beforeEach(() => localStorage.clear());
 afterEach(() => localStorage.clear());
@@ -38,7 +38,7 @@ describe('NotifyOffer', () => {
 	it('turns notifications on and then goes away', async () => {
 		const device = fakeDevice();
 		const screen = render(NotifyOffer, { publicKey: 'key', locale: 'en', device });
-		await screen.getByRole('button', { name: 'Turn on' }).click();
+		await screen.getByRole('button', { name: 'Turn on notifications' }).click();
 
 		expect(device.subscribe).toHaveBeenCalledWith('key', 'en');
 		await expect.element(screen.getByText(question)).not.toBeInTheDocument();
@@ -64,7 +64,9 @@ describe('NotifyOffer', () => {
 		await expect
 			.element(screen.getByRole('link', { name: 'How to turn on' }))
 			.toHaveAttribute('href', '/account');
-		await expect.element(screen.getByRole('button', { name: 'Turn on' })).not.toBeInTheDocument();
+		await expect
+			.element(screen.getByRole('button', { name: 'Turn on notifications' }))
+			.not.toBeInTheDocument();
 	});
 
 	it.each([

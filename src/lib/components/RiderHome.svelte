@@ -14,11 +14,19 @@
 		riderBlockText
 	} from '#lib/forms/booking.js';
 	import { formatMoney } from '#lib/money.js';
+	import NotifyOffer from '#lib/components/NotifyOffer.svelte';
+	import type { Device } from '#lib/push/device.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, ProgressBar, SessionSlot, StatusChip } from '#lib/ui/index.js';
 
-	type Props = { summary: PlanSummary; bookings: BookingView[]; locale: Locale };
-	let { summary, bookings: initial, locale }: Props = $props();
+	type Props = {
+		summary: PlanSummary;
+		bookings: BookingView[];
+		locale: Locale;
+		publicKey?: string | null;
+		device?: Device;
+	};
+	let { summary, bookings: initial, locale, publicKey = null, device }: Props = $props();
 
 	let bookings = $state(untrack(() => initial));
 	let notice = $state('');
@@ -45,6 +53,9 @@
 			.filter((b) => Date.parse(b.startsAt) <= now)
 			.sort((a, b) => b.startsAt.localeCompare(a.startsAt))
 	);
+	// Notifications are offered once, under the first session the academy cancelled, when the
+	// reason to want them is right there.
+	const firstCancelled = $derived(upcoming.find((b) => b.status === 'cancelled')?.id);
 	const pastId = $props.id();
 	const when = (b: BookingView) =>
 		`${dayName(b.date, locale)} · ${formatDate(`${b.date}T00:00:00Z`, locale)}`;
@@ -139,6 +150,9 @@
 					{/if}
 				{/snippet}
 			</SessionSlot>
+			{#if booking.id === firstCancelled}
+				<NotifyOffer {publicKey} {locale} {device} />
+			{/if}
 		{/each}
 	</div>
 </Card>

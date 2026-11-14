@@ -7,8 +7,9 @@
 	import { browserDevice, detectState, type Device, type ReminderState } from '#lib/push/device.js';
 	import { Button } from '#lib/ui/index.js';
 
-	type Props = { publicKey: string | null; locale: Locale; device?: Device };
-	let { publicKey, locale, device = untrack(() => browserDevice(locale)) }: Props = $props();
+	type Props = { publicKey: string | null; locale: Locale; device?: Device | undefined };
+	let { publicKey, locale, device: given }: Props = $props();
+	const device = untrack(() => given ?? browserDevice(locale));
 
 	const LATER = 'sijjel_notify_later';
 
@@ -58,12 +59,12 @@
 
 {#if !hidden && (current === 'off' || current === 'ios_install')}
 	<div class="sj-stack offer">
-		<p>{m.notify_offer({}, { locale })}</p>
+		<p class="sj-small sj-muted">{m.notify_offer({}, { locale })}</p>
 		{#if failure}<p class="sj-small failure">{failure}</p>{/if}
 		<div class="actions">
 			{#if current === 'off'}
 				<Button variant="secondary" icon="notifications_active" disabled={busy} onclick={turnOn}
-					>{m.notify_turn_on_short({}, { locale })}</Button
+					>{m.notify_turn_on({}, { locale })}</Button
 				>
 			{:else}
 				<Button variant="secondary" icon="notifications_active" href={resolve('/account')}
@@ -77,7 +78,8 @@
 
 <style>
 	.offer {
-		gap: var(--space-3);
+		gap: var(--space-2);
+		padding-inline: var(--space-2);
 	}
 	p {
 		margin: 0;

@@ -1,7 +1,21 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import type { BookingView, PlanSummary } from '#lib/api/member-types.js';
+import type { Device } from '#lib/push/device.js';
 import RiderHome from './RiderHome.svelte';
+
+const offDevice: Device = {
+	env: async () => ({
+		userAgent: 'Mozilla/5.0 (Linux; Android 15) Chrome/130.0.0.0 Mobile',
+		standalone: false,
+		hasPush: true,
+		permission: 'default',
+		subscribed: false
+	}),
+	subscribe: async () => {},
+	unsubscribe: async () => {}
+};
+const offer = 'Want to hear about changes like this straight away?';
 
 const summary: PlanSummary = {
 	plan: {
@@ -86,6 +100,39 @@ describe('RiderHome', () => {
 
 		await expect.element(screen.getByText('Cancelled: Spring show')).toBeVisible();
 		await expect.element(screen.getByText('Cancelled by the academy')).toBeVisible();
+	});
+
+	it('offers notifications once, under the first session the academy cancelled', async () => {
+		const cancelled = (date: string): BookingView => ({
+			...booking(date, `${date}T15:00:00Z`),
+			status: 'cancelled',
+			cancelledByAcademy: true,
+			cancelReason: 'Spring show'
+		});
+		const screen = render(RiderHome, {
+			summary,
+			locale: 'en',
+			publicKey: 'key',
+			device: offDevice,
+			bookings: [cancelled('2099-01-03'), cancelled('2099-01-04')]
+		});
+
+		await expect.element(screen.getByText(offer)).toBeVisible();
+		expect(screen.getByText(offer).elements()).toHaveLength(1);
+	});
+
+	it('does not offer notifications when nothing was cancelled', async () => {
+		const screen = render(RiderHome, {
+			summary,
+			locale: 'en',
+			publicKey: 'key',
+			device: offDevice,
+			bookings: [booking('2099-01-03', '2099-01-03T15:00:00Z')]
+		});
+
+		await expect.element(screen.getByText('School horse')).toBeVisible();
+		await new Promise((r) => setTimeout(r, 50));
+		await expect.element(screen.getByText(offer)).not.toBeInTheDocument();
 	});
 });
 

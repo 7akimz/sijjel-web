@@ -68,7 +68,7 @@ Staff get a bell in the app bar that opens `/reminders`, where they can turn on 
 
 ### Cancellation notices
 
-When the academy cancels a rider's session, by closing the date or by staff cancelling it, the rider gets a push notification, and their home shows the closure's reason ("Cancelled: Spring show"). Riders turn notifications on from the "Booked" banner on `/book` right after booking (shown while they are off on that phone, until "Not now", which is remembered on the device), or from the Notifications section on `/account`. On an iPhone in the browser, the banner sends them to `/account` for the home-screen how-to. After saving closed dates, `/settings/closed-dates` shows the message for the academy's WhatsApp group with a "Share on WhatsApp" link that lets staff pick the chat.
+When the academy cancels a rider's session, by closing the date or by staff cancelling it, the rider gets a push notification, and their home shows the closure's reason ("Cancelled: Spring show"). Under the first session the academy cancelled, the home offers to turn notifications on (only while they are off on that phone, until "Not now", which is remembered on the device); they can also turn them on from the Notifications section on `/account`. On an iPhone in the browser, the offer sends them to `/account` for the home-screen how-to. After saving closed dates, `/settings/closed-dates` shows the message for the academy's WhatsApp group with a "Share on WhatsApp" link that lets staff pick the chat.
 
 ## Tests
 

@@ -112,7 +112,8 @@ Keep this list current. A new use of a pattern must mean the same thing as the u
 | More menu (`MoreMenu`) next to the pencil            | Less frequent actions on this item, such as Mark left or Suspend | Rider and staff profiles                                                        |
 | `h2.sj-heading` sections, one after another          | Parts of one page, all visible                                   | Rider profile, staff profile                                                    |
 | Bottom sheet                                         | Act on one rider or session without leaving the board            | Board rider sheet                                                               |
-| Success banner with a follow-up action               | What just happened, and the next thing worth doing about it      | Booked: turn on notifications; closed dates: share on WhatsApp                  |
+| Success banner with a follow-up action               | What just happened, and the next thing worth doing about it      | Closed dates: share on WhatsApp                                                 |
+| Quiet offer under the item it is about               | A small optional next step, shown once, with "Not now"           | Rider home: turn on notifications under a cancelled session                     |
 
 ### Preview before code
 

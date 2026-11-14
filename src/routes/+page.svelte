@@ -55,7 +55,12 @@
 		{/if}
 		{#if data.setup}<SetupChecklist state={data.setup} academyName={name} />{/if}
 		{#if data.rider}
-			<RiderHome summary={data.rider.plan} bookings={data.rider.bookings} locale={data.locale} />
+			<RiderHome
+				summary={data.rider.plan}
+				bookings={data.rider.bookings}
+				publicKey={data.rider.publicKey}
+				locale={data.locale}
+			/>
 		{:else if data.membership}
 			<StaffToday
 				board={data.board}
