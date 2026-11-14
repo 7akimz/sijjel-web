@@ -66,6 +66,10 @@ What academies pay sijjel for is a package; riders keep the word "plan".
 
 Staff get a bell in the app bar that opens `/reminders`, where they can turn on a "Time's up" notification for this phone. It arrives when a session they teach ends. On iPhone, sijjel has to be added to the home screen first, and the page explains how. The site ships a web app manifest (the academy's name and colour) and a service worker that only shows these notifications. Reminders need the API's VAPID keys. To try them on a real phone over HTTPS, see "Trying it on a phone" in the sijjel-api README.
 
+### Cancellation notices
+
+When the academy cancels a rider's session, by closing the date or by staff cancelling it, the rider gets a push notification, and their home shows the closure's reason ("Cancelled: Spring show"). Riders turn notifications on from the "Booked" banner on `/book` right after booking (shown while they are off on that phone, until "Not now", which is remembered on the device), or from the Notifications section on `/account`. On an iPhone in the browser, the banner sends them to `/account` for the home-screen how-to. After saving closed dates, `/settings/closed-dates` shows the message for the academy's WhatsApp group with a "Share on WhatsApp" link that lets staff pick the chat.
+
 ## Tests
 
 ```sh

@@ -158,3 +158,67 @@ test('staff book a month of fixed days for a rider, who then sees them', async (
 	await layla.reload();
 	await expect(layla.getByText('School horse').first()).toBeVisible();
 });
+
+test('closing a booked day tells the rider why and offers the group message', async ({
+	page,
+	browser
+}) => {
+	test.slow();
+	const slug = `close${Date.now().toString(36)}`;
+	await signInAsPlatformAdmin(page);
+	await expect(page).toHaveURL(platformUrl('/platform/academies'));
+	const { name } = await createAcademy(page, slug);
+	const owner = await signUpOwner(browser, slug, await inviteOwner(page, name));
+	await setUpAcademy(owner, slug);
+
+	await owner.goto(academyUrl(slug, '/settings/booking-rules'));
+	await owner.getByLabel('Booking opens (days ahead)').fill('14');
+	await owner.getByRole('button', { name: 'Save' }).click();
+	await expect(owner.getByText('Booking rules saved.')).toBeVisible();
+
+	await owner.goto(academyUrl(slug, '/settings/plans'));
+	await owner.getByLabel('Name (English)').fill('Dressage, 8 a month');
+	await owner.getByLabel('Name (Arabic)').fill('ترويض، 8 في الشهر');
+	await owner.getByLabel('Lessons a month').fill('8');
+	await owner.getByLabel('Monthly price').fill('1000');
+	await owner.getByRole('button', { name: 'Add plan' }).click();
+	await expect(owner.getByText('Plan saved.')).toBeVisible();
+
+	const invitePath = await inviteRider(owner, slug, {
+		name: 'Layla',
+		plan: 'Dressage, 8 a month'
+	});
+	const layla = await browser.newPage();
+	await layla.goto(academyUrl(slug, invitePath));
+	await layla.getByLabel('Your name').fill('Layla');
+	await layla.getByLabel('Phone', { exact: true }).fill(e2ePhone(`layla-${slug}`));
+	await layla.getByLabel('Email').fill(`layla-${slug}@example.test`);
+	await layla.getByLabel('Password', { exact: true }).fill('RiderPassw0rd');
+	await layla.getByRole('button', { name: 'Create your account' }).click();
+	await expect(layla).toHaveURL(academyUrl(slug, '/'));
+
+	await layla.goto(academyUrl(slug, '/book'));
+	await layla.getByRole('link', { name: 'Next week' }).click();
+	await expect(layla).toHaveURL(/[?&]week=\d{4}-\d{2}-\d{2}/);
+	const week = new URL(layla.url()).searchParams.get('week')!;
+	await layla.getByRole('button', { name: 'Book', exact: true }).last().click();
+	await layla.getByRole('button', { name: 'Yes, book it' }).click();
+	await expect(layla.getByText(/^Booked for/)).toBeVisible();
+
+	// Closing the whole of next week covers Layla's session whichever day it fell on.
+	const end = new Date(`${week}T00:00:00Z`);
+	end.setUTCDate(end.getUTCDate() + 6);
+	await owner.goto(academyUrl(slug, '/settings/closed-dates'));
+	await owner.getByLabel('Closed from').fill(week);
+	await owner.getByLabel('Closed to').fill(end.toISOString().slice(0, 10));
+	await owner.getByLabel('Reason (optional)').fill('Spring show');
+	await owner.getByRole('button', { name: 'Add closed dates' }).click();
+	await owner.getByRole('button', { name: 'Close these days and cancel the bookings' }).click();
+	await expect(owner.getByRole('link', { name: 'Share on WhatsApp' })).toHaveAttribute(
+		'href',
+		/^https:\/\/wa\.me\/\?text=/
+	);
+
+	await layla.goto(academyUrl(slug, '/'));
+	await expect(layla.getByText('Cancelled: Spring show')).toBeVisible();
+});
