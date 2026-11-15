@@ -4,6 +4,7 @@
 	import { academyName } from '#lib/academy.js';
 	import AcademyCover from '#lib/components/AcademyCover.svelte';
 	import AcademyHome from '#lib/components/AcademyHome.svelte';
+	import MyAcademies from '#lib/components/MyAcademies.svelte';
 	import RiderHome from '#lib/components/RiderHome.svelte';
 	import SetupChecklist from '#lib/components/SetupChecklist.svelte';
 	import StaffToday from '#lib/components/StaffToday.svelte';
@@ -74,13 +75,11 @@
 			{@render signInPrompt(m.home_signed_out())}
 		{/if}
 	</div>
+{:else if data.user && data.academies}
+	<MyAcademies academies={data.academies} host={page.url.host} locale={data.locale} />
 {:else}
 	<div class="sj-page">
 		<h1 class="sj-title">{m.platform_home_title()}</h1>
-		{#if data.user}
-			<EmptyState icon="link" title={data.user.displayName}>{m.platform_home_member()}</EmptyState>
-		{:else}
-			{@render signInPrompt(m.platform_home_signed_out())}
-		{/if}
+		{@render signInPrompt(m.platform_home_signed_out())}
 	</div>
 {/if}

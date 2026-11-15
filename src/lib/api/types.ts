@@ -121,6 +121,15 @@ export interface CreatedInvite {
 
 export type Role = Membership['roles'][number];
 
+/** An academy where the signed-in person's membership is active, from `GET /api/me/academies`. */
+export interface MyAcademy {
+	slug: string;
+	nameEn: string;
+	nameAr: string;
+	primaryColor: string;
+	roles: Role[];
+}
+
 export interface InvitePreview {
 	academy: { slug: string; nameEn: string; nameAr: string };
 	roles: Role[];

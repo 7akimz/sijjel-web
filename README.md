@@ -3,6 +3,7 @@
 The web app for sijjel, session planning for riding academies. It is a SvelteKit app rendered on the server (`adapter-node`). The browser only ever talks to this app: `/api/*` is proxied to [sijjel-api](../sijjel-api) on the same origin, so session cookies stay host-only and `SameSite=Strict`.
 
 - **Platform site** (`localhost`): platform admins sign in, manage the discipline catalogue and the packages academies pay for, create academies and copy owner invitation links, and keep each academy's subscription.
+  Anyone else who signs in there sees "Your academies": each academy where their membership is active, with their role and its address. Opening one (`/open/{slug}`) carries their session over with a one-time sign-in link (`/sign-in-link` on the academy host), since each academy keeps its own session cookie. Someone in exactly one academy goes straight into it.
 - **Academy sites** (`{slug}.localhost`): invitees open their link, create an account or sign in, and land on the academy home. Riders see their plan, the lessons left this month and their bookings there, and book at `/book`.
 
 The first HTML of every page already carries the academy accent colours, the theme (`sijjel_theme` cookie), `lang`/`dir` (`PARAGLIDE_LOCALE` cookie, else the academy's default language), and the link-preview tags.

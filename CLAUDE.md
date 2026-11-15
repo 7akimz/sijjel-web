@@ -105,7 +105,7 @@ Keep this list current. A new use of a pattern must mean the same thing as the u
 | Time pills with a count and `aria-pressed`           | Choose a time; the count is how many dates it is free on         | Book a month (`BookMonth`): one time per weekday                                |
 | `sj-page-head` with a labelled button                | The page's title and its main action                             | Horses "New horse", Riders "Invite rider", Staff "Invite staff", Board "Select" |
 | Quiet back button above the title                    | Go up one level                                                  | Horse page "All horses", rider and staff profiles, Staff "Settings"             |
-| Whole-row link in a list                             | Open that item                                                   | Horses list, Riders list, Staff list, ride rows                                 |
+| Whole-row link in a list                             | Open that item                                                   | Horses list, Riders list, Staff list, ride rows, Your academies                 |
 | Row with an icon, title, description and a chevron   | Go to a sub-page of settings                                     | Settings (including Staff)                                                      |
 | `<details>` fold with a count                        | Hide the older or secondary part of the same content             | "Earlier (N)" unavailable dates, member level "History", rider rides by month   |
 | Icon-only secondary pencil in the header             | Edit this item on its own page                                   | Horse page, rider and staff profiles                                            |
