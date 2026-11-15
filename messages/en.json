@@ -749,6 +749,8 @@
 	"academies_filter_empty": "No academies match this filter.",
 	"error_blocked_required": "Say whether booking should be blocked.",
 	"error_entry_not_latest": "Only the newest entry can be undone. Reload to see the latest.",
+	"error_trial_waiting": "This academy's free days are waiting for setup. Start the trial first, then add payments or free time.",
+	"error_trial_not_waiting": "There's no trial waiting to start. Reload to see the latest.",
 	"action_show_password": "Show password",
 	"action_hide_password": "Hide password",
 	"settings_branding_title": "Branding",

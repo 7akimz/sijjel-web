@@ -26,7 +26,8 @@ const entry = (id: string, kind: 'paid' | 'free'): SubscriptionEntry => ({
 	startsOn: '2026-11-15',
 	endsOn: '2026-12-15',
 	madeBy: 'Mona',
-	madeAt: '2026-11-15T08:00:00Z'
+	madeAt: '2026-11-15T08:00:00Z',
+	first: false
 });
 
 const subscription = (extra: Partial<Subscription>): Subscription => ({

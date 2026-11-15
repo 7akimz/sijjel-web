@@ -105,6 +105,7 @@ describe('owner wording', () => {
 		endsOn: '2027-01-02',
 		madeBy: 'admin@sijjel.com',
 		madeAt: '2026-12-03T09:00:00Z',
+		first: false,
 		...e
 	});
 	it('calls the first free entry the first month, whatever its length', () => {

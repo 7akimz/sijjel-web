@@ -14,6 +14,7 @@ const entry = (id: string, e: Partial<SubscriptionEntry>): SubscriptionEntry => 
 	endsOn: '2027-01-02',
 	madeBy: 'admin@sijjel.com',
 	madeAt: '2026-12-03T09:00:00Z',
+	first: false,
 	...e
 });
 
@@ -32,7 +33,7 @@ const sub = (s: Partial<AcademySubscription>): AcademySubscription => ({
 	amountUnpaid: 0,
 	blocked: false,
 	riders: { count: 3, limit: 25 },
-	entries: [entry('e1', {})],
+	entries: [entry('e1', { first: true })],
 	...s
 });
 
@@ -56,7 +57,7 @@ describe('owner subscription page', () => {
 				paidUntil: '2027-01-17',
 				entries: [
 					entry('e2', { days: 14, startsOn: '2027-01-03', endsOn: '2027-01-17' }),
-					entry('e1', {})
+					entry('e1', { first: true })
 				]
 			})
 		);
@@ -84,5 +85,18 @@ describe('owner subscription page', () => {
 		);
 
 		await expect.element(screen.getByText('Paid until 2 January 2027')).toBeVisible();
+	});
+
+	it('names the first month from the entry, however many entries are shown', async () => {
+		const later = (id: string) =>
+			entry(id, { days: 7, startsOn: '2027-01-03', endsOn: '2027-01-10' });
+		const six = [later('e6'), later('e5'), later('e4'), later('e3'), later('e2')];
+
+		const shown = show(sub({ entries: [...six, entry('e1', { first: true })] }));
+		await expect.element(shown.getByText('First month · 3 Dec → 2 Jan')).toBeVisible();
+		shown.unmount();
+
+		const cut = show(sub({ entries: [later('e7'), ...six] }));
+		await expect.element(cut.getByText(/First month/)).not.toBeInTheDocument();
 	});
 });

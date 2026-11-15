@@ -18,9 +18,6 @@
 	const status = $derived(ownerStatusText(sub.status, data.locale));
 	const dateLine = $derived(ownerDateText(sub.status, sub.paidUntil, data.locale));
 	const started = $derived(sub.status !== 'not_started');
-	// The owner page shows the newest entries; the oldest in view is the academy's first only when
-	// every entry fits.
-	const shownAll = $derived(sub.entries.length < 6);
 </script>
 
 <svelte:head>
@@ -70,9 +67,9 @@
 				<div class="sj-stack">
 					<h2 class="sj-heading">{m.subscription_recent()}</h2>
 					<ul class="entries" role="list">
-						{#each sub.entries as e, i (e.id)}
+						{#each sub.entries as e (e.id)}
 							<li>
-								{ownerEntryText(e, shownAll && i === sub.entries.length - 1, data.locale)}
+								{ownerEntryText(e, e.first, data.locale)}
 							</li>
 						{/each}
 					</ul>

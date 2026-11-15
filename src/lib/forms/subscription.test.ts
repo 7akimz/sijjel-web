@@ -136,7 +136,8 @@ const free: SubscriptionEntry = {
 	startsOn: '2026-11-15',
 	endsOn: '2026-11-22',
 	madeBy: 'admin@sijjel.test',
-	madeAt: '2026-11-15T08:00:00Z'
+	madeAt: '2026-11-15T08:00:00Z',
+	first: false
 };
 
 describe('entryText', () => {

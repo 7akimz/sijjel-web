@@ -36,6 +36,7 @@ export interface SubscriptionEntry {
 	endsOn: string;
 	madeBy: string;
 	madeAt: string;
+	first: boolean;
 }
 
 /** Rider places in use against the package's limit, which is null when there is none. */
