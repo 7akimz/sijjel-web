@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import { apiFetch } from '#lib/server/api.js';
+import { signInLinkLocation } from '#lib/server/sign-in-link.js';
 import type { RequestHandler } from './$types';
 
 const SLUG = /^[a-z0-9-]{1,63}$/;
@@ -16,10 +17,11 @@ export const GET: RequestHandler = async (event) => {
 	});
 	if (!response.ok) error(response.status, 'api_error');
 	const { token } = (await response.json()) as { token: string };
-	const target = new URL('/sign-in-link', `${url.protocol}//${params.slug}.${url.host}`);
-	target.searchParams.set('token', token);
 	return new Response(null, {
 		status: 303,
-		headers: { location: target.href, 'cache-control': 'no-store' }
+		headers: {
+			location: signInLinkLocation(params.slug, url.host, token),
+			'cache-control': 'no-store'
+		}
 	});
 };
