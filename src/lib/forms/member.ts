@@ -63,6 +63,8 @@ export function profileChips(member: Member, locale: Locale): ProfileChip[] {
 	for (const role of member.roles) {
 		if (role !== 'rider') chips.push({ text: roleName(role, locale), tone: 'neutral' });
 	}
+	if (!member.hasAccount)
+		chips.push({ text: m.member_no_account({}, { locale }), tone: 'neutral' });
 	return chips;
 }
 

@@ -17,9 +17,13 @@ export async function signInAsPlatformAdmin(page: Page, url = platformUrl('/logi
 	await page.locator('form').getByRole('button', { name: 'Sign in' }).click();
 }
 
-// createAcademy expects a platform admin page and creates an English-default academy teaching
-// Dressage and Show jumping.
-export async function createAcademy(page: Page, slug: string): Promise<{ name: string }> {
+// createAcademy expects a platform admin page and creates an English-default academy in Egypt
+// teaching Dressage and Show jumping, where riders book their own sessions unless staffBook.
+export async function createAcademy(
+	page: Page,
+	slug: string,
+	opts: { staffBook?: boolean } = {}
+): Promise<{ name: string }> {
 	const name = `E2E Academy ${slug}`;
 	await page.goto(platformUrl('/platform/academies'));
 	await page.getByRole('button', { name: 'New academy' }).click();
@@ -29,6 +33,8 @@ export async function createAcademy(page: Page, slug: string): Promise<{ name: s
 	await page.getByLabel('Default language').selectOption('en');
 	await page.getByLabel('Dressage').check();
 	await page.getByLabel('Show jumping').check();
+	if (opts.staffBook)
+		await page.getByRole('radio', { name: /Staff book for their riders/ }).check();
 	await page.getByRole('button', { name: 'Create academy' }).click();
 	await expect(page.getByText('Academy created.')).toBeVisible();
 	return { name };

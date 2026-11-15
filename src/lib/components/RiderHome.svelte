@@ -17,7 +17,15 @@
 	import NotifyOffer from '#lib/components/NotifyOffer.svelte';
 	import type { Device } from '#lib/push/device.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner, Button, Card, ProgressBar, SessionSlot, StatusChip } from '#lib/ui/index.js';
+	import {
+		Banner,
+		Button,
+		Card,
+		Icon,
+		ProgressBar,
+		SessionSlot,
+		StatusChip
+	} from '#lib/ui/index.js';
 
 	type Props = {
 		summary: PlanSummary;
@@ -25,8 +33,17 @@
 		locale: Locale;
 		publicKey?: string | null;
 		device?: Device;
+		/** False where staff book every session: the rider only sees them. */
+		ridersBook?: boolean;
 	};
-	let { summary, bookings: initial, locale, publicKey = null, device }: Props = $props();
+	let {
+		summary,
+		bookings: initial,
+		locale,
+		publicKey = null,
+		device,
+		ridersBook = true
+	}: Props = $props();
 
 	let bookings = $state(untrack(() => initial));
 	let notice = $state('');
@@ -109,7 +126,11 @@
 				<StatusChip tone="stone" dot>{m.rider_plan_unpaid()}</StatusChip>
 			{/if}
 		{/if}
-		{#if blocked}
+		{#if !ridersBook}
+			<p class="sj-small sj-muted staff-books">
+				<Icon name="info" size={20} />{m.rider_staff_books()}
+			</p>
+		{:else if blocked}
 			<Banner icon="info" tone="pending">{riderBlockText(blocked, locale)}</Banner>
 		{:else}
 			<Button href={resolve('/(academy)/(rider)/book')} icon="event_available"
@@ -144,7 +165,7 @@
 					{#if booking.status === 'active'}
 						{#if booking.canCancel}
 							<Button variant="quiet" onclick={() => cancel(booking)}>{m.booking_cancel()}</Button>
-						{:else}
+						{:else if ridersBook}
 							<span class="sj-small sj-muted">{m.rider_cancel_ask()}</span>
 						{/if}
 					{/if}
@@ -203,5 +224,10 @@
 	}
 	p {
 		margin: 0;
+	}
+	.staff-books {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-2);
 	}
 </style>

@@ -1,11 +1,12 @@
-import type { AcademySummary, Discipline } from '#lib/api/types.js';
+import type { AcademySummary, Country, Discipline } from '#lib/api/types.js';
 import { apiLoad } from '#lib/server/api.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
-	const [academies, disciplines] = await Promise.all([
+	const [academies, disciplines, countries] = await Promise.all([
 		apiLoad<AcademySummary[]>(event, '/api/platform/academies'),
-		apiLoad<Discipline[]>(event, '/api/platform/disciplines')
+		apiLoad<Discipline[]>(event, '/api/platform/disciplines'),
+		apiLoad<Country[]>(event, '/api/platform/countries')
 	]);
-	return { academies, disciplines };
+	return { academies, disciplines, countries };
 };

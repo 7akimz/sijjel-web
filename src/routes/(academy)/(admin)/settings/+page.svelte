@@ -2,20 +2,29 @@
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Icon } from '#lib/ui/index.js';
+	import type { PageProps } from './$types';
 
-	const rows = [
+	let { data }: PageProps = $props();
+
+	// Where staff book, no rider booking rule applies, so its row goes.
+	const ridersBook = $derived(data.membership?.ridersBook !== false);
+	const rows = $derived([
 		{
 			href: resolve('/(academy)/(admin)/settings/hours'),
 			icon: 'schedule',
 			title: m.settings_hours_title(),
 			body: m.settings_hours_body()
 		},
-		{
-			href: resolve('/(academy)/(admin)/settings/booking-rules'),
-			icon: 'event_available',
-			title: m.settings_rules_title(),
-			body: m.settings_rules_body()
-		},
+		...(ridersBook
+			? [
+					{
+						href: resolve('/(academy)/(admin)/settings/booking-rules'),
+						icon: 'event_available',
+						title: m.settings_rules_title(),
+						body: m.settings_rules_body()
+					}
+				]
+			: []),
 		{
 			href: resolve('/(academy)/(admin)/settings/plans'),
 			icon: 'payments',
@@ -58,7 +67,7 @@
 			title: m.settings_subscription_title(),
 			body: m.settings_subscription_body()
 		}
-	];
+	]);
 </script>
 
 <svelte:head>

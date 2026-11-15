@@ -5,9 +5,7 @@ const rules = {
 	bookingWindowDays: 14,
 	bookingClosesHours: 0,
 	cancellationCutoffHours: 12,
-	currency: 'EGP',
-	unpaidBooking: 'allow' as const,
-	countryCallingCode: '20'
+	unpaidBooking: 'allow' as const
 };
 
 describe('bookingRulesErrors', () => {
@@ -43,17 +41,6 @@ describe('wholeNumber', () => {
 	it('makes a cleared field invalid', () => {
 		expect(bookingRulesErrors({ ...rules, cancellationCutoffHours: wholeNumber('') })).toEqual({
 			cancellationCutoffHours: ['booking_rule_invalid']
-		});
-	});
-});
-
-describe('member settings', () => {
-	it('validates currency and calling code', () => {
-		expect(bookingRulesErrors({ ...rules, currency: 'egp' })).toEqual({
-			currency: ['currency_invalid']
-		});
-		expect(bookingRulesErrors({ ...rules, countryCallingCode: '2001' })).toEqual({
-			countryCallingCode: ['phone_invalid']
 		});
 	});
 });

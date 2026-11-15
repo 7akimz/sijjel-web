@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { academyName } from '#lib/academy.js';
+	import AcademyBookingSetup from '#lib/components/AcademyBookingSetup.svelte';
 	import AcademyOwner from '#lib/components/AcademyOwner.svelte';
 	import AcademySetup from '#lib/components/AcademySetup.svelte';
 	import AcademySubscription from '#lib/components/AcademySubscription.svelte';
@@ -55,6 +56,13 @@
 			packages={data.packages}
 			locale={data.locale}
 			onchange={(s) => (current = { academyId: data.academy.id, sub: s })}
+		/>
+		<AcademyBookingSetup
+			academyId={data.academy.id}
+			country={data.academy.country}
+			ridersBook={data.academy.ridersBook}
+			countries={data.countries}
+			locale={data.locale}
 		/>
 	{/key}
 </div>

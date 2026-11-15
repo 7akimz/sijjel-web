@@ -1,4 +1,4 @@
-import type { BookingRules } from '#lib/api/academy-types.js';
+import type { BookingRulesInput } from '#lib/api/academy-types.js';
 import type { FieldErrors } from '#lib/api/errors.js';
 
 const TIMING_LIMITS = {
@@ -16,7 +16,7 @@ export function wholeNumber(value: string | number | null | undefined): number {
 	return Number(value);
 }
 
-export function bookingRulesErrors(rules: BookingRules): FieldErrors {
+export function bookingRulesErrors(rules: BookingRulesInput): FieldErrors {
 	const errors: FieldErrors = {};
 	for (const [field, [min, max]] of Object.entries(TIMING_LIMITS) as [
 		keyof typeof TIMING_LIMITS,
@@ -24,7 +24,5 @@ export function bookingRulesErrors(rules: BookingRules): FieldErrors {
 	][]) {
 		if (!inRange(rules[field], min, max)) errors[field] = ['booking_rule_invalid'];
 	}
-	if (!/^[A-Z]{3}$/.test(rules.currency)) errors.currency = ['currency_invalid'];
-	if (!/^[0-9]{1,3}$/.test(rules.countryCallingCode)) errors.countryCallingCode = ['phone_invalid'];
 	return errors;
 }

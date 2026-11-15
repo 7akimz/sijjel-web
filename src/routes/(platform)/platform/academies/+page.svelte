@@ -119,6 +119,7 @@
 
 	{#if creating}
 		<NewAcademyForm
+			countries={data.countries}
 			disciplines={data.disciplines}
 			rootHost={page.url.host}
 			locale={data.locale}

@@ -40,7 +40,7 @@
 		</div>
 		{#if data.admin}
 			<Button icon="person_add" href={resolve('/(academy)/(admin)/members/invite')}>
-				{m.members_invite()}
+				{data.membership?.ridersBook === false ? m.invite_add() : m.members_invite()}
 			</Button>
 		{/if}
 	</div>
@@ -95,6 +95,9 @@
 								{/if}
 								{#if member.plan}
 									<StatusChip tone="neutral">{localName(member.plan, data.locale)}</StatusChip>
+								{/if}
+								{#if !member.hasAccount}
+									<StatusChip tone="neutral">{m.member_no_account()}</StatusChip>
 								{/if}
 								{#if member.paidThisMonth === false}
 									<StatusChip tone="pending" dot>{m.member_unpaid()}</StatusChip>

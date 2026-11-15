@@ -6,8 +6,9 @@
 		error?: string;
 		hint?: string;
 		name?: string;
+		onchange?: () => void;
 	};
-	let { label, value = $bindable(''), options, error, hint, name }: Props = $props();
+	let { label, value = $bindable(''), options, error, hint, name, onchange }: Props = $props();
 	const id = $props.id();
 	const describedBy = $derived(error ? `${id}-error` : hint ? `${id}-hint` : undefined);
 </script>
@@ -19,6 +20,7 @@
 		{name}
 		class="sj-select"
 		bind:value
+		{onchange}
 		aria-invalid={error ? 'true' : undefined}
 		aria-describedby={describedBy}
 	>

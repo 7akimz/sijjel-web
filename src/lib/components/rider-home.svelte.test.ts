@@ -55,6 +55,24 @@ const booking = (date: string, startsAt: string): BookingView => ({
 });
 
 describe('RiderHome', () => {
+	it('shows sessions without Book or cancel where staff book', async () => {
+		const screen = render(RiderHome, {
+			summary,
+			locale: 'en',
+			ridersBook: false,
+			bookings: [booking('2099-01-03', '2099-01-03T15:00:00Z')]
+		});
+
+		await expect.element(screen.getByText(/3 January 2099/)).toBeVisible();
+		await expect
+			.element(screen.getByText('Your academy books your sessions. Call them to change one.'))
+			.toBeVisible();
+		await expect
+			.element(screen.getByRole('link', { name: 'Book a session' }))
+			.not.toBeInTheDocument();
+		await expect.element(screen.getByText('Ask the academy to cancel')).not.toBeInTheDocument();
+	});
+
 	it('keeps sessions already ridden in a past list', async () => {
 		const screen = render(RiderHome, {
 			summary,

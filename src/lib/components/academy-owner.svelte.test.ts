@@ -19,6 +19,8 @@ const academy = (owner: Partial<OwnerStatus>): AcademySummary => ({
 	paidUntil: null,
 	monthsUnpaid: 0,
 	blocked: false,
+	country: 'EG',
+	ridersBook: true,
 	owner: {
 		state: 'none',
 		name: null,

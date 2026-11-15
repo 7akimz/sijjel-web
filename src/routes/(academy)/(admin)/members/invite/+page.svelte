@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import InviteMemberForm from '#lib/components/InviteMemberForm.svelte';
 	import { ridersText } from '#lib/forms/subscription.js';
@@ -16,8 +16,13 @@
 	let created = $state<{ invite: CreatedAcademyInvite; form: InviteForm }>();
 	let formKey = $state(0);
 
+	const ridersBook = $derived(data.membership?.ridersBook !== false);
 	const title = $derived(
-		data.kind === 'staff' ? m.invite_page_title_staff() : m.invite_page_title_new()
+		data.kind === 'staff'
+			? m.invite_page_title_staff()
+			: ridersBook
+				? m.invite_page_title_new()
+				: m.invite_add_title()
 	);
 	const back = $derived(
 		data.kind === 'staff'
@@ -79,6 +84,8 @@
 					ridersAllowed={data.membership?.setupDone ?? false}
 					riderLimitReached={data.riders.limit !== null && data.riders.count >= data.riders.limit}
 					oncreated={(invite, form) => (created = { invite, form })}
+					{ridersBook}
+					onadded={(id) => goto(resolve('/(academy)/(staff)/members/[id]', { id }))}
 				/>
 			{/key}
 		{/if}

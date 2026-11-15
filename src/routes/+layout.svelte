@@ -6,7 +6,7 @@
 	import { isAcademyAdmin } from '#lib/academy/admin.js';
 	import { isAcademyStaff } from '#lib/academy/staff.js';
 	import { forgetDevice } from '#lib/push/device.js';
-	import { isAcademyRider } from '#lib/academy/rider.js';
+	import { ridersBookHere } from '#lib/academy/rider.js';
 	import LanguageSwitch from '#lib/components/LanguageSwitch.svelte';
 	import StatusPage from '#lib/components/StatusPage.svelte';
 	import SubscriptionBanner from '#lib/components/SubscriptionBanner.svelte';
@@ -39,7 +39,7 @@
 
 	const nav = $derived.by(() => {
 		const bookNav =
-			tenant.kind === 'academy' && isAcademyRider(data.membership)
+			tenant.kind === 'academy' && ridersBookHere(data.membership)
 				? [
 						{
 							href: resolve('/(academy)/(rider)/book'),
@@ -111,7 +111,8 @@
 				}
 			];
 		}
-		if (tenant.kind === 'academy' && data.membership) {
+		// A rider with nothing but Home gets no navigation bar at all.
+		if (tenant.kind === 'academy' && data.membership && bookNav.length > 0) {
 			return [{ href: resolve('/'), label: m.nav_home({}, { locale }), icon: 'home' }, ...bookNav];
 		}
 		return [];

@@ -8,8 +8,14 @@
 	let {
 		board,
 		setupDone,
-		admin
-	}: { board: BoardSession | null; setupDone: boolean; admin: boolean } = $props();
+		admin,
+		ridersBook = true
+	}: {
+		board: BoardSession | null;
+		setupDone: boolean;
+		admin: boolean;
+		ridersBook?: boolean;
+	} = $props();
 
 	const summary = $derived(board ? daySummary(board.times) : null);
 </script>
@@ -81,7 +87,7 @@
 						icon="person_add"
 						href={resolve('/(academy)/(admin)/members/invite')}
 					>
-						{m.members_invite()}
+						{ridersBook ? m.members_invite() : m.invite_add()}
 					</Button>
 				{/if}
 			</div>

@@ -9,7 +9,8 @@ const membership = (status: Membership['status']): Membership => ({
 	discipline: null,
 	level: null,
 	setupDone: true,
-	bookingPaused: false
+	bookingPaused: false,
+	ridersBook: true
 });
 
 describe('AcademyHome', () => {

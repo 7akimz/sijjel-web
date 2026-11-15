@@ -9,6 +9,7 @@ const membership = (overrides: Partial<Membership>): Membership => ({
 	level: null,
 	setupDone: true,
 	bookingPaused: false,
+	ridersBook: true,
 	...overrides
 });
 

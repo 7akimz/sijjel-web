@@ -31,13 +31,19 @@ export interface Schedule extends ScheduleInput {
 	preview: DayPreview[];
 }
 
-export interface BookingRules {
+export interface BookingRulesInput {
 	bookingWindowDays: number;
 	bookingClosesHours: number;
 	cancellationCutoffHours: number;
-	currency: string;
 	unpaidBooking: 'allow' | 'block';
+}
+
+/** The rules owners edit, plus what the platform admin sets for the academy. */
+export interface BookingRules extends BookingRulesInput {
+	country: string;
+	currency: string;
 	countryCallingCode: string;
+	ridersBook: boolean;
 }
 
 export interface Arena {

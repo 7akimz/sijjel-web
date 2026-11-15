@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import InviteMemberForm from './InviteMemberForm.svelte';
 
@@ -198,5 +198,85 @@ describe('InviteMemberForm', () => {
 				.element(screen.getByRole('link', { name: 'Add a plan' }))
 				.toHaveAttribute('href', '/settings/plans?from=invite');
 		});
+	});
+});
+
+describe('InviteMemberForm where staff book', () => {
+	const dressage = { id: 'd', key: 'dressage', nameEn: 'Dressage', nameAr: 'ترويض' };
+	const ready = {
+		...props,
+		kind: 'rider' as const,
+		ridersAllowed: true,
+		ridersBook: false,
+		disciplines: {
+			enabled: [
+				{
+					...dressage,
+					inUse: false,
+					levels: [{ id: 'intro', nameEn: 'Intro', nameAr: 'تمهيدي', inUse: false }]
+				}
+			],
+			available: []
+		},
+		plans: [
+			{
+				id: 'p8',
+				nameEn: 'Eight',
+				nameAr: 'Eight',
+				lessonsPerMonth: 8,
+				monthlyPrice: 1000,
+				discipline: dressage,
+				levels: [],
+				isActive: true
+			}
+		]
+	};
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
+	it('adds the rider by name and phone, which it needs', async () => {
+		const fetch = vi.fn(async () => Response.json({ id: 'm1' }, { status: 201 }));
+		vi.stubGlobal('fetch', fetch);
+		const onadded = vi.fn();
+		const screen = render(InviteMemberForm, { ...ready, onadded });
+
+		await screen.getByLabelText('Their name').fill('Layla Hassan');
+		await screen.getByLabelText('Plan').selectOptions('Eight');
+		await screen.getByRole('button', { name: 'Add rider' }).click();
+		await expect.element(screen.getByText('Enter their phone number.')).toBeVisible();
+		expect(fetch).not.toHaveBeenCalled();
+
+		await screen.getByLabelText('Phone').fill('010 2345 6789');
+		await screen.getByRole('button', { name: 'Add rider' }).click();
+
+		await vi.waitFor(() => expect(onadded).toHaveBeenCalledWith('m1'));
+		const [url, init] = fetch.mock.calls[0] as unknown as [string, RequestInit];
+		expect(url).toBe('/api/academy/riders');
+		expect(JSON.parse(init.body as string)).toMatchObject({
+			name: 'Layla Hassan',
+			phone: '010 2345 6789',
+			planId: 'p8'
+		});
+	});
+
+	it('can still send an invite link instead', async () => {
+		const fetch = vi.fn(async () =>
+			Response.json(
+				{ inviteId: 'i', token: 't', expiresAt: '2099-01-01T00:00:00Z', url: 'u', phone: null },
+				{ status: 201 }
+			)
+		);
+		vi.stubGlobal('fetch', fetch);
+		const oncreated = vi.fn();
+		const screen = render(InviteMemberForm, { ...ready, oncreated });
+
+		await screen.getByLabelText('Their name').fill('Layla Hassan');
+		await screen.getByLabelText('Plan').selectOptions('Eight');
+		await screen.getByRole('button', { name: 'Send an invite link instead' }).click();
+
+		await vi.waitFor(() => expect(oncreated).toHaveBeenCalled());
+		expect((fetch.mock.calls[0] as unknown as [string])[0]).toBe('/api/academy/invites');
 	});
 });

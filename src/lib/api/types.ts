@@ -52,6 +52,8 @@ export interface Membership {
 	setupDone: boolean;
 	/** True while the platform has paused new bookings at the academy. */
 	bookingPaused: boolean;
+	/** False where staff book every session and riders can't book or cancel. */
+	ridersBook: boolean;
 	/** Only for admins, and only when there is something to tell them. */
 	subscription?: SubscriptionNotice;
 }
@@ -86,6 +88,9 @@ export interface AcademySummary {
 	owner: OwnerStatus;
 	setup: SetupSummary;
 	trialDaysWaiting?: number;
+	/** ISO 3166 code; it fixes the academy's currency and phone calling code. */
+	country: string;
+	ridersBook: boolean;
 }
 
 /**
@@ -140,4 +145,14 @@ export interface InvitePreview {
 	phone: string | null;
 	phoneLocked: boolean;
 	expiresAt: string;
+}
+
+/** A country an academy can be in, from `GET /api/platform/countries`. */
+export interface Country {
+	code: string;
+	nameEn: string;
+	nameAr: string;
+	currency: string;
+	callingCode: string;
+	timeZone: string;
 }

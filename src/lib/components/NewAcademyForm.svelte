@@ -2,7 +2,8 @@
 	import { untrack } from 'svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, type FieldErrors } from '#lib/api/errors.js';
-	import type { AcademySummary, Discipline, Locale } from '#lib/api/types.js';
+	import type { AcademySummary, Country, Discipline, Locale } from '#lib/api/types.js';
+	import WhoBooksField from '#lib/components/WhoBooksField.svelte';
 	import {
 		academyFormErrors,
 		initialDisciplinePicks,
@@ -23,13 +24,14 @@
 	} from '#lib/ui/index.js';
 
 	type Props = {
+		countries: Country[];
 		disciplines: Discipline[];
 		rootHost: string;
 		locale: Locale;
 		oncreated: (academy: AcademySummary) => void;
 		oncancel: () => void;
 	};
-	let { disciplines, rootHost, locale, oncreated, oncancel }: Props = $props();
+	let { countries, disciplines, rootHost, locale, oncreated, oncancel }: Props = $props();
 
 	const initialLanguage = untrack(() => locale);
 	let form = $state<AcademyForm>({
@@ -38,7 +40,9 @@
 		nameAr: '',
 		timeZone: DEFAULT_TIME_ZONE,
 		defaultLanguage: initialLanguage,
-		disciplineIds: []
+		disciplineIds: [],
+		country: 'EG',
+		ridersBook: true
 	});
 	let language = $state<string>(initialLanguage);
 	let picked = $state<Record<string, boolean>>(initialDisciplinePicks(untrack(() => disciplines)));
@@ -48,6 +52,15 @@
 	let formElement = $state<HTMLFormElement>();
 
 	const timeZones = timeZoneOptions();
+	const countryOptions = $derived(
+		countries.map((c) => ({ value: c.code, label: locale === 'ar' ? c.nameAr : c.nameEn }))
+	);
+	const country = $derived(countries.find((c) => c.code === form.country));
+
+	// The country decides the time zone a new academy starts with; it can still be changed after.
+	function pickCountry() {
+		if (country) form.timeZone = country.timeZone;
+	}
 	const languages = [
 		{ value: 'en', label: m.language_en() },
 		{ value: 'ar', label: m.language_ar() }
@@ -118,6 +131,16 @@
 			bind:value={form.nameAr}
 		/>
 		<SelectField
+			label={m.academy_country()}
+			options={countryOptions}
+			hint={country
+				? m.academy_country_hint({ currency: country.currency, callingCode: country.callingCode })
+				: undefined}
+			error={fieldError('country')}
+			bind:value={form.country}
+			onchange={pickCountry}
+		/>
+		<SelectField
 			label={m.academy_time_zone()}
 			options={timeZones}
 			error={fieldError('timeZone')}
@@ -145,6 +168,7 @@
 				>
 			{/if}
 		</fieldset>
+		<WhoBooksField bind:ridersBook={form.ridersBook} {locale} />
 		<div class="sj-row">
 			<Button type="submit" disabled={busy}>{m.academy_create()}</Button>
 			<Button variant="quiet" onclick={oncancel}>{m.action_cancel()}</Button>

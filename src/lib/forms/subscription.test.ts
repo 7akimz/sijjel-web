@@ -29,6 +29,8 @@ const academy = (nameEn: string, extra: Partial<AcademySummary>): AcademySummary
 	paidUntil: null,
 	monthsUnpaid: 0,
 	blocked: false,
+	country: 'EG',
+	ridersBook: true,
 	owner: {
 		state: 'joined',
 		name: 'Owner',

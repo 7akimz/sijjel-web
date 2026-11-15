@@ -10,6 +10,7 @@ const membership = (extra: Partial<Membership>): Membership => ({
 	level: null,
 	setupDone: true,
 	bookingPaused: false,
+	ridersBook: true,
 	...extra
 });
 

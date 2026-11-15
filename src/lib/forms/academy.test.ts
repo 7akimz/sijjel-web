@@ -13,6 +13,8 @@ const form = (overrides: Partial<AcademyForm> = {}): AcademyForm => ({
 	timeZone: 'Asia/Riyadh',
 	defaultLanguage: 'ar',
 	disciplineIds: ['d1'],
+	country: 'EG',
+	ridersBook: true,
 	...overrides
 });
 
@@ -28,7 +30,9 @@ describe('toCreateAcademyRequest', () => {
 			nameAr: 'الفارس',
 			timeZone: 'Asia/Riyadh',
 			defaultLanguage: 'ar',
-			disciplineIds: ['d1']
+			disciplineIds: ['d1'],
+			country: 'EG',
+			ridersBook: true
 		});
 	});
 });

@@ -78,6 +78,8 @@ export interface Member {
 	roles: ('admin' | 'trainer' | 'rider')[];
 	status: 'active' | 'suspended' | 'left';
 	phone?: string | null;
+	/** False for a rider staff added who hasn't accepted an invite yet. */
+	hasAccount: boolean;
 	discipline: CatalogueDiscipline | null;
 	level: MemberLevel | null;
 	plan: Plan | null;

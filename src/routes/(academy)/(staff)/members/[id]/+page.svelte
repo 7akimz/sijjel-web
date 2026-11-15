@@ -3,10 +3,12 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
+	import MemberAccount from '#lib/components/MemberAccount.svelte';
 	import MemberLevel from '#lib/components/MemberLevel.svelte';
 	import MonthPayment from '#lib/components/MonthPayment.svelte';
 	import RiderRides from '#lib/components/RiderRides.svelte';
 	import WhatsAppIcon from '#lib/components/WhatsAppIcon.svelte';
+	import { academyName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { AffectedBooking, BookingView, Member } from '#lib/api/member-types.js';
@@ -46,6 +48,8 @@
 		{ id: 'rides', label: m.rider_tab_rides(), href: `${profileHref}?tab=rides` }
 	]);
 	let paying = $state(false);
+	const academy = $derived(data.tenant.kind === 'academy' ? data.tenant.academy : null);
+	const shareLocale = $derived(academy?.defaultLanguage ?? data.locale);
 
 	const shortDate = (date: string) => {
 		const iso = `${date}T00:00:00Z`;
@@ -314,6 +318,18 @@
 				</ul>
 			{/if}
 		</section>
+	{/if}
+
+	{#if data.tab === 'profile' && data.admin && isRider && !member.hasAccount && academy}
+		{#key member.id}
+			<MemberAccount
+				memberId={member.id}
+				name={member.displayName}
+				academy={academyName(academy, shareLocale)}
+				{shareLocale}
+				locale={data.locale}
+			/>
+		{/key}
 	{/if}
 
 	{#if data.tab === 'profile' && wasRider}

@@ -8,6 +8,8 @@ export interface AcademyForm {
 	timeZone: string;
 	defaultLanguage: Locale;
 	disciplineIds: string[];
+	country: string;
+	ridersBook: boolean;
 }
 
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/;

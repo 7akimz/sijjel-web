@@ -21,6 +21,7 @@ const layla: Member = {
 	roles: ['rider'],
 	status: 'active',
 	phone: '201012345678',
+	hasAccount: true,
 	discipline: { id: 'd', key: 'dressage', nameEn: 'Dressage', nameAr: 'ترويض' },
 	level: { id: 'l1', nameEn: 'Intro', nameAr: 'تمهيدي', position: 1 },
 	plan: {
@@ -146,6 +147,14 @@ describe('alreadyMemberText', () => {
 });
 
 describe('profileChips', () => {
+	it('says when a rider has no sijjel account', () => {
+		expect(profileChips({ ...layla, hasAccount: false }, 'en')).toContainEqual({
+			text: 'No account',
+			tone: 'neutral'
+		});
+		expect(profileChips(layla, 'en')).not.toContainEqual({ text: 'No account', tone: 'neutral' });
+	});
+
 	it("gives a rider's level first, then plan and own horse, without the rider role", () => {
 		const own = {
 			...layla,

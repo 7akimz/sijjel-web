@@ -2,7 +2,7 @@
 	import { untrack } from 'svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
-	import type { BookingRules } from '#lib/api/academy-types.js';
+	import type { BookingRulesInput } from '#lib/api/academy-types.js';
 	import { bookingRulesErrors, wholeNumber } from '#lib/forms/booking-rules.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { m } from '#lib/paraglide/messages.js';
@@ -16,9 +16,7 @@
 	let windowDays = $state<string | number>(initial.bookingWindowDays);
 	let closesHours = $state<string | number>(initial.bookingClosesHours);
 	let cutoffHours = $state<string | number>(initial.cancellationCutoffHours);
-	let currency = $state(initial.currency);
 	let unpaidBooking = $state<string>(initial.unpaidBooking);
-	let callingCode = $state(initial.countryCallingCode);
 	let errors = $state<FieldErrors>({});
 	let failure = $state<string>();
 	let saved = $state(false);
@@ -26,13 +24,11 @@
 	let busy = $state(false);
 	let formElement = $state<HTMLFormElement>();
 
-	const rules = $derived<BookingRules>({
+	const rules = $derived<BookingRulesInput>({
 		bookingWindowDays: wholeNumber(windowDays),
 		bookingClosesHours: wholeNumber(closesHours),
 		cancellationCutoffHours: wholeNumber(cutoffHours),
-		currency: currency.trim().toUpperCase(),
-		unpaidBooking: unpaidBooking === 'block' ? 'block' : 'allow',
-		countryCallingCode: callingCode.trim()
+		unpaidBooking: unpaidBooking === 'block' ? 'block' : 'allow'
 	});
 	const unpaidOptions = [
 		{ value: 'allow', label: m.rules_unpaid_allow() },
@@ -110,20 +106,6 @@
 				options={unpaidOptions}
 				error={fieldText(errors, 'unpaidBooking')}
 				bind:value={unpaidBooking}
-			/>
-			<TextField
-				label={m.rules_currency()}
-				dir="ltr"
-				hint={m.rules_currency_hint()}
-				error={fieldText(errors, 'currency')}
-				bind:value={currency}
-			/>
-			<TextField
-				label={m.rules_calling_code()}
-				dir="ltr"
-				hint={m.rules_calling_code_hint()}
-				error={fieldText(errors, 'countryCallingCode')}
-				bind:value={callingCode}
 			/>
 		</Card>
 		<div>

@@ -47,6 +47,7 @@ export const layla: Member = {
 	roles: ['rider'],
 	status: 'active',
 	phone: null,
+	hasAccount: true,
 	...step(flatwork, 'f1', 1),
 	plan: { ...beginner, levels: undefined },
 	horseSource: 'school',

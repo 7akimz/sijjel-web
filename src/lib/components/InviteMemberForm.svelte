@@ -27,6 +27,9 @@
 		/** The academy's package has no rider place left. */
 		riderLimitReached?: boolean;
 		oncreated: (invite: CreatedAcademyInvite, form: InviteMemberForm) => void;
+		/** False where staff book: riders are added straight away, and an invite is the quiet option. */
+		ridersBook?: boolean;
+		onadded?: (memberId: string) => void;
 	};
 	let {
 		kind,
@@ -35,8 +38,12 @@
 		locale,
 		ridersAllowed,
 		riderLimitReached = false,
-		oncreated
+		oncreated,
+		ridersBook = true,
+		onadded
 	}: Props = $props();
+
+	const adding = $derived(kind === 'rider' && !ridersBook);
 
 	const riderBlock = $derived(
 		kind !== 'rider'
@@ -114,11 +121,23 @@
 
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
+		await send(adding ? 'add' : 'invite');
+	}
+
+	async function send(how: 'add' | 'invite') {
 		failure = undefined;
 		errors = inviteMemberErrors(form);
+		if (how === 'add' && !form.phone.trim()) errors.phone = ['phone_required'];
 		if (Object.keys(errors).length > 0) return focusFirstInvalid(formElement);
 		busy = true;
 		try {
+			if (how === 'add') {
+				const body = toInviteRequest(form);
+				delete body.role;
+				const added = await api<{ id: string }>('/academy/riders', { method: 'POST', body });
+				onadded?.(added.id);
+				return;
+			}
 			const created = await api<CreatedAcademyInvite>('/academy/invites', {
 				method: 'POST',
 				body: toInviteRequest(form)
@@ -151,10 +170,11 @@
 			bind:value={form.name}
 		/>
 		<TextField
-			label={m.invite_phone()}
+			label={adding ? m.invite_add_phone() : m.invite_phone()}
 			type="text"
 			dir="ltr"
-			hint={m.invite_phone_hint()}
+			required={adding}
+			hint={adding ? m.invite_add_phone_hint() : m.invite_phone_hint()}
 			error={fieldText(errors, 'phone')}
 			bind:value={form.phone}
 		/>
@@ -205,8 +225,26 @@
 				bind:value={form.horseSource as string}
 			/>
 		{/if}
-		<div>
-			<Button type="submit" icon="send" disabled={busy}>{m.invite_create()}</Button>
-		</div>
+		{#if adding}
+			<div class="actions">
+				<Button type="submit" icon="person_add" block disabled={busy}>{m.invite_add()}</Button>
+				<Button variant="quiet" icon="link" disabled={busy} onclick={() => send('invite')}
+					>{m.invite_send_link_instead()}</Button
+				>
+			</div>
+		{:else}
+			<div>
+				<Button type="submit" icon="send" disabled={busy}>{m.invite_create()}</Button>
+			</div>
+		{/if}
 	</form>
 {/if}
+
+<style>
+	.actions {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--space-2);
+	}
+</style>

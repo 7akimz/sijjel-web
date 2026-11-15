@@ -61,12 +61,14 @@
 				bookings={data.rider.bookings}
 				publicKey={data.rider.publicKey}
 				locale={data.locale}
+				ridersBook={data.membership?.ridersBook !== false}
 			/>
 		{:else if data.membership}
 			<StaffToday
 				board={data.board}
 				setupDone={data.membership.setupDone}
 				admin={isAcademyAdmin(data.membership)}
+				ridersBook={data.membership.ridersBook}
 			/>
 			<AcademyHome membership={data.membership} locale={data.locale} />
 		{:else if data.user}
