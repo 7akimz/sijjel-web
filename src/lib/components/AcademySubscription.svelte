@@ -20,10 +20,12 @@
 		academyId: string;
 		subscription: AcademySubscription;
 		packages: Package[];
+		/** The academy's country: only its packages can be given. */
+		country: string;
 		locale: Locale;
 		onchange: (s: AcademySubscription) => void;
 	};
-	let { academyId, subscription, packages, locale, onchange }: Props = $props();
+	let { academyId, subscription, packages, country, locale, onchange }: Props = $props();
 
 	let sub = $state(untrack(() => subscription));
 	let packageId = $state(untrack(() => subscription.package?.id ?? ''));
@@ -48,7 +50,7 @@
 	const packageOptions = $derived([
 		...(sub.package ? [] : [{ value: '', label: m.subscription_choose_package() }]),
 		...packages
-			.filter((p) => p.isActive || p.id === sub.package?.id)
+			.filter((p) => p.id === sub.package?.id || (p.isActive && p.country === country))
 			.map((p) => ({ value: p.id, label: localName(p, locale) }))
 	]);
 	const chosen = $derived(packages.find((p) => p.id === packageId));
@@ -284,7 +286,7 @@
 					{#each sub.entries as e, i (e.id)}
 						<li class="entry">
 							<div class="main">
-								<span>{entryText(e, locale)}</span>
+								<span>{entryText(e, sub.currency, locale)}</span>
 								{#if e.note}<span class="sj-hint">{e.note}</span>{/if}
 							</div>
 							{#if i === 0}

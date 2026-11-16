@@ -23,6 +23,7 @@ describe('SubscriptionBanner', () => {
 					paidUntil: '2026-10-15',
 					monthsUnpaid: 2,
 					amountUnpaid: 3000,
+					currency: 'EGP',
 					blocked: false
 				}
 			}),
@@ -48,6 +49,7 @@ describe('SubscriptionBanner', () => {
 					paidUntil: '2026-11-17',
 					monthsUnpaid: 0,
 					amountUnpaid: 0,
+					currency: 'EGP',
 					blocked: false
 				}
 			}),
@@ -67,6 +69,7 @@ describe('SubscriptionBanner', () => {
 					paidUntil: '2026-12-15',
 					monthsUnpaid: 0,
 					amountUnpaid: 0,
+					currency: 'EGP',
 					blocked: true
 				}
 			}),
@@ -90,6 +93,7 @@ describe('SubscriptionBanner', () => {
 					paidUntil: null,
 					monthsUnpaid: 0,
 					amountUnpaid: 0,
+					currency: 'EGP',
 					blocked: true
 				}
 			}),
@@ -125,6 +129,7 @@ describe('SubscriptionBanner', () => {
 					paidUntil: null,
 					monthsUnpaid: 0,
 					amountUnpaid: 0,
+					currency: 'EGP',
 					blocked: false
 				}
 			}),

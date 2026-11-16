@@ -13,6 +13,9 @@ export interface Package {
 	maxRiders: number | null;
 	monthlyPrice: number;
 	isActive: boolean;
+	/** Fixed when the package is made; its prices are in this country's currency. */
+	country: string;
+	currency: string;
 }
 
 export interface PackageInput {
@@ -21,6 +24,8 @@ export interface PackageInput {
 	maxRiders: number | null;
 	monthlyPrice: number;
 	isActive: boolean;
+	/** Read only when the package is made. */
+	country?: string;
 }
 
 export type PaymentMethod = 'instapay' | 'cash' | 'other';
@@ -51,6 +56,8 @@ export interface AcademySubscription {
 	paidUntil: string | null;
 	monthsUnpaid: number;
 	amountUnpaid: number;
+	/** The package's currency: every amount here, entries included, is in it. */
+	currency: string;
 	blocked: boolean;
 	riders: Riders;
 	entries: SubscriptionEntry[];
@@ -64,5 +71,6 @@ export interface SubscriptionNotice {
 	paidUntil: string | null;
 	monthsUnpaid: number;
 	amountUnpaid: number;
+	currency: string;
 	blocked: boolean;
 }

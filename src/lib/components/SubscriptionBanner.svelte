@@ -20,7 +20,7 @@
 			return m.subscription_unpaid(
 				{
 					months: monthsText(notice.monthsUnpaid, locale),
-					amount: formatMoney(notice.amountUnpaid, 'EGP', locale),
+					amount: formatMoney(notice.amountUnpaid, notice.currency, locale),
 					date: due
 				},
 				{ locale }

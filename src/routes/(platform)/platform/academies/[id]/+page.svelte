@@ -54,6 +54,7 @@
 			academyId={data.academy.id}
 			subscription={data.subscription}
 			packages={data.packages}
+			country={data.academy.country}
 			locale={data.locale}
 			onchange={(s) => (current = { academyId: data.academy.id, sub: s })}
 		/>

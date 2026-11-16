@@ -17,9 +17,17 @@
 	let notice = $state<string>();
 	let saves = $state(0);
 
+	const countryOrder = $derived(data.countries.map((c) => c.code));
+	// Countries only need naming once packages exist for more than one.
+	const manyCountries = $derived(new Set(packages.map((p) => p.country)).size > 1);
+	const countryName = (code: string) => {
+		const c = data.countries.find((x) => x.code === code);
+		return c ? (data.locale === 'ar' ? c.nameAr : c.nameEn) : code;
+	};
 	const sorted = $derived(
 		[...packages].sort(
 			(a, b) =>
+				countryOrder.indexOf(a.country) - countryOrder.indexOf(b.country) ||
 				Number(b.isActive) - Number(a.isActive) ||
 				(a.maxRiders ?? Infinity) - (b.maxRiders ?? Infinity) ||
 				a.monthlyPrice - b.monthlyPrice
@@ -52,7 +60,7 @@
 
 	<Card raised>
 		<h2 class="sj-heading">{m.package_new()}</h2>
-		<PackageForm locale={data.locale} onsaved={onSaved} />
+		<PackageForm countries={data.countries} locale={data.locale} onsaved={onSaved} />
 	</Card>
 
 	{#if sorted.length === 0}
@@ -65,6 +73,7 @@
 					{#if editing === item.id}
 						<PackageForm
 							initial={item}
+							countries={data.countries}
 							locale={data.locale}
 							onsaved={onSaved}
 							oncancel={() => (editing = undefined)}
@@ -74,6 +83,9 @@
 							<div class="main">
 								<span class="package-name">{name}</span>
 								<span class="sj-row">
+									{#if manyCountries}
+										<StatusChip tone="level">{countryName(item.country)}</StatusChip>
+									{/if}
 									<StatusChip tone="neutral">
 										{item.maxRiders === null
 											? m.package_unlimited()
@@ -81,7 +93,7 @@
 									</StatusChip>
 									<StatusChip tone="neutral">
 										{m.package_per_month({
-											price: formatMoney(item.monthlyPrice, 'EGP', data.locale)
+											price: formatMoney(item.monthlyPrice, item.currency, data.locale)
 										})}
 									</StatusChip>
 									{#if !item.isActive}<StatusChip tone="stone">{m.package_retired()}</StatusChip

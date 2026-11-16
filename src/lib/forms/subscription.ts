@@ -137,6 +137,7 @@ export const methodText = (method: PaymentMethod) => methodTexts[method]();
  */
 export function entryText(
 	e: SubscriptionEntry,
+	currency: string,
 	locale: Locale,
 	{ withMadeBy = true }: { withMadeBy?: boolean } = {}
 ): string {
@@ -144,7 +145,7 @@ export function entryText(
 		e.kind === 'paid'
 			? [
 					m.subscription_entry_paid({}, { locale }),
-					formatMoney(e.amount ?? 0, 'EGP', locale),
+					formatMoney(e.amount ?? 0, currency, locale),
 					e.method ? methodText(e.method) : ''
 				]
 			: [m.subscription_entry_free({}, { locale }), daysText(e.days ?? 0, locale)];

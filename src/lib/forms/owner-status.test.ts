@@ -109,18 +109,18 @@ describe('owner wording', () => {
 		...e
 	});
 	it('calls the first free entry the first month, whatever its length', () => {
-		expect(ownerEntryText(entry({}), true, 'en')).toBe('First month · 3 Dec → 2 Jan');
+		expect(ownerEntryText(entry({}), true, 'EGP', 'en')).toBe('First month · 3 Dec → 2 Jan');
 	});
 	it('calls later free entries extra time', () => {
 		const later = entry({ days: 14, startsOn: '2027-01-03', endsOn: '2027-01-17' });
-		expect(ownerEntryText(later, false, 'en')).toBe('Extra time · 14 days · 3 Jan → 17 Jan');
+		expect(ownerEntryText(later, false, 'EGP', 'en')).toBe('Extra time · 14 days · 3 Jan → 17 Jan');
 	});
 	it('never says free or names who recorded it', () => {
 		const paid = entry({ kind: 'paid', amount: 1500, method: 'cash', days: null });
-		const text = ownerEntryText(paid, true, 'en');
+		const text = ownerEntryText(paid, true, 'EGP', 'en');
 		expect(text).toContain('Paid month');
 		expect(text).not.toContain('admin@sijjel.com');
-		expect(ownerEntryText(entry({}), false, 'en')).not.toMatch(/free/i);
+		expect(ownerEntryText(entry({}), false, 'EGP', 'en')).not.toMatch(/free/i);
 	});
 });
 

@@ -144,14 +144,26 @@ const free: SubscriptionEntry = {
 
 describe('entryText', () => {
 	it('points the date arrow the way each language reads', () => {
-		expect(entryText(free, 'en')).toContain('15 Nov → 22 Nov');
-		expect(entryText(free, 'ar')).toContain('←');
-		expect(entryText(free, 'ar')).not.toContain('→');
+		expect(entryText(free, 'EGP', 'en')).toContain('15 Nov → 22 Nov');
+		expect(entryText(free, 'EGP', 'ar')).toContain('←');
+		expect(entryText(free, 'EGP', 'ar')).not.toContain('→');
+	});
+
+	it("shows a payment in the package's currency", () => {
+		const paid = {
+			...free,
+			kind: 'paid' as const,
+			amount: 300,
+			method: 'cash' as const,
+			days: null
+		};
+		expect(entryText(paid, 'SAR', 'en')).toContain('SAR');
+		expect(entryText(paid, 'SAR', 'en')).not.toContain('EGP');
 	});
 
 	it('can leave out who recorded the entry', () => {
-		expect(entryText(free, 'en')).toContain('admin@sijjel.test');
-		expect(entryText(free, 'en', { withMadeBy: false })).not.toContain('admin@sijjel.test');
+		expect(entryText(free, 'EGP', 'en')).toContain('admin@sijjel.test');
+		expect(entryText(free, 'EGP', 'en', { withMadeBy: false })).not.toContain('admin@sijjel.test');
 	});
 });
 

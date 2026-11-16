@@ -72,8 +72,13 @@ export function ownerDateText(
  * An entry as the academy's own admins see it: the first one, when free, is the first month,
  * later free ones are extra time, and who recorded it is left out.
  */
-export function ownerEntryText(e: SubscriptionEntry, isFirst: boolean, locale: Locale): string {
-	if (e.kind === 'paid') return entryText(e, locale, { withMadeBy: false });
+export function ownerEntryText(
+	e: SubscriptionEntry,
+	isFirst: boolean,
+	currency: string,
+	locale: Locale
+): string {
+	if (e.kind === 'paid') return entryText(e, currency, locale, { withMadeBy: false });
 	const arrow = locale === 'ar' ? '←' : '→';
 	const range = `${formatDayMonth(e.startsOn, locale)} ${arrow} ${formatDayMonth(e.endsOn, locale)}`;
 	return isFirst

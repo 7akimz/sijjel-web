@@ -13,7 +13,16 @@ const starter: Package = {
 	nameAr: 'مبتدئ',
 	maxRiders: 25,
 	monthlyPrice: 1500,
-	isActive: true
+	isActive: true,
+	country: 'EG',
+	currency: 'EGP'
+};
+const saudi: Package = {
+	...starter,
+	id: 'saudi',
+	nameEn: 'Riyadh Starter',
+	country: 'SA',
+	currency: 'SAR'
 };
 
 const entry = (id: string, kind: 'paid' | 'free'): SubscriptionEntry => ({
@@ -38,6 +47,7 @@ const subscription = (extra: Partial<Subscription>): Subscription => ({
 	amountUnpaid: 0,
 	blocked: false,
 	riders: { count: 3, limit: 25 },
+	currency: 'EGP',
 	entries: [entry('e1', 'free')],
 	...extra
 });
@@ -80,7 +90,8 @@ afterEach(() => vi.unstubAllGlobals());
 const props = (s: Subscription) => ({
 	academyId: 'a1',
 	subscription: s,
-	packages: [starter],
+	packages: [starter, saudi],
+	country: 'EG',
 	locale: 'en' as const,
 	onchange: () => {}
 });
@@ -93,6 +104,16 @@ const waiting = subscription({
 });
 
 describe('AcademySubscription', () => {
+	it("offers only packages from the academy's country", async () => {
+		stubFetch();
+		const screen = render(AcademySubscription, props(none));
+
+		await expect.element(screen.getByRole('option', { name: 'Starter' })).toBeInTheDocument();
+		await expect
+			.element(screen.getByRole('option', { name: 'Riyadh Starter' }))
+			.not.toBeInTheDocument();
+	});
+
 	it('lets the free days wait for setup by default', async () => {
 		const calls = stubFetch();
 		const screen = render(AcademySubscription, props(none));

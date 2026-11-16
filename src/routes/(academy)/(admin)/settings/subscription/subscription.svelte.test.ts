@@ -25,12 +25,15 @@ const sub = (s: Partial<AcademySubscription>): AcademySubscription => ({
 		nameAr: 'Starter',
 		maxRiders: 25,
 		monthlyPrice: 1500,
-		isActive: true
+		isActive: true,
+		country: 'EG',
+		currency: 'EGP'
 	},
 	status: 'free',
 	paidUntil: '2027-01-02',
 	monthsUnpaid: 0,
 	amountUnpaid: 0,
+	currency: 'EGP',
 	blocked: false,
 	riders: { count: 3, limit: 25 },
 	entries: [entry('e1', { first: true })],

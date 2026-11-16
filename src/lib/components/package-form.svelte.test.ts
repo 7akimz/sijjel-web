@@ -25,6 +25,62 @@ async function fill(screen: ReturnType<typeof render>, riders: string) {
 	await screen.getByRole('button', { name: 'Add package' }).click();
 }
 
+const countries = [
+	{
+		code: 'EG',
+		nameEn: 'Egypt',
+		nameAr: 'مصر',
+		currency: 'EGP',
+		callingCode: '20',
+		timeZone: 'Africa/Cairo'
+	},
+	{
+		code: 'SA',
+		nameEn: 'Saudi Arabia',
+		nameAr: 'السعودية',
+		currency: 'SAR',
+		callingCode: '966',
+		timeZone: 'Asia/Riyadh'
+	}
+];
+
+describe('PackageForm countries', () => {
+	it('makes a package for a country, Egypt unless picked', async () => {
+		const bodies = stubFetch((body) => Response.json({ id: 'k1', ...body }, { status: 201 }));
+		const screen = render(PackageForm, { locale: 'en', countries, onsaved: () => {} });
+
+		await expect.element(screen.getByLabelText('Country')).toHaveValue('EG');
+		await expect.element(screen.getByText('In EGP, every month')).toBeVisible();
+		await screen.getByLabelText('Country').selectOptions('SA');
+		await expect.element(screen.getByText('In SAR, every month')).toBeVisible();
+		await fill(screen, '25');
+
+		await expect.poll(() => bodies.length).toBe(1);
+		expect(bodies[0]).toMatchObject({ country: 'SA' });
+	});
+
+	it("keeps an existing package's country fixed", async () => {
+		const screen = render(PackageForm, {
+			locale: 'en',
+			countries,
+			initial: {
+				id: 'k1',
+				nameEn: 'Starter',
+				nameAr: 'مبتدئ',
+				maxRiders: 25,
+				monthlyPrice: 300,
+				isActive: true,
+				country: 'SA',
+				currency: 'SAR'
+			},
+			onsaved: () => {}
+		});
+
+		await expect.element(screen.getByLabelText('Country')).not.toBeInTheDocument();
+		await expect.element(screen.getByText('In SAR, every month (Saudi Arabia)')).toBeVisible();
+	});
+});
+
 describe('PackageForm', () => {
 	it('sends an empty rider limit as null', async () => {
 		const bodies = stubFetch((body) => Response.json({ id: 'k1', ...body }, { status: 201 }));

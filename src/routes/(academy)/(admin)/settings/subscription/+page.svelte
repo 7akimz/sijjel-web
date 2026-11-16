@@ -37,7 +37,7 @@
 				<h2 class="sj-heading">{localName(sub.package, data.locale)}</h2>
 				<p>
 					{m.package_per_month({
-						price: formatMoney(sub.package.monthlyPrice, 'EGP', data.locale)
+						price: formatMoney(sub.package.monthlyPrice, sub.package.currency, data.locale)
 					})}
 				</p>
 				<p>{ridersText(sub.riders, data.locale)}</p>
@@ -54,7 +54,7 @@
 					<p>
 						{m.subscription_unpaid_owed({
 							months: monthsText(sub.monthsUnpaid, data.locale),
-							amount: formatMoney(sub.amountUnpaid, 'EGP', data.locale)
+							amount: formatMoney(sub.amountUnpaid, sub.currency, data.locale)
 						})}
 					</p>
 				{/if}
@@ -69,7 +69,7 @@
 					<ul class="entries" role="list">
 						{#each sub.entries as e (e.id)}
 							<li>
-								{ownerEntryText(e, e.first, data.locale)}
+								{ownerEntryText(e, e.first, sub.currency, data.locale)}
 							</li>
 						{/each}
 					</ul>
