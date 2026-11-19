@@ -1,7 +1,7 @@
 # Platform academy pages: a guided "New academy" flow and a tabbed academy page
 
 Approved mock-ups (2026-11-19), saved next to this file:
-- tabs: `2026-11-19-platform-academy-pages/academy-page.png`
+- tabs: `2026-11-19-platform-academy-pages/academy-page.png` (frames 4 and 5 show Give free time and Block in place)
 - flow: `2026-11-19-platform-academy-pages/new-academy-flow.png`
 
 The mock-ups win where this text and they disagree, with two exceptions:
@@ -28,7 +28,7 @@ Adding an academy and looking after an existing one are different jobs, so they 
 ## Goals
 
 - **Add an academy in a guided flow,** one decision per screen, with progress always visible.
-- **An existing academy's page reads at a glance on a phone.** Status first, one main action per tab, less frequent actions in a More menu.
+- **An existing academy's page reads at a glance on a phone.** Status first, and one main action per tab. Each less frequent action sits in the card it belongs to, so there is no menu to discover.
 - **Reuse only the patterns the app already has,** each with the meaning it already has (see `CLAUDE.md`, "Patterns in the app").
 
 ## Non-goals
@@ -51,7 +51,9 @@ Adding an academy and looking after an existing one are different jobs, so they 
 
 For the academy page:
 - **A: summary first, with actions in a sheet and a More menu.**
-- **B: tabs.** The user picked B, because it fits the app: the rider and horse pages already switch views of one item with underlined tabs, and have a More menu in the header.
+- **B: tabs.** The user picked B, because it fits the app: the rider and horse pages already switch views of one item with underlined tabs.
+  - A ⋮ More menu in the header (as on the rider profile) was mocked and rejected by the user as not fitting the design.
+  - Its two actions moved into the Subscription tab's cards. The rider and staff profiles keep their menu.
 - **C: an overview with Settings-style rows to sub-pages.** Rejected: those rows mean "a settings sub-page" in this app, and Block would be a row that acts as a button.
 
 For adding an academy:
@@ -106,9 +108,6 @@ The flow lives at `/platform/academies/new`. "New academy" on the list (`sj-page
   - the subscription status;
   - "Blocked" when blocked;
   - "Riders: N of M", with the group icon.
-- A **More** menu (`MoreMenu`, icon-only secondary, as on the rider profile):
-  - **Give free time**;
-  - **Block booking** (danger), or **Unblock** (the existing `subscription_unblock`) when blocked.
 - Underlined tabs (`.tabs`, links with `aria-current`, `?tab=` in the URL, as on `members/[id]`): **Overview** (default), **Subscription**, **Settings**.
 
 ### Overview
@@ -131,11 +130,15 @@ The flow lives at `/platform/academies/new`. "New academy" on the list (`sj-page
    - While the trial waits for setup, this card is replaced by "Payments and free time open once the trial starts."
    - With no package, it is not shown.
 3. **Payments and free time** history, with Undo on the newest entry, as now.
+   - A quiet **Give free time** button (icon `redeem`) in the card's heading row; it wraps under the heading on narrow phones.
+   - Tapping it opens days, a note, a secondary "Give free time" button and Cancel inside this card, above the entries.
+   - The button is hidden while the form is open, and shown only when Give free time is shown today: with a package, and not while the trial waits for setup.
 4. **A danger banner at the top when unpaid**, built from the existing `subscription_unpaid_months` text, plus the amount owed and "Booking is blocked." only when blocked.
-
-**Give free time** and **Block booking** from the More menu open their small form or confirmation as a raised card at the top of the Subscription tab, switching to that tab if needed.
-- Give free time has days, a note, a secondary "Give free time" button and Cancel.
-- Block uses the existing confirm copy, with danger "Block booking" and Cancel.
+5. **Block booking card**, the last card on the tab:
+   - **Not blocked:** "New bookings stop until you unblock this academy or record a paid month." and a secondary **Block booking** (icon `block`).
+     - Tapping it turns the card raised, with the existing `subscription_block_confirm` text, a danger **Block booking** and Cancel.
+   - **Blocked:** a short line saying bookings are stopped and that recording a paid month also unblocks, and a secondary **Unblock** (the existing `subscription_unblock`, icon `lock_open`).
+   - Always shown, as the block card is today.
 
 ### Settings
 
@@ -161,7 +164,7 @@ The existing `AcademyBookingSetup`: country and who books.
   - the owner step's intro sentence;
   - the tab names (Overview, Subscription, Settings);
   - Change;
-  - the More menu label.
+  - the block card's short lines.
 - **Existing keys reused wherever they exist:** `academy_*`, `subscription_*`, `owner_*`, `invite_*`.
 
 ## Calls left to the builder
