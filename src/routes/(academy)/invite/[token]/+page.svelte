@@ -7,6 +7,7 @@
 	import { academyName, localName, roleName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, type FieldErrors } from '#lib/api/errors.js';
+	import { carrySignIn } from '#lib/carry-sign-in.js';
 	import { formatDate } from '#lib/format.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import {
@@ -68,6 +69,7 @@
 				method: 'POST',
 				body
 			});
+			if (await carrySignIn(preview.academy.slug, '/')) return;
 			await invalidateAll();
 			await goto(resolve('/'), { replaceState: true });
 		} catch (e) {

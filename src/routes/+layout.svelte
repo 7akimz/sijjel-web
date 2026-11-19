@@ -6,7 +6,7 @@
 	import { isAcademyAdmin } from '#lib/academy/admin.js';
 	import { isAcademyStaff } from '#lib/academy/staff.js';
 	import { forgetDevice } from '#lib/push/device.js';
-	import { platformSignOutLocation } from '#lib/sign-out.js';
+	import { platformSignOutLocation } from '#lib/cross-host.js';
 	import { ridersBookHere } from '#lib/academy/rider.js';
 	import LanguageSwitch from '#lib/components/LanguageSwitch.svelte';
 	import StatusPage from '#lib/components/StatusPage.svelte';

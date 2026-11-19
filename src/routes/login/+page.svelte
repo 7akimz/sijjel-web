@@ -4,6 +4,7 @@
 	import { academyName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
+	import { carrySignIn } from '#lib/carry-sign-in.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, TextField } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
@@ -33,6 +34,12 @@
 				method: 'POST',
 				body: { identifier: identifier.trim(), password }
 			});
+			if (
+				data.tenant.kind === 'academy' &&
+				(await carrySignIn(data.tenant.academy.slug, returnTo))
+			) {
+				return;
+			}
 			await invalidateAll();
 			// returnTo is a same-site path checked by safeReturnTo in the load function.
 			// eslint-disable-next-line svelte/no-navigation-without-resolve
