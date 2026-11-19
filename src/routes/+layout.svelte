@@ -6,6 +6,7 @@
 	import { isAcademyAdmin } from '#lib/academy/admin.js';
 	import { isAcademyStaff } from '#lib/academy/staff.js';
 	import { forgetDevice } from '#lib/push/device.js';
+	import { platformSignOutLocation } from '#lib/sign-out.js';
 	import { ridersBookHere } from '#lib/academy/rider.js';
 	import LanguageSwitch from '#lib/components/LanguageSwitch.svelte';
 	import StatusPage from '#lib/components/StatusPage.svelte';
@@ -127,6 +128,14 @@
 			await api('/auth/logout', { method: 'POST', body: {} });
 		} catch (e) {
 			signOutFailure = errorText(e instanceof ApiError ? e.code : 'internal_error');
+			return;
+		}
+		const platform =
+			tenant.kind === 'academy'
+				? platformSignOutLocation(page.url.host, tenant.academy.slug)
+				: null;
+		if (platform) {
+			window.location.assign(platform);
 			return;
 		}
 		await invalidateAll();
