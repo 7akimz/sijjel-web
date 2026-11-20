@@ -1,5 +1,5 @@
 import type { SubscriptionEntry, SubscriptionStatus } from '#lib/api/subscription-types.js';
-import type { CreatedInvite, Locale, OwnerStatus, SetupSummary } from '#lib/api/types.js';
+import type { CreatedInvite, Locale, OwnerStatus } from '#lib/api/types.js';
 import { formatDate, formatDayMonth } from '#lib/format.js';
 import { m } from '#lib/paraglide/messages.js';
 import { daysText, entryText, statusText, statusTone, type StatusTone } from './subscription';
@@ -36,13 +36,6 @@ export function ownerChip(
 		return { text, tone: 'pending' };
 	}
 	return { text: m.owner_none({}, { locale }), tone: 'stone' };
-}
-
-export function setupChip(s: SetupSummary, locale: Locale): string {
-	if (!s.finished) return m.setup_chip_progress({ done: s.done }, { locale });
-	return s.doneOn
-		? m.setup_chip_done_on({ date: formatDayMonth(s.doneOn, locale) }, { locale })
-		: m.setup_chip_done({}, { locale });
 }
 
 /** The status an academy's own admins see: free days read as active, and nothing while they wait. */
@@ -110,12 +103,6 @@ export function pendingOwner(invite: CreatedInvite, name: string | null, now: Da
 		expiresAt: invite.expiresAt,
 		joinedAt: null
 	};
-}
-
-/** The button on an Academies list row: send the waiting invite again, or invite an owner. */
-export function ownerRowAction(o: OwnerStatus): 'send_again' | 'invite' | null {
-	if (o.state === 'pending' || o.state === 'expired') return 'send_again';
-	return o.state === 'none' ? 'invite' : null;
 }
 
 /** Setup progress means something only once an owner has joined. */

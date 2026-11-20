@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { SubscriptionEntry } from '#lib/api/subscription-types.js';
-import type { OwnerStatus, SetupSummary } from '#lib/api/types.js';
+import type { OwnerStatus } from '#lib/api/types.js';
 import {
 	ownerChip,
 	ownerDateText,
 	ownerEntryText,
-	ownerRowAction,
 	ownerStatusText,
 	ownerStatusTone,
-	setupChip,
 	showsSetup
 } from './owner-status';
 
@@ -55,33 +53,6 @@ describe('ownerChip', () => {
 	});
 });
 
-describe('setupChip', () => {
-	const setup = (s: Partial<SetupSummary>): SetupSummary => ({
-		done: 0,
-		total: 4,
-		steps: { hours: false, arenas: false, horses: false, plans: false },
-		finished: false,
-		doneOn: null,
-		...s
-	});
-	it('counts the steps done', () => {
-		expect(setupChip(setup({ done: 2 }), 'en')).toBe('Setup: 2 of 4');
-	});
-	it('gives the setup day', () => {
-		expect(setupChip(setup({ done: 4, finished: true, doneOn: '2026-12-03' }), 'en')).toBe(
-			'Set up on 3 Dec'
-		);
-	});
-	it('says set up when the day is not known', () => {
-		expect(setupChip(setup({ done: 4, finished: true }), 'en')).toBe('Set up');
-	});
-	it('keeps saying set up after a step is removed', () => {
-		expect(setupChip(setup({ done: 3, finished: true, doneOn: '2026-12-03' }), 'en')).toBe(
-			'Set up on 3 Dec'
-		);
-	});
-});
-
 describe('owner wording', () => {
 	it('shows free days as active and hides the waiting state', () => {
 		expect(ownerStatusText('free', 'en')).toBe('Active');
@@ -124,13 +95,7 @@ describe('owner wording', () => {
 	});
 });
 
-describe('ownerRowAction', () => {
-	it('sends again while an invite waits, invites when none, and nothing once joined', () => {
-		expect(ownerRowAction(owner({ state: 'pending', inviteId: 'i' }))).toBe('send_again');
-		expect(ownerRowAction(owner({ state: 'expired', inviteId: 'i' }))).toBe('send_again');
-		expect(ownerRowAction(owner({}))).toBe('invite');
-		expect(ownerRowAction(owner({ state: 'joined', name: 'Omar' }))).toBeNull();
-	});
+describe('showsSetup', () => {
 	it('shows setup only once someone joined', () => {
 		expect(showsSetup(owner({ state: 'joined' }))).toBe(true);
 		expect(showsSetup(owner({ state: 'pending' }))).toBe(false);
