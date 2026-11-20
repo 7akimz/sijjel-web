@@ -137,7 +137,7 @@ The flow lives at `/platform/academies/new`. "New academy" on the list (`sj-page
 5. **Block booking card**, the last card on the tab:
    - **Not blocked:** "New bookings stop until you unblock this academy or record a paid month." and a secondary **Block booking** (icon `block`).
      - Tapping it turns the card raised, with the existing `subscription_block_confirm` text, a danger **Block booking** and Cancel.
-   - **Blocked:** a short line saying bookings are stopped and that recording a paid month also unblocks, and a secondary **Unblock** (the existing `subscription_unblock`, icon `lock_open`).
+   - **Blocked:** a short line saying bookings are stopped and that recording a paid month also unblocks, and a secondary **Unblock** (the existing `subscription_unblock`, icon `lock_open`). It unblocks in one tap, with no confirm: unblocking isn't destructive, and the old confirm's primary "Yes, unblock" put a second primary on the tab.
    - Always shown, as the block card is today.
 
 ### Settings

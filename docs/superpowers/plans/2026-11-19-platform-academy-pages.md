@@ -17,6 +17,7 @@
 - One primary button per screen. Danger buttons are always confirmed first.
 - Every new string goes in both `messages/en.json` and `messages/ar.json`. Reuse the existing `academy_*`, `subscription_*`, `owner_*`, `invite_*` and `package_*` keys wherever they exist.
 - Pass `{ locale }` to `m.*` in components that take `locale` as a prop.
+- Unblock acts in one tap with no confirm (agreed with the user 2026-11-20): it isn't destructive, and its confirm put a second primary button on the tab.
 - Logical CSS properties only. Directional icons (`arrow_back`, `chevron_right`) use `directional`.
 - Comments follow the user's global rules: no end-of-line comments, no past tense, only where the intent isn't clear.
 - Commit on `feat/platform-academy-pages`, ending each message with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
@@ -166,6 +167,7 @@ git commit -m "Academy page: tabs for overview, subscription and settings"
     - `'shows no Give free time while the trial waits'`: with `waiting`, there's no button named "Give free time".
     - `'warns at the top when unpaid'`: `subscription({ status: 'unpaid', monthsUnpaid: 2, amountUnpaid: 3000, blocked: true })` shows the text `/^Unpaid: 2 months · EGP\s3,000 Booking is blocked\.$/`. The first element of the component is the banner.
     - `'has no unpaid banner when blocked by hand'`: `subscription({ blocked: true })` has no text matching `/Unpaid/`, and has an "Unblock" button.
+    - `'unblocks in one tap'`: with `subscription({ blocked: true })`, one click on "Unblock" sends `PUT /api/platform/academies/a1/blocked` with `{ blocked: false }`, there is never a button named "Yes, unblock", and "Saved." shows in the block card.
     - `'puts the block card last'`: the last `Card` in the component contains "Block booking" and the `subscription_block_card` text.
 
 - [ ] **Step 2: Run** `npx vitest run src/lib/components/academy-subscription.svelte.test.ts`. Expected: the new and changed tests FAIL. The unchanged ones (country filter, free days, waiting, mark paid, undo, block) pass.
@@ -185,7 +187,7 @@ git commit -m "Academy page: tabs for overview, subscription and settings"
   - **The block card:**
     - **Not blocked:** the `subscription_block_card` text and a secondary `Block booking` (icon `block`).
     - **Confirming:** `Card raised`, with `subscription_block_confirm`, a danger `Yes, block booking` and Cancel.
-    - **Blocked:** the `subscription_blocked_card` text and a secondary `Unblock` (icon `lock_open`), which keeps the existing confirm step (`subscription_unblock_confirm`).
+    - **Blocked:** the `subscription_blocked_card` text and a secondary `Unblock` (icon `lock_open`) that sends `PUT …/blocked` `{ blocked: false }` straight away, with no confirm step. Remove the now unused `subscription_unblock_confirm` and `subscription_unblock_yes` from both message files.
     - Keep the focus handling.
   - **The unpaid banner** goes at the top, as above.
 
