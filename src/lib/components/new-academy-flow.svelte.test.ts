@@ -192,7 +192,12 @@ describe('NewAcademyFlow', () => {
 			.toBeVisible();
 		await expect.element(screen.getByRole('button', { name: 'Finish later' })).toBeVisible();
 		await expect.element(screen.getByRole('button', { name: 'Back' })).not.toBeInTheDocument();
-		await screen.getByLabelText('Package', { exact: true }).selectOptions('Starter');
+		await expect
+			.element(
+				screen.getByRole('option', { name: /^Starter · Up to 25 riders · EGP\s1,500 a month$/ })
+			)
+			.toBeInTheDocument();
+		await screen.getByLabelText('Package', { exact: true }).selectOptions('starter');
 		await screen.getByRole('button', { name: 'Save package' }).click();
 
 		await expect.element(screen.getByText('Step 4 of 4 · Owner')).toBeVisible();

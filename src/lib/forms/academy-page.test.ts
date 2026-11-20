@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { OwnerStatus } from '#lib/api/types.js';
-import { academyTab, addedText } from './academy-page';
+import type { Package } from '#lib/api/subscription-types.js';
+import { academyTab, addedText, packageOptionText } from './academy-page';
 
 const noOwner: OwnerStatus = {
 	state: 'none',
@@ -33,6 +34,31 @@ describe('addedText', () => {
 		expect(addedText('Orlando', pending, 'free', 'en')).toBe('Orlando is added.');
 		expect(addedText('Orlando', { owner: noOwner }, 'trial_waiting', 'en')).toBe(
 			'Orlando is added.'
+		);
+	});
+});
+
+describe('packageOptionText', () => {
+	const starter: Package = {
+		id: 'starter',
+		nameEn: 'Starter',
+		nameAr: 'مبتدئ',
+		maxRiders: 25,
+		monthlyPrice: 1500,
+		isActive: true,
+		country: 'EG',
+		currency: 'EGP'
+	};
+
+	it('gives the rider limit and price beside the name', () => {
+		expect(packageOptionText(starter, 'en')).toMatch(
+			/^Starter · Up to 25 riders · EGP\s1,500 a month$/
+		);
+	});
+
+	it('says unlimited when there is no limit', () => {
+		expect(packageOptionText({ ...starter, nameEn: 'Unlimited', maxRiders: null }, 'en')).toMatch(
+			/^Unlimited · Unlimited riders · EGP\s1,500 a month$/
 		);
 	});
 });

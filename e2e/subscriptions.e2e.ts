@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { academyUrl, platformUrl } from './config';
 import {
+	choosePackage,
 	createAcademy,
 	e2ePhone,
 	inviteOwner,
@@ -33,7 +34,7 @@ test('a platform admin sets up a package, academies see what they owe, and block
 	const owner = await signUpOwner(browser, slug, await inviteOwner(page, name));
 
 	await openAcademy(page, name, 'Subscription');
-	await page.getByLabel('Package', { exact: true }).selectOption({ label: packageName });
+	await choosePackage(page, packageName);
 	await page.getByLabel('Free days to start with').fill('0');
 	await page.getByRole('button', { name: 'Save package' }).click();
 	await expect(page.getByText('Saved.')).toBeVisible();

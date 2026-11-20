@@ -5,7 +5,11 @@
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
 	import type { AcademySubscription, Package, PaymentMethod } from '#lib/api/subscription-types.js';
 	import type { Locale } from '#lib/api/types.js';
-	import { packageLimitText, packagePriceText } from '#lib/forms/academy-page.js';
+	import {
+		packageLimitText,
+		packageOptionText,
+		packagePriceText
+	} from '#lib/forms/academy-page.js';
 	import { wholeNumber } from '#lib/forms/booking-rules.js';
 	import {
 		entryText,
@@ -57,7 +61,7 @@
 		...(sub.package ? [] : [{ value: '', label: m.subscription_choose_package() }]),
 		...packages
 			.filter((p) => p.id === sub.package?.id || (p.isActive && p.country === country))
-			.map((p) => ({ value: p.id, label: localName(p, locale) }))
+			.map((p) => ({ value: p.id, label: packageOptionText(p, locale) }))
 	]);
 	const chosen = $derived(packages.find((p) => p.id === packageId));
 	const overLimit = $derived(

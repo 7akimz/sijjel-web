@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { academyUrl, platformUrl } from './config';
 import {
+	choosePackage,
 	createAcademy,
 	openAcademy,
 	ownerCard,
@@ -47,7 +48,7 @@ test('a platform admin follows an owner invite, and the free days wait for setup
 	expect((await request.get(academyUrl(slug, firstPath))).status()).toBe(404);
 
 	await openAcademy(page, name, 'Subscription');
-	await page.getByLabel('Package', { exact: true }).selectOption({ label: packageName });
+	await choosePackage(page, packageName);
 	await expect(page.getByLabel('Start the free days when setup is finished')).toBeChecked();
 	await page.getByRole('button', { name: 'Save package' }).click();
 	await expect(page.getByText('30 free days start when setup is finished.')).toBeVisible();

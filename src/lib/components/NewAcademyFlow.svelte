@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tick, untrack } from 'svelte';
-	import { academyName, localName } from '#lib/academy.js';
+	import { academyName } from '#lib/academy.js';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
 	import type { Package } from '#lib/api/subscription-types.js';
@@ -22,6 +22,7 @@
 		toCreateAcademyRequest,
 		type AcademyForm
 	} from '#lib/forms/academy.js';
+	import { packageOptionText } from '#lib/forms/academy-page.js';
 	import { wholeNumber } from '#lib/forms/booking-rules.js';
 	import { focusFirstInvalid } from '#lib/forms/focus.js';
 	import { DEFAULT_TIME_ZONE, timeZoneOptions } from '#lib/forms/time-zones.js';
@@ -98,7 +99,7 @@
 		{ value: '', label: m.subscription_choose_package({}, { locale }) },
 		...packages
 			.filter((p) => p.isActive && p.country === academy?.country)
-			.map((p) => ({ value: p.id, label: localName(p, locale) }))
+			.map((p) => ({ value: p.id, label: packageOptionText(p, locale) }))
 	]);
 	const name = $derived(academy ? academyName(academy, locale) : '');
 

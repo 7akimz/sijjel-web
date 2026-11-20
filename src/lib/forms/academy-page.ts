@@ -1,5 +1,6 @@
 import type { Package, SubscriptionStatus } from '#lib/api/subscription-types.js';
 import type { AcademySummary, Locale } from '#lib/api/types.js';
+import { localName } from '#lib/academy.js';
 import { riderCountText } from '#lib/forms/subscription.js';
 import { formatMoney } from '#lib/money.js';
 import { m } from '#lib/paraglide/messages.js';
@@ -36,5 +37,12 @@ export function packagePriceText(p: Package, locale: Locale): string {
 	return m.package_per_month(
 		{ price: formatMoney(p.monthlyPrice, p.currency, locale) },
 		{ locale }
+	);
+}
+
+/** "Starter · Up to 25 riders · EGP 1,500 a month": a package as offered in a select. */
+export function packageOptionText(p: Package, locale: Locale): string {
+	return [localName(p, locale), packageLimitText(p, locale), packagePriceText(p, locale)].join(
+		' · '
 	);
 }

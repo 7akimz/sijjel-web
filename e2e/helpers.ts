@@ -60,6 +60,13 @@ export async function openAcademy(
 	}
 }
 
+// choosePackage picks a package by its name; the option also shows its rider limit and price.
+export async function choosePackage(page: Page, packageName: string): Promise<void> {
+	const select = page.getByLabel('Package', { exact: true });
+	const option = select.locator('option', { hasText: `${packageName} · ` });
+	await select.selectOption((await option.getAttribute('value')) ?? '');
+}
+
 // ownerCard is the Owner card on an academy's Overview.
 export const ownerCard = (page: Page) =>
 	page.locator('.sj-card').filter({ has: page.getByRole('heading', { name: 'Owner' }) });

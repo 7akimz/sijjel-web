@@ -113,9 +113,13 @@ describe('AcademySubscription', () => {
 		stubFetch();
 		const screen = render(AcademySubscription, props(none));
 
-		await expect.element(screen.getByRole('option', { name: 'Starter' })).toBeInTheDocument();
 		await expect
-			.element(screen.getByRole('option', { name: 'Riyadh Starter' }))
+			.element(
+				screen.getByRole('option', { name: /^Starter · Up to 25 riders · EGP\s1,500 a month$/ })
+			)
+			.toBeInTheDocument();
+		await expect
+			.element(screen.getByRole('option', { name: /Riyadh Starter/ }))
 			.not.toBeInTheDocument();
 	});
 
@@ -126,7 +130,7 @@ describe('AcademySubscription', () => {
 
 		await expect.element(box).toBeChecked();
 		await box.click();
-		await screen.getByLabelText('Package').selectOptions('Starter');
+		await screen.getByLabelText('Package').selectOptions('starter');
 		await screen.getByRole('button', { name: 'Save package' }).click();
 
 		await expect.poll(() => calls.length).toBe(1);
@@ -170,7 +174,7 @@ describe('AcademySubscription', () => {
 		const screen = render(AcademySubscription, props(none));
 
 		await expect.element(screen.getByLabelText('Free days to start with')).toHaveValue(30);
-		await screen.getByLabelText('Package').selectOptions('Starter');
+		await screen.getByLabelText('Package').selectOptions('starter');
 		await screen.getByRole('button', { name: 'Save package' }).click();
 
 		await expect.poll(() => calls.length).toBe(1);
@@ -186,7 +190,10 @@ describe('AcademySubscription', () => {
 		const screen = render(AcademySubscription, props(subscription({})));
 		await screen.getByRole('button', { name: 'Change' }).click();
 		const options = screen.getByLabelText('Package').element().querySelectorAll('option');
-		expect([...options].map((o) => o.textContent)).toEqual(['Starter', 'Rising']);
+		expect([...options].map((o) => o.textContent?.replace(/\s/g, ' '))).toEqual([
+			'Starter · Up to 25 riders · EGP 1,500 a month',
+			'Rising · Up to 40 riders · EGP 1,500 a month'
+		]);
 	});
 
 	it('marks a month paid with the package price by default', async () => {
@@ -343,7 +350,7 @@ describe('AcademySubscription', () => {
 		const screen = render(AcademySubscription, props(subscription({})));
 
 		await screen.getByRole('button', { name: 'Change' }).click();
-		await screen.getByLabelText('Package').selectOptions('Rising');
+		await screen.getByLabelText('Package').selectOptions('rising');
 		await screen.getByRole('button', { name: 'Cancel' }).click();
 		await screen.getByRole('button', { name: 'Change' }).click();
 
