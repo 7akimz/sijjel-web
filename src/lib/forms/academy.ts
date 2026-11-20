@@ -43,3 +43,11 @@ export function initialDisciplinePicks(disciplines: Discipline[]): Record<string
 		disciplines.map((d) => [d.id, DEFAULT_DISCIPLINE_KEYS.includes(d.key)])
 	);
 }
+
+/** The fields asked on the first step of the New academy flow. */
+export const STEP_ONE_FIELDS = ['slug', 'nameEn', 'nameAr'] as const;
+
+export function academyStepOneErrors(form: AcademyForm): FieldErrors {
+	const all = academyFormErrors(form);
+	return Object.fromEntries(STEP_ONE_FIELDS.filter((f) => all[f]).map((f) => [f, all[f]]));
+}

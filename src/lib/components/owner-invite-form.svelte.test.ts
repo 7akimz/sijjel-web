@@ -35,4 +35,14 @@ describe('OwnerInviteForm', () => {
 
 		expect(oncancel).toHaveBeenCalledOnce();
 	});
+
+	it('reads Skip for now as a step', async () => {
+		const oncancel = vi.fn();
+		const screen = render(OwnerInviteForm, { ...props, oncancel, step: true });
+
+		await screen.getByRole('button', { name: 'Skip for now' }).click();
+
+		expect(oncancel).toHaveBeenCalled();
+		expect(screen.getByRole('button', { name: 'Cancel' }).elements()).toHaveLength(0);
+	});
 });

@@ -15,8 +15,10 @@
 		academyId: string;
 		oncreated: (invite: CreatedInvite, form: OwnerInviteForm) => void;
 		oncancel: () => void;
+		/** A step of the New academy flow: the quiet button skips it, and the actions sit apart. */
+		step?: boolean;
 	};
-	let { academyId, oncreated, oncancel }: Props = $props();
+	let { academyId, oncreated, oncancel, step = false }: Props = $props();
 
 	let form = $state<OwnerInviteForm>({ name: '', phone: '', email: '' });
 	let errors = $state<FieldErrors>({});
@@ -72,8 +74,21 @@
 		error={fieldText(errors, 'email')}
 		bind:value={form.email}
 	/>
-	<div class="sj-row">
-		<Button type="submit" disabled={busy}>{m.invite_create()}</Button>
-		<Button variant="quiet" onclick={oncancel}>{m.action_cancel()}</Button>
-	</div>
+	{#if step}
+		<div class="sj-row">
+			<Button variant="quiet" onclick={oncancel}>{m.action_skip()}</Button>
+			<span class="end"><Button type="submit" disabled={busy}>{m.invite_create()}</Button></span>
+		</div>
+	{:else}
+		<div class="sj-row">
+			<Button type="submit" disabled={busy}>{m.invite_create()}</Button>
+			<Button variant="quiet" onclick={oncancel}>{m.action_cancel()}</Button>
+		</div>
+	{/if}
 </form>
+
+<style>
+	.end {
+		margin-inline-start: auto;
+	}
+</style>

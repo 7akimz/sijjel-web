@@ -921,5 +921,17 @@
 	"action_change": "Change",
 	"subscription_booking_blocked": "Booking is blocked.",
 	"subscription_block_card": "New bookings stop until you unblock this academy or record a paid month.",
-	"subscription_blocked_card": "Bookings are stopped. Recording a paid month also unblocks."
+	"subscription_blocked_card": "Bookings are stopped. Recording a paid month also unblocks.",
+	"flow_step": "Step {n} of {total} · {name}",
+	"flow_step_academy": "Academy",
+	"flow_step_runs": "How it runs",
+	"flow_step_package": "Package",
+	"flow_step_owner": "Owner",
+	"action_next": "Next",
+	"action_back": "Back",
+	"action_skip": "Skip for now",
+	"flow_finish_later": "Finish later",
+	"flow_go_to_academy": "Go to the academy",
+	"academy_created_next": "{name} is created. Next, its package.",
+	"owner_step_intro": "The owner gets a link to sign up and set up the academy."
 }

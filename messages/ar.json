@@ -921,5 +921,17 @@
 	"action_change": "تغيير",
 	"subscription_booking_blocked": "الحجز موقوف.",
 	"subscription_block_card": "تتوقف الحجوزات الجديدة حتى تلغي إيقاف هذه الأكاديمية أو تسجّل شهرًا مدفوعًا.",
-	"subscription_blocked_card": "الحجوزات متوقفة. تسجيل شهر مدفوع يلغي الإيقاف أيضًا."
+	"subscription_blocked_card": "الحجوزات متوقفة. تسجيل شهر مدفوع يلغي الإيقاف أيضًا.",
+	"flow_step": "الخطوة {n} من {total} · {name}",
+	"flow_step_academy": "الأكاديمية",
+	"flow_step_runs": "طريقة العمل",
+	"flow_step_package": "الباقة",
+	"flow_step_owner": "المالك",
+	"action_next": "التالي",
+	"action_back": "رجوع",
+	"action_skip": "تخطَّ الآن",
+	"flow_finish_later": "أكمل لاحقًا",
+	"flow_go_to_academy": "اذهب إلى الأكاديمية",
+	"academy_created_next": "تم إنشاء {name}. التالي: الباقة.",
+	"owner_step_intro": "يحصل المالك على رابط للتسجيل وإعداد الأكاديمية."
 }

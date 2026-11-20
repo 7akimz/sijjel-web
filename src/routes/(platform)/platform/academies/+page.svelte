@@ -4,7 +4,6 @@
 	import { academyMark, academyName, localName } from '#lib/academy.js';
 	import InviteShareCard from '#lib/components/InviteShareCard.svelte';
 	import OwnerInviteForm from '#lib/components/OwnerInviteForm.svelte';
-	import NewAcademyForm from '#lib/components/NewAcademyForm.svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText } from '#lib/api/errors.js';
 	import type { AcademySummary, CreatedInvite, OwnerStatus } from '#lib/api/types.js';
@@ -32,9 +31,6 @@
 
 	let { data }: PageProps = $props();
 
-	let created = $state<AcademySummary[]>([]);
-	let creating = $state(false);
-	let notice = $state<string>();
 	let invites = $state<Record<string, { invite: CreatedInvite; name: string; renewed: boolean }>>(
 		{}
 	);
@@ -45,10 +41,7 @@
 	let inviting = $state<string>();
 	let filter = $state<StatusFilter>('all');
 
-	const all = $derived([
-		...created,
-		...sortByUrgency(data.academies.filter((a) => !created.some((c) => c.id === a.id)))
-	]);
+	const all = $derived(sortByUrgency(data.academies));
 	const academies = $derived(all.filter((a) => matchesFilter(a, filter)));
 	const filterOptions = $derived(
 		statusFilters.map((f) => ({
@@ -66,12 +59,6 @@
 			data.disciplines.map((d) => [d.key, data.locale === 'ar' ? d.nameAr : d.nameEn] as const)
 		)
 	);
-
-	function onCreated(academy: AcademySummary) {
-		created = [academy, ...created];
-		creating = false;
-		notice = m.academy_created();
-	}
 
 	const ownerOf = (a: AcademySummary) => owners[a.id] ?? a.owner;
 
@@ -107,26 +94,12 @@
 <div class="sj-page">
 	<div class="sj-page-head">
 		<h1 class="sj-title">{m.academies_title()}</h1>
-		{#if !creating}
-			<Button icon="add" onclick={() => ((creating = true), (notice = undefined))}>
-				{m.academy_new()}
-			</Button>
-		{/if}
+		<Button icon="add" href={resolve('/(platform)/platform/academies/new')}>
+			{m.academy_new()}
+		</Button>
 	</div>
 
-	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 	{#if failure}<Banner tone="danger" icon="error">{failure}</Banner>{/if}
-
-	{#if creating}
-		<NewAcademyForm
-			countries={data.countries}
-			disciplines={data.disciplines}
-			rootHost={page.url.host}
-			locale={data.locale}
-			oncreated={onCreated}
-			oncancel={() => (creating = false)}
-		/>
-	{/if}
 
 	{#if all.length > 0}
 		<SelectField
@@ -137,11 +110,9 @@
 	{/if}
 
 	{#if all.length === 0}
-		{#if !creating}
-			<EmptyState icon="domain" title={m.academies_empty_title()}>
-				{m.academies_empty_body()}
-			</EmptyState>
-		{/if}
+		<EmptyState icon="domain" title={m.academies_empty_title()}>
+			{m.academies_empty_body()}
+		</EmptyState>
 	{:else if academies.length === 0}
 		<p class="sj-muted">{m.academies_filter_empty()}</p>
 	{:else}

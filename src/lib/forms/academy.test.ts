@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	academyFormErrors,
+	academyStepOneErrors,
 	toCreateAcademyRequest,
 	type AcademyForm,
 	initialDisciplinePicks
@@ -84,5 +85,13 @@ describe('initialDisciplinePicks', () => {
 			j: true,
 			f: true
 		});
+	});
+});
+
+describe('academyStepOneErrors', () => {
+	it('checks only the step-one fields', () => {
+		const errors = academyStepOneErrors(form({ slug: '', disciplineIds: [] }));
+		expect(Object.keys(errors)).toContain('slug');
+		expect(errors.disciplineIds).toBeUndefined();
 	});
 });
