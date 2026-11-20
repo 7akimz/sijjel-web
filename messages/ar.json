@@ -914,5 +914,10 @@
 	"academy_setup_horses": "حصان مدرسة",
 	"academy_setup_plans": "خطة للفرسان",
 	"academy_setup_step_done": "{step}، تم",
-	"academy_setup_step_todo": "{step}، لم يتم بعد"
+	"academy_setup_step_todo": "{step}، لم يتم بعد",
+	"academy_tabs": "عروض الأكاديمية",
+	"academy_tab_overview": "نظرة عامة",
+	"academy_added": "تمت إضافة {name}.",
+	"academy_added_waiting": "تمت إضافة {name}. تبدأ الفترة التجريبية عندما ينتهي {owner} من إعدادها.",
+	"subscription_no_package_yet": "لا توجد باقة بعد."
 }

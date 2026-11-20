@@ -914,5 +914,10 @@
 	"academy_setup_horses": "A school horse",
 	"academy_setup_plans": "A plan for riders",
 	"academy_setup_step_done": "{step}, done",
-	"academy_setup_step_todo": "{step}, not done yet"
+	"academy_setup_step_todo": "{step}, not done yet",
+	"academy_tabs": "Academy views",
+	"academy_tab_overview": "Overview",
+	"academy_added": "{name} is added.",
+	"academy_added_waiting": "{name} is added. The trial starts when {owner} finishes setting it up.",
+	"subscription_no_package_yet": "No package yet."
 }

@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { AcademySubscription, Package } from '#lib/api/subscription-types.js';
 import type { AcademySummary, Country } from '#lib/api/types.js';
+import { academyTab } from '#lib/forms/academy-page.js';
 import { apiLoad } from '#lib/server/api.js';
 import type { PageServerLoad } from './$types';
 
@@ -13,5 +14,12 @@ export const load: PageServerLoad = async (event) => {
 	]);
 	const academy = academies.find((a) => a.id === event.params.id);
 	if (!academy) error(404, 'academy_not_found');
-	return { subscription, packages, academy, countries };
+	return {
+		subscription,
+		packages,
+		academy,
+		countries,
+		tab: academyTab(event.url.searchParams.get('tab')),
+		added: event.url.searchParams.get('added') === '1'
+	};
 };
