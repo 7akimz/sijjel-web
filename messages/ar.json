@@ -753,8 +753,6 @@
 	"subscription_block_confirm": "يتوقف الحجز الجديد حتى تلغي الإيقاف أو تسجل دفع شهر. كل شيء آخر يظل يعمل.",
 	"subscription_block_yes": "نعم، أوقف الحجز",
 	"subscription_unblock": "إلغاء الإيقاف",
-	"subscription_unblock_confirm": "يستطيع الفرسان الحجز مجددًا فورًا.",
-	"subscription_unblock_yes": "نعم، ألغِ الإيقاف",
 	"subscription_saved": "تم الحفظ.",
 	"subscription_title": "الاشتراك",
 	"subscription_filter": "عرض",
@@ -919,5 +917,9 @@
 	"academy_tab_overview": "نظرة عامة",
 	"academy_added": "تمت إضافة {name}.",
 	"academy_added_waiting": "تمت إضافة {name}. تبدأ الفترة التجريبية عندما ينتهي {owner} من إعدادها.",
-	"subscription_no_package_yet": "لا توجد باقة بعد."
+	"subscription_no_package_yet": "لا توجد باقة بعد.",
+	"action_change": "تغيير",
+	"subscription_booking_blocked": "الحجز موقوف.",
+	"subscription_block_card": "تتوقف الحجوزات الجديدة حتى تلغي إيقاف هذه الأكاديمية أو تسجّل شهرًا مدفوعًا.",
+	"subscription_blocked_card": "الحجوزات متوقفة. تسجيل شهر مدفوع يلغي الإيقاف أيضًا."
 }

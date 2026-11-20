@@ -5,13 +5,17 @@
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
 	import type { AcademySubscription, Package, PaymentMethod } from '#lib/api/subscription-types.js';
 	import type { Locale } from '#lib/api/types.js';
+	import { packageLimitText, packagePriceText } from '#lib/forms/academy-page.js';
 	import { wholeNumber } from '#lib/forms/booking-rules.js';
 	import {
 		entryText,
+		waitingText,
 		methodText,
+		monthsText,
 		paymentMethods,
 		riderCountText
 	} from '#lib/forms/subscription.js';
+	import { formatMoney } from '#lib/money.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, CheckboxField, SelectField, TextField } from '#lib/ui/index.js';
 
@@ -40,6 +44,8 @@
 	let days = $state<string | number | null>('');
 	let freeNote = $state('');
 	let confirming = $state(false);
+	let editing = $state(untrack(() => !subscription.package));
+	let giving = $state(false);
 	let busy = $state(false);
 	let section = $state<Section>();
 	let errors = $state<FieldErrors>({});
@@ -102,7 +108,15 @@
 			sub.entries.length === 0
 				? { packageId: packageId || null, freeDays: free, startAfterSetup }
 				: { packageId: packageId || null };
-		if (await send('/package', 'PUT', body)) amount = sub.package?.monthlyPrice ?? '';
+		if (!(await send('/package', 'PUT', body))) return;
+		amount = sub.package?.monthlyPrice ?? '';
+		editing = !sub.package;
+	}
+
+	function change(open: boolean) {
+		editing = open;
+		packageId = sub.package?.id ?? '';
+		if (open) start('package');
 	}
 
 	async function markPaid(event: SubmitEvent) {
@@ -136,6 +150,14 @@
 		if (!(await send('/free-time', 'POST', { days: n, note: freeNote.trim() || null }))) return;
 		days = '';
 		freeNote = '';
+		giving = false;
+	}
+
+	function openFree(open: boolean) {
+		giving = open;
+		start('free');
+		days = '';
+		freeNote = '';
 	}
 
 	function startTrial() {
@@ -158,6 +180,21 @@
 		start('block');
 		if (await send('/blocked', 'PUT', { blocked })) await confirm(false);
 	}
+
+	const unpaidText = $derived(
+		[
+			m.subscription_unpaid_owed(
+				{
+					months: monthsText(sub.monthsUnpaid, locale),
+					amount: formatMoney(sub.amountUnpaid, sub.currency, locale)
+				},
+				{ locale }
+			),
+			sub.blocked ? m.subscription_booking_blocked({}, { locale }) : ''
+		]
+			.join(' ')
+			.trim()
+	);
 </script>
 
 {#snippet status(at: Section)}
@@ -168,47 +205,84 @@
 {/snippet}
 
 <div class="sj-stack">
+	{#if sub.status === 'unpaid'}
+		<Banner tone="danger" icon="error">{unpaidText}</Banner>
+	{/if}
+
 	<Card>
-		<form method="post" class="sj-stack" onsubmit={savePackage} novalidate>
-			{@render status('package')}
-			<SelectField
-				label={m.subscription_package()}
-				options={packageOptions}
-				error={fieldText(shown('package'), 'packageId')}
-				bind:value={packageId}
-			/>
-			{#if overLimit !== null}
-				<Banner tone="pending" icon="warning">
-					{m.subscription_over_limit({
-						riders: riderCountText(sub.riders.count, locale),
-						limit: overLimit
-					})}
-				</Banner>
-			{/if}
-			{#if sub.entries.length === 0}
-				<TextField
-					label={m.subscription_free_days()}
-					type="number"
-					dir="ltr"
-					error={fieldText(shown('package'), 'freeDays')}
-					bind:value={freeDays}
+		{#if editing}
+			<form method="post" class="sj-stack" onsubmit={savePackage} novalidate>
+				<h2 class="sj-heading">{m.subscription_package({}, { locale })}</h2>
+				{@render status('package')}
+				<SelectField
+					label={m.subscription_package()}
+					options={packageOptions}
+					error={fieldText(shown('package'), 'packageId')}
+					bind:value={packageId}
 				/>
-				<CheckboxField label={m.subscription_start_after_setup()} bind:checked={startAfterSetup} />
-				<span class="sj-hint">{m.subscription_start_after_setup_hint()}</span>
-			{/if}
-			<div class="sj-row">
-				<Button type="submit" disabled={busy}>{m.subscription_save_package()}</Button>
-				{#if sub.status === 'trial_waiting'}
-					<Button variant="quiet" icon="play_arrow" disabled={busy} onclick={startTrial}>
-						{m.subscription_start_trial_now()}
-					</Button>
+				{#if overLimit !== null}
+					<Banner tone="pending" icon="warning">
+						{m.subscription_over_limit({
+							riders: riderCountText(sub.riders.count, locale),
+							limit: overLimit
+						})}
+					</Banner>
 				{/if}
+				{#if sub.entries.length === 0}
+					<TextField
+						label={m.subscription_free_days()}
+						type="number"
+						dir="ltr"
+						error={fieldText(shown('package'), 'freeDays')}
+						bind:value={freeDays}
+					/>
+					<CheckboxField
+						label={m.subscription_start_after_setup()}
+						bind:checked={startAfterSetup}
+					/>
+					<span class="sj-hint">{m.subscription_start_after_setup_hint()}</span>
+				{/if}
+				<div class="sj-row">
+					<Button type="submit" variant={sub.package ? 'secondary' : 'primary'} disabled={busy}>
+						{m.subscription_save_package()}
+					</Button>
+					{#if sub.package}
+						<Button variant="quiet" onclick={() => change(false)}>{m.action_cancel()}</Button>
+					{/if}
+				</div>
+			</form>
+		{:else if sub.package}
+			<div class="sj-stack">
+				<div class="head">
+					<h2 class="sj-heading">{m.subscription_package({}, { locale })}</h2>
+					<Button variant="quiet" icon="edit" onclick={() => change(true)}>
+						{m.action_change({}, { locale })}
+					</Button>
+				</div>
+				{@render status('package')}
+				<div class="line">
+					<strong>{localName(sub.package, locale)}</strong>
+					<span class="sj-muted">{packageLimitText(sub.package, locale)}</span>
+					<span class="sj-muted">{packagePriceText(sub.package, locale)}</span>
+				</div>
 			</div>
-		</form>
+		{/if}
 	</Card>
 
 	{#if sub.status === 'trial_waiting'}
-		<p class="sj-muted">{m.subscription_waiting_cards()}</p>
+		<Card>
+			<div class="sj-stack">
+				{#if sub.trialDaysWaiting}
+					<p>{waitingText(sub.trialDaysWaiting, locale)}</p>
+				{/if}
+				<p class="sj-muted">{m.subscription_waiting_cards()}</p>
+				<div class="sj-row">
+					<Button variant="secondary" icon="play_arrow" disabled={busy} onclick={startTrial}>
+						{m.subscription_start_trial_now()}
+					</Button>
+				</div>
+			</div>
+		</Card>
 	{:else if sub.package}
 		<Card>
 			<form method="post" class="sj-stack" onsubmit={markPaid} novalidate>
@@ -247,38 +321,46 @@
 				</div>
 			</form>
 		</Card>
-
-		<Card>
-			<form method="post" class="sj-stack" onsubmit={giveFree} novalidate>
-				<h2 class="sj-heading">{m.subscription_free_title()}</h2>
-				{@render status('free')}
-				<div class="fields">
-					<TextField
-						label={m.subscription_days()}
-						type="number"
-						dir="ltr"
-						error={fieldText(shown('free'), 'days')}
-						bind:value={days}
-					/>
-					<TextField
-						label={m.subscription_note()}
-						error={fieldText(shown('free'), 'note')}
-						bind:value={freeNote}
-					/>
-				</div>
-				<div class="sj-row">
-					<Button type="submit" variant="secondary" icon="redeem" disabled={busy}>
-						{m.subscription_give_free()}
-					</Button>
-				</div>
-			</form>
-		</Card>
 	{/if}
 
 	<Card>
 		<div class="sj-stack">
-			<h2 class="sj-heading">{m.subscription_entries()}</h2>
+			<div class="head">
+				<h2 class="sj-heading">{m.subscription_entries()}</h2>
+				{#if sub.package && sub.status !== 'trial_waiting' && !giving}
+					<Button variant="quiet" icon="redeem" onclick={() => openFree(true)}>
+						{m.subscription_give_free()}
+					</Button>
+				{/if}
+			</div>
 			{@render status('entries')}
+			{#if giving}
+				<form method="post" class="sj-stack" onsubmit={giveFree} novalidate>
+					{@render status('free')}
+					<div class="fields">
+						<TextField
+							label={m.subscription_days()}
+							type="number"
+							dir="ltr"
+							error={fieldText(shown('free'), 'days')}
+							bind:value={days}
+						/>
+						<TextField
+							label={m.subscription_note()}
+							error={fieldText(shown('free'), 'note')}
+							bind:value={freeNote}
+						/>
+					</div>
+					<div class="sj-row">
+						<Button type="submit" variant="secondary" icon="redeem" disabled={busy}>
+							{m.subscription_give_free()}
+						</Button>
+						<Button variant="quiet" onclick={() => openFree(false)}>{m.action_cancel()}</Button>
+					</div>
+				</form>
+			{:else}
+				{@render status('free')}
+			{/if}
 			{#if sub.entries.length === 0}
 				<p class="sj-muted">{m.subscription_entries_empty()}</p>
 			{:else}
@@ -301,29 +383,34 @@
 		</div>
 	</Card>
 
-	<Card>
+	<Card raised={confirming}>
 		<div class="sj-stack" bind:this={blockCard}>
 			{@render status('block')}
-			{#if confirming}
-				<p>{sub.blocked ? m.subscription_unblock_confirm() : m.subscription_block_confirm()}</p>
+			{#if sub.blocked}
+				<p>{m.subscription_blocked_card({}, { locale })}</p>
 				<div class="sj-row">
 					<Button
-						variant={sub.blocked ? 'primary' : 'danger'}
+						variant="secondary"
+						icon="lock_open"
 						disabled={busy}
-						onclick={() => setBlocked(!sub.blocked)}
+						onclick={() => setBlocked(false)}
 					>
-						{sub.blocked ? m.subscription_unblock_yes() : m.subscription_block_yes()}
+						{m.subscription_unblock()}
+					</Button>
+				</div>
+			{:else if confirming}
+				<p>{m.subscription_block_confirm()}</p>
+				<div class="sj-row">
+					<Button variant="danger" disabled={busy} onclick={() => setBlocked(true)}>
+						{m.subscription_block_yes()}
 					</Button>
 					<Button variant="quiet" onclick={() => confirm(false)}>{m.action_cancel()}</Button>
 				</div>
 			{:else}
+				<p class="sj-muted">{m.subscription_block_card({}, { locale })}</p>
 				<div class="sj-row">
-					<Button
-						variant={sub.blocked ? 'secondary' : 'danger'}
-						icon={sub.blocked ? 'lock_open' : 'block'}
-						onclick={() => confirm(true)}
-					>
-						{sub.blocked ? m.subscription_unblock() : m.subscription_block()}
+					<Button variant="secondary" icon="block" onclick={() => confirm(true)}>
+						{m.subscription_block()}
 					</Button>
 				</div>
 			{/if}
@@ -332,6 +419,18 @@
 </div>
 
 <style>
+	.head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-2);
+	}
+	.line {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1) var(--space-3);
+	}
 	.fields {
 		display: grid;
 		gap: var(--space-3);
