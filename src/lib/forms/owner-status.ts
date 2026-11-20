@@ -12,7 +12,7 @@ function daysSince(then: string, now: Date): number {
 	return Math.round((day(now) - day(new Date(then))) / dayMs);
 }
 
-/** The Academies list chip saying where an academy stands with its owner. */
+/** The chip saying where an academy stands with its owner. */
 export function ownerChip(
 	o: OwnerStatus,
 	now: Date,

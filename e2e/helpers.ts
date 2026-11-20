@@ -25,27 +25,52 @@ export async function createAcademy(
 	opts: { staffBook?: boolean } = {}
 ): Promise<{ name: string }> {
 	const name = `E2E Academy ${slug}`;
-	await page.goto(platformUrl('/platform/academies'));
-	await page.getByRole('button', { name: 'New academy' }).click();
+	await page.goto(platformUrl('/platform/academies/new'));
 	await page.getByLabel('Web address').fill(slug);
 	await page.getByLabel('Name (English)').fill(name);
 	await page.getByLabel('Name (Arabic)').fill(`أكاديمية ${slug}`);
+	await page.getByRole('button', { name: 'Next' }).click();
 	await page.getByLabel('Default language').selectOption('en');
 	await page.getByLabel('Dressage').check();
 	await page.getByLabel('Show jumping').check();
 	if (opts.staffBook)
 		await page.getByRole('radio', { name: /Staff book for their riders/ }).check();
 	await page.getByRole('button', { name: 'Create academy' }).click();
-	await expect(page.getByText('Academy created.')).toBeVisible();
+	await expect(page.getByText(`${name} is created. Next, its package.`)).toBeVisible();
+	await page.getByRole('button', { name: 'Finish later' }).click();
+	await expect(page.getByRole('heading', { name, level: 1 })).toBeVisible();
 	return { name };
 }
 
+// openAcademy expects a platform admin page and opens the academy's page from the list, on a tab.
+export async function openAcademy(
+	page: Page,
+	academyName: string,
+	tab?: 'Subscription' | 'Settings'
+): Promise<void> {
+	await page.goto(platformUrl('/platform/academies'));
+	await page.getByRole('link', { name: new RegExp(academyName) }).click();
+	await expect(page.getByRole('heading', { name: academyName, level: 1 })).toBeVisible();
+	if (tab) {
+		await page
+			.getByRole('navigation', { name: 'Academy views' })
+			.getByRole('link', { name: tab })
+			.click();
+		await expect(page).toHaveURL(new RegExp(`tab=${tab.toLowerCase()}`));
+	}
+}
+
+// ownerCard is the Owner card on an academy's Overview.
+export const ownerCard = (page: Page) =>
+	page.locator('.sj-card').filter({ has: page.getByRole('heading', { name: 'Owner' }) });
+
 export async function inviteOwner(page: Page, academyName: string): Promise<string> {
-	const row = page.getByRole('listitem').filter({ hasText: academyName });
-	await row.getByRole('button', { name: 'Invite owner' }).click();
-	await row.getByLabel('Their name').fill('Owner');
-	await row.getByRole('button', { name: 'Create invitation' }).click();
-	const link = await row.getByLabel('Invitation link').inputValue();
+	await openAcademy(page, academyName);
+	const card = ownerCard(page);
+	await card.getByRole('button', { name: 'Invite owner' }).click();
+	await card.getByLabel('Their name').fill('Owner');
+	await card.getByRole('button', { name: 'Create invitation' }).click();
+	const link = await card.getByLabel('Invitation link').inputValue();
 	return new URL(link).pathname;
 }
 

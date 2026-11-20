@@ -4,6 +4,8 @@ import {
 	createAcademy,
 	e2ePhone,
 	inviteOwner,
+	openAcademy,
+	ownerCard,
 	signInAsPlatformAdmin,
 	signUpOwner
 } from './helpers';
@@ -70,7 +72,8 @@ test('a platform admin invites an owner by phone, and the owner signs up with it
 	await expect(page).toHaveURL(platformUrl('/platform/academies'));
 	const { name: academy } = await createAcademy(page, slug);
 
-	const row = page.getByRole('listitem').filter({ hasText: academy });
+	await openAcademy(page, academy);
+	const row = ownerCard(page);
 	await row.getByRole('button', { name: 'Invite owner' }).click();
 	await row.getByLabel('Their name').fill('Mona');
 	await row.getByLabel('Phone (optional)').fill(phone);

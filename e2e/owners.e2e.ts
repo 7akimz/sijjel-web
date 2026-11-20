@@ -1,6 +1,13 @@
 import { expect, test } from '@playwright/test';
 import { academyUrl, platformUrl } from './config';
-import { createAcademy, setUpAcademy, signInAsPlatformAdmin, signUpOwner } from './helpers';
+import {
+	createAcademy,
+	openAcademy,
+	ownerCard,
+	setUpAcademy,
+	signInAsPlatformAdmin,
+	signUpOwner
+} from './helpers';
 
 test('a platform admin follows an owner invite, and the free days wait for setup', async ({
 	page,
@@ -21,38 +28,36 @@ test('a platform admin follows an owner invite, and the free days wait for setup
 	await expect(page.getByText('Package saved.')).toBeVisible();
 
 	const { name } = await createAcademy(page, slug);
-	const row = () => page.getByRole('listitem').filter({ hasText: name });
-	await expect(row().getByText('No invite sent')).toBeVisible();
-	await row().getByRole('button', { name: 'Invite owner' }).click();
-	await row().getByLabel('Their name').fill('Karim');
-	await row().getByRole('button', { name: 'Create invitation' }).click();
-	const firstPath = new URL(await row().getByLabel('Invitation link').inputValue()).pathname;
-	await expect(row().getByText('Invite sent today, not accepted yet')).toBeVisible();
+	const card = () => ownerCard(page);
+	const row = () => page.getByRole('link', { name: new RegExp(name) });
+	await expect(card().getByText('No invite sent')).toBeVisible();
+	await card().getByRole('button', { name: 'Invite owner' }).click();
+	await card().getByLabel('Their name').fill('Karim');
+	await card().getByRole('button', { name: 'Create invitation' }).click();
+	const firstPath = new URL(await card().getByLabel('Invitation link').inputValue()).pathname;
 
 	await page.reload();
-	await expect(row().getByText('Invite sent today, not accepted yet')).toBeVisible();
-	await row().getByRole('button', { name: 'Send again' }).click();
-	await expect(row().getByText(/the old link no longer works/)).toBeVisible();
-	await expect(row().getByRole('link', { name: 'Send on WhatsApp' })).toBeVisible();
-	const invitePath = new URL(await row().getByLabel('Invitation link').inputValue()).pathname;
+	await expect(card().getByText('Invite sent today, not accepted yet')).toBeVisible();
+	await expect(card().getByText('Karim')).toBeVisible();
+	await card().getByRole('button', { name: 'Send again' }).click();
+	await expect(card().getByText(/the old link no longer works/)).toBeVisible();
+	await expect(card().getByRole('link', { name: 'Send on WhatsApp' })).toBeVisible();
+	const invitePath = new URL(await card().getByLabel('Invitation link').inputValue()).pathname;
 	expect(invitePath).not.toBe(firstPath);
 	expect((await request.get(academyUrl(slug, firstPath))).status()).toBe(404);
 
-	await row()
-		.getByRole('link', { name: `Subscription for ${name}` })
-		.click();
-	await expect(page.getByRole('heading', { name, level: 1 })).toBeVisible();
-	await expect(page.getByText('Karim')).toBeVisible();
-	await page.getByLabel('Package').selectOption({ label: packageName });
+	await openAcademy(page, name, 'Subscription');
+	await page.getByLabel('Package', { exact: true }).selectOption({ label: packageName });
 	await expect(page.getByLabel('Start the free days when setup is finished')).toBeChecked();
 	await page.getByRole('button', { name: 'Save package' }).click();
 	await expect(page.getByText('30 free days start when setup is finished.')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Start the trial now' })).toBeVisible();
 
 	const owner = await signUpOwner(browser, slug, invitePath);
+	await openAcademy(page, name);
+	await expect(card().getByText('Owner: Owner')).toBeVisible();
+	await expect(page.getByText('The owner has done 0 of 4 steps.')).toBeVisible();
 	await page.goto(platformUrl('/platform/academies'));
-	await expect(row().getByText('Owner: Owner')).toBeVisible();
-	await expect(row().getByText('Setup: 0 of 4')).toBeVisible();
 	await expect(row().getByText('Trial waits for setup')).toBeVisible();
 
 	await owner.goto(academyUrl(slug, '/settings/subscription'));
@@ -74,6 +79,7 @@ test('a platform admin follows an owner invite, and the free days wait for setup
 	await expect(owner.getByText(/^First month · /)).toBeVisible();
 
 	await page.reload();
-	await expect(row().getByText(/^Set up on /)).toBeVisible();
 	await expect(row().getByText('Free', { exact: true })).toBeVisible();
+	await openAcademy(page, name);
+	await expect(page.getByText(/^Set up on /)).toBeVisible();
 });

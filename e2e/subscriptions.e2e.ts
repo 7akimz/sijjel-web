@@ -5,6 +5,7 @@ import {
 	e2ePhone,
 	inviteOwner,
 	inviteRider,
+	openAcademy,
 	setUpAcademy,
 	signInAsPlatformAdmin,
 	signUpOwner
@@ -31,17 +32,8 @@ test('a platform admin sets up a package, academies see what they owe, and block
 	const { name } = await createAcademy(page, slug);
 	const owner = await signUpOwner(browser, slug, await inviteOwner(page, name));
 
-	const openSubscription = async () => {
-		await page.goto(platformUrl('/platform/academies'));
-		await page
-			.getByRole('listitem')
-			.filter({ hasText: name })
-			.getByRole('link', { name: `Subscription for ${name}` })
-			.click();
-		await expect(page.getByRole('heading', { name, level: 1 })).toBeVisible();
-	};
-	await openSubscription();
-	await page.getByLabel('Package').selectOption({ label: packageName });
+	await openAcademy(page, name, 'Subscription');
+	await page.getByLabel('Package', { exact: true }).selectOption({ label: packageName });
 	await page.getByLabel('Free days to start with').fill('0');
 	await page.getByRole('button', { name: 'Save package' }).click();
 	await expect(page.getByText('Saved.')).toBeVisible();
@@ -99,7 +91,7 @@ test('a platform admin sets up a package, academies see what they owe, and block
 	await page.getByRole('button', { name: 'Mark month paid' }).click();
 	await expect(page.getByRole('button', { name: 'Block booking' })).toBeVisible();
 	await page.goto(platformUrl('/platform/academies'));
-	const row = page.getByRole('listitem').filter({ hasText: name });
+	const row = page.getByRole('link', { name: new RegExp(name) });
 	await expect(row.getByText('Paid', { exact: true })).toBeVisible();
 	await expect(row.getByText('Blocked', { exact: true })).toHaveCount(0);
 });
