@@ -52,7 +52,7 @@ npx playwright test e2e/board.e2e.ts
 
 sijjel follows its own design system, the source of truth for every screen: https://claude.ai/artifact/HysWBDjQnrq5zDEoY1cZqj (`project/README.md` and `project/components/*/README.md`). In this repo it lives in `src/lib/styles/{tokens,base,components}.css` (the `sj-` classes) and `src/lib/ui/` (the Svelte components); `/design` shows every component.
 
-- **Two layers.** A fixed stable layer (sand grounds, leather ink, brass, paddock and stone signals) makes every academy feel like sijjel. A single academy accent, generated from the academy's brand colour, makes it feel like theirs. Only the four accent tokens (`accent`, `on-accent`, `accent-soft`, `on-accent-soft`) change per academy; status colours never do.
+- **Two layers.** A fixed stable layer makes every academy feel like sijjel: olive grounds and ink, with amber (`brass`), grass (`paddock`), red (`danger`) and olive (`stone`) status colours, all taken from Radix Colors 3.0.0; `src/lib/theme/palette.test.ts` pins the values and their contrast. A single academy accent, generated from the academy's brand colour, makes it feel like theirs. Only the four accent tokens (`accent`, `on-accent`, `accent-soft`, `on-accent-soft`) change per academy; status colours never do. With no brand colour the accent is hunter green `#355E3B`, sent through `accentVars` like any academy colour.
 - **Who it is for.** A rider booking an evening session on a phone in a car park, and a trainer assigning horses on a tablet in the arena office. Design for one hand, glare and a hurry first; the desktop is the same page, wider.
 - **Why it matters here.** The user judges sijjel by how it feels to use. Screens that each look fine but behave differently make the app harder to learn, so consistency across pages beats a clever single screen.
 
@@ -74,7 +74,7 @@ sijjel follows its own design system, the source of truth for every screen: http
 - **Layout.** Every page is a `.sj-page`, capped at `--content-max`; never narrow or widen a single page (only staff tables may run full width). Below 720px navigation is the bottom bar, above it the app bar. Tap targets are at least 44px both ways.
 - **Direction.** Logical properties only (`margin-inline`, `padding-inline`, `inset-inline-*`), so Arabic mirrors without extra rules. Icons that point (arrows, chevrons) flip with `directional`; icons that depict don't. Use `<bdi>` for user-entered text (names, notes, reasons) rather than `dir="auto"`, which shifts alignment.
 - **Shape and states.** `radius-md` for buttons, inputs and nav items, `radius-lg` for cards and sheets, `radius-pill` for chips, `radius-sm` for avatars. Hover lays `hover-veil` over the fill. Focus is a solid 2px `focus` ring 2px outside the control. Disabled controls drop to 45% and say why nearby. Motion is 150ms ease-out, none under `prefers-reduced-motion`.
-- **Themes.** Day and Night are both first-class; Night is warm tack-room browns, not inverted Day. Check both.
+- **Themes.** Day and Night are both first-class; Night is olive-dark, not inverted Day. Check both.
 - **Icons.** Material Symbols Rounded, weight 400, unfilled, 24px (20px in chips and dense rows); filled only for the active bottom-bar item. Horses use the custom horseshoe icon in `Icon`.
 
 ### Components and when to use them
