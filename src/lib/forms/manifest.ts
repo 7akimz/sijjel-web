@@ -1,8 +1,8 @@
 import type { Locale, Tenant } from '#lib/api/types.js';
 import { accentVars } from '#lib/theme/accent.js';
 
-const DEFAULT_ACCENT = '#7a5230';
-const GROUND = '#f5f0e6';
+const DEFAULT_ACCENT = '#355e3b';
+const GROUND = '#f8faf8';
 
 export type WebManifest = {
 	name: string;

@@ -41,16 +41,16 @@ describe('suggestColours', () => {
 });
 
 describe('swatchesFor', () => {
-	it('puts the suggestions first and the sijjel brown last', () => {
-		expect(swatchesFor(['#29344F'], '#7A5230')).toEqual(['#29344F', '#7A5230']);
-		expect(swatchesFor([], '#1E6B52')).toEqual(['#1E6B52', '#7A5230']);
+	it('puts the suggestions first and the sijjel green last', () => {
+		expect(swatchesFor(['#29344F'], '#355E3B')).toEqual(['#29344F', '#355E3B']);
+		expect(swatchesFor([], '#1E6B52')).toEqual(['#1E6B52', '#355E3B']);
 	});
 
 	it('drops repeats regardless of case and keeps at most six', () => {
 		expect(swatchesFor(['#29344f', '#C9A227'], '#29344F')).toEqual([
 			'#29344F',
 			'#C9A227',
-			'#7A5230'
+			'#355E3B'
 		]);
 		expect(
 			swatchesFor(['#111111', '#222222', '#333333', '#444444', '#555555'], '#666666')

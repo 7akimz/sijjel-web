@@ -180,7 +180,7 @@ describe('BrandingForm', () => {
 		});
 
 		const radios = screen.getByRole('radio').all();
-		expect(radios.map((r) => r.element().getAttribute('value'))).toEqual(['#1E6B52', '#7A5230']);
+		expect(radios.map((r) => r.element().getAttribute('value'))).toEqual(['#1E6B52', '#355E3B']);
 		await expect.element(screen.getByRole('radio', { name: 'Colour 1' })).toBeChecked();
 	});
 });

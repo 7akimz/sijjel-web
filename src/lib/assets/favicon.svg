@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
 	<title>sijjel</title>
-	<rect width="32" height="32" rx="8" fill="#7a5230"/>
+	<rect width="32" height="32" rx="8" fill="#355e3b"/>
 	<path d="M10 9.5v6.5a6 6 0 0 0 12 0V9.5" fill="none" stroke="#fdf8f0" stroke-width="3" stroke-linecap="round"/>
 	<circle cx="10" cy="12.5" r="1.6" fill="#e2b45e"/>
 	<circle cx="22" cy="12.5" r="1.6" fill="#e2b45e"/>

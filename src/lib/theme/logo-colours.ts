@@ -1,6 +1,6 @@
 import { QuantizerCelebi, Score, hexFromArgb } from '@material/material-color-utilities';
 
-export const SIJJEL_BROWN = '#7A5230';
+export const SIJJEL_GREEN = '#355E3B';
 
 // Score returns the fallback when no colour passes its filter; this one is never a real
 // suggestion because the quantizer only produces opaque colours.
@@ -25,8 +25,8 @@ export function suggestColours(pixels: Uint8ClampedArray): string[] {
 	return [...new Set(hexes)];
 }
 
-/** The swatches to offer: the logo's colours, then the current colour, then the sijjel brown. */
+/** The swatches to offer: the logo's colours, then the current colour, then the sijjel green. */
 export function swatchesFor(suggested: string[], current: string): string[] {
-	const all = [...suggested, current, SIJJEL_BROWN].map((hex) => hex.toUpperCase());
+	const all = [...suggested, current, SIJJEL_GREEN].map((hex) => hex.toUpperCase());
 	return [...new Set(all)].slice(0, 6);
 }

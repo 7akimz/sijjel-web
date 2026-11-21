@@ -24,7 +24,7 @@ describe('webManifest', () => {
 			display: 'standalone'
 		});
 		expect(manifest.theme_color).toMatch(/^#[0-9a-f]{6}$/);
-		expect(manifest.theme_color).not.toBe('#7a5230');
+		expect(manifest.theme_color).not.toBe('#355e3b');
 		expect(manifest.icons.map((i) => i.sizes)).toEqual(['192x192', '512x512']);
 	});
 
@@ -32,7 +32,8 @@ describe('webManifest', () => {
 		expect(webManifest({ kind: 'platform' }, 'en')).toMatchObject({
 			name: 'sijjel',
 			dir: 'ltr',
-			theme_color: '#7a5230'
+			theme_color: '#355e3b',
+			background_color: '#f8faf8'
 		});
 	});
 });
