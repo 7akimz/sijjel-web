@@ -1,28 +1,28 @@
 /* With no explicit choice the page follows the device setting; an explicit data-theme wins both ways. */
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme='light']) {
-		--ground: #17130f;
-		--surface: #211b16;
-		--surface-sunk: #120f0c;
-		--line: #3a3027;
-		--line-strong: #7a6a58;
-		--ink: #f1e9dd;
-		--ink-muted: #b8a894;
+		--ground: #181917;
+		--surface: #212220;
+		--surface-sunk: #111210;
+		--line: #383a36;
+		--line-strong: #687066;
+		--ink: #eceeec;
+		--ink-muted: #afb5ad;
 		--focus: var(--ink);
-		--accent: #d29a66;
-		--on-accent: #2a1a0c;
-		--accent-soft: #3a2a1c;
-		--on-accent-soft: #f0d8be;
-		--brass: #e2b45e;
-		--brass-soft: #3a2c12;
-		--paddock: #7cc495;
-		--paddock-soft: #1e3326;
-		--danger: #f08a6e;
-		--on-danger: #2a1008;
-		--danger-soft: #3d1d15;
-		--stone: #b5ada4;
-		--stone-soft: #2c2824;
-		--hover-veil: rgba(255, 244, 230, 0.1);
+		--accent: #9bd4a0;
+		--on-accent: #003914;
+		--accent-soft: #1c5129;
+		--on-accent-soft: #b7f1ba;
+		--brass: #ffca16;
+		--brass-soft: #302008;
+		--paddock: #71d083;
+		--paddock-soft: #1b2a1e;
+		--danger: #ff9592;
+		--on-danger: #191111;
+		--danger-soft: #3b1219;
+		--stone: #afb5ad;
+		--stone-soft: #282a27;
+		--hover-veil: rgba(236, 238, 236, 0.1);
 		--scrim: rgba(0, 0, 0, 0.6);
 		--shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 16px rgba(0, 0, 0, 0.35);
 	}
