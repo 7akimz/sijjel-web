@@ -45,14 +45,18 @@ Exact values from `@radix-ui/colors` 3.0.0. `olive N` means step N of the olive 
 | `surface` | `#ffffff` | oliveDark 3 `#212220` |
 | `surface-sunk` | olive 3 `#eff1ef` | oliveDark 1 `#111210` |
 | `line` | olive 6 `#d7dad7` | oliveDark 6 `#383a36` |
-| `line-strong` | olive 9 `#898e87` | oliveDark 8 `#5c625b` |
+| `line-strong` | olive 9 `#898e87` | oliveDark 9 `#687066` |
 | `ink` | olive 12 `#1d211c` | oliveDark 12 `#eceeec` |
 | `ink-muted` | olive 11 `#60655f` | oliveDark 11 `#afb5ad` |
-| `brass` / `brass-soft` (pending) | amber 11 `#ab6400` / amber 3 `#fff7c2` | amberDark 11 `#ffca16` / amberDark 3 `#302008` |
+| `brass` / `brass-soft` (pending) | amber 12 `#4f3422` / amber 3 `#fff7c2` | amberDark 11 `#ffca16` / amberDark 3 `#302008` |
 | `paddock` / `paddock-soft` (active) | grass 11 `#2a7e3b` / grass 3 `#e9f6e9` | grassDark 11 `#71d083` / grassDark 3 `#1b2a1e` |
 | `danger` / `danger-soft` | red 11 `#ce2c31` / red 3 `#feebec` | redDark 11 `#ff9592` / redDark 3 `#3b1219` |
 | `on-danger` | `#ffffff` | redDark 1 `#191111` |
 | `stone` / `stone-soft` (suspended) | olive 11 `#60655f` / olive 4 `#e7e9e7` | oliveDark 11 `#afb5ad` / oliveDark 4 `#282a27` |
+
+Two values differ from the mock-ups, after the contrast check (WCAG, measured):
+- **Day `brass` is amber 12, not 11.** Amber 11 gives 4.25:1 on its soft background and 4.40:1 on the ground, under the 4.5:1 that small text needs. Amber 12 gives 10.5:1; Radix documents step 12 as its high-contrast text step. The yellow background still carries "pending".
+- **Night `line-strong` is oliveDark 9, not 8.** Step 8 gives 2.55:1 for field borders, under the 3:1 that controls need. Step 9 gives 3.12:1.
 
 The values go in both places that hold them: `tokens.css` and the device-dark block in `base.css`.
 
