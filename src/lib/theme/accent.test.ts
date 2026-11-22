@@ -35,6 +35,15 @@ describe('accentVars', () => {
 		}
 	});
 
+	it('softens the soft tones, so a green brand colour gives sage rather than mint', () => {
+		const { light, dark } = accentVars('#355E3B');
+
+		expect(light['--accent-soft']).toBe('#d4e8d1');
+		expect(light['--on-accent-soft']).toBe('#0f1f11');
+		expect(dark['--accent-soft']).toBe('#3a4b3a');
+		expect(dark['--on-accent-soft']).toBe('#d4e8d1');
+	});
+
 	it('ignores malformed colours', () => {
 		expect(accentVars('teal')).toEqual({ light: {}, dark: {} });
 		expect(accentVars('#12345')).toEqual({ light: {}, dark: {} });

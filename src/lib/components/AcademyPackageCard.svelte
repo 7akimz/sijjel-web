@@ -5,10 +5,10 @@
 	import type { AcademySubscription } from '#lib/api/subscription-types.js';
 	import type { Locale } from '#lib/api/types.js';
 	import { formatDate } from '#lib/format.js';
-	import { packageLimitText, packagePriceText } from '#lib/forms/academy-page.js';
+	import { packageLimitText, packagePriceText, unpaidText } from '#lib/forms/academy-page.js';
 	import { waitingText } from '#lib/forms/subscription.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner, Button, Card } from '#lib/ui/index.js';
+	import { Banner, Button, Card, Icon } from '#lib/ui/index.js';
 
 	type Props = {
 		academyId: string;
@@ -57,6 +57,11 @@
 						{m.subscription_start_trial_now({}, { locale })}
 					</Button>
 				</div>
+			{:else if sub.status === 'unpaid'}
+				<p class="owed">
+					<Icon name="error" size={20} />
+					<span>{unpaidText(sub, locale)}</span>
+				</p>
 			{:else if sub.paidUntil}
 				<p class="sj-muted">
 					{m.subscription_paid_until({ date: formatDate(sub.paidUntil, locale) }, { locale })}
@@ -78,5 +83,13 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--space-1) var(--space-3);
+	}
+	.owed {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		margin: 0;
+		color: var(--danger);
+		font-weight: 600;
 	}
 </style>

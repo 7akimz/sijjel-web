@@ -8,18 +8,17 @@
 	import {
 		packageLimitText,
 		packageOptionText,
-		packagePriceText
+		packagePriceText,
+		unpaidText
 	} from '#lib/forms/academy-page.js';
 	import { wholeNumber } from '#lib/forms/booking-rules.js';
 	import {
 		entryText,
 		waitingText,
 		methodText,
-		monthsText,
 		paymentMethods,
 		riderCountText
 	} from '#lib/forms/subscription.js';
-	import { formatMoney } from '#lib/money.js';
 	import { m } from '#lib/paraglide/messages.js';
 	import { Banner, Button, Card, CheckboxField, SelectField, TextField } from '#lib/ui/index.js';
 
@@ -58,7 +57,7 @@
 	let blockCard = $state<HTMLElement>();
 
 	const packageOptions = $derived([
-		...(sub.package ? [] : [{ value: '', label: m.subscription_choose_package() }]),
+		...(sub.package ? [] : [{ value: '', label: '—' }]),
 		...packages
 			.filter((p) => p.id === sub.package?.id || (p.isActive && p.country === country))
 			.map((p) => ({ value: p.id, label: packageOptionText(p, locale) }))
@@ -185,20 +184,7 @@
 		if (await send('/blocked', 'PUT', { blocked })) await confirm(false);
 	}
 
-	const unpaidText = $derived(
-		[
-			m.subscription_unpaid_owed(
-				{
-					months: monthsText(sub.monthsUnpaid, locale),
-					amount: formatMoney(sub.amountUnpaid, sub.currency, locale)
-				},
-				{ locale }
-			),
-			sub.blocked ? m.subscription_booking_blocked({}, { locale }) : ''
-		]
-			.join(' ')
-			.trim()
-	);
+	const owedText = $derived(unpaidText(sub, locale));
 </script>
 
 {#snippet status(at: Section)}
@@ -210,13 +196,17 @@
 
 <div class="sj-stack">
 	{#if sub.status === 'unpaid'}
-		<Banner tone="danger" icon="error">{unpaidText}</Banner>
+		<Banner tone="danger" icon="error">{owedText}</Banner>
 	{/if}
 
 	<Card>
 		{#if editing}
 			<form method="post" class="sj-stack" onsubmit={savePackage} novalidate>
-				<h2 class="sj-heading">{m.subscription_package({}, { locale })}</h2>
+				<h2 class="sj-heading">
+					{sub.package
+						? m.subscription_change_package({}, { locale })
+						: m.subscription_choose_package({}, { locale })}
+				</h2>
 				{@render status('package')}
 				<SelectField
 					label={m.subscription_package()}

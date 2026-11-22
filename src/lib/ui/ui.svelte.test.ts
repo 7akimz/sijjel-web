@@ -91,6 +91,26 @@ describe('Icon', () => {
 		const font = render(Icon, { name: 'home' });
 		expect(font.container.querySelector('.sj-icon')?.textContent).toBe('home');
 	});
+
+	it('mirrors icons that point, so they follow the reading direction in Arabic', async () => {
+		for (const name of ['arrow_back', 'arrow_forward', 'chevron_left', 'chevron_right']) {
+			const { container } = render(Icon, { name });
+			expect(container.querySelector('.sj-icon')?.classList, name).toContain(
+				'sj-icon--directional'
+			);
+		}
+		const { container } = render(Icon, { name: 'calendar_month' });
+		expect(container.querySelector('.sj-icon')?.classList).not.toContain('sj-icon--directional');
+	});
+
+	it("mirrors a button's back arrow too", async () => {
+		const { container } = render(Button, {
+			label: 'Academies',
+			icon: 'arrow_back',
+			variant: 'quiet'
+		});
+		expect(container.querySelector('.sj-icon')?.classList).toContain('sj-icon--directional');
+	});
 });
 
 describe('AppShell', () => {

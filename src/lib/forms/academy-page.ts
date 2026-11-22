@@ -1,7 +1,11 @@
-import type { Package, SubscriptionStatus } from '#lib/api/subscription-types.js';
+import type {
+	AcademySubscription,
+	Package,
+	SubscriptionStatus
+} from '#lib/api/subscription-types.js';
 import type { AcademySummary, Locale } from '#lib/api/types.js';
 import { localName } from '#lib/academy.js';
-import { riderCountText } from '#lib/forms/subscription.js';
+import { monthsText, riderCountText } from '#lib/forms/subscription.js';
 import { formatMoney } from '#lib/money.js';
 import { m } from '#lib/paraglide/messages.js';
 
@@ -45,4 +49,19 @@ export function packageOptionText(p: Package, locale: Locale): string {
 	return [localName(p, locale), packageLimitText(p, locale), packagePriceText(p, locale)].join(
 		' · '
 	);
+}
+
+/** "Unpaid: 2 months · EGP 3,000", and that booking is blocked when it is. */
+export function unpaidText(
+	sub: Pick<AcademySubscription, 'monthsUnpaid' | 'amountUnpaid' | 'currency' | 'blocked'>,
+	locale: Locale
+): string {
+	const owed = m.subscription_unpaid_owed(
+		{
+			months: monthsText(sub.monthsUnpaid, locale),
+			amount: formatMoney(sub.amountUnpaid, sub.currency, locale)
+		},
+		{ locale }
+	);
+	return sub.blocked ? `${owed} ${m.subscription_booking_blocked({}, { locale })}` : owed;
 }

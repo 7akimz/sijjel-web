@@ -726,6 +726,7 @@
 	"package_unlimited": "عدد غير محدود من الفرسان",
 	"package_per_month": "{price} شهريًا",
 	"subscription_package": "الباقة",
+	"subscription_change_package": "تغيير الباقة",
 	"subscription_choose_package": "اختر باقة",
 	"subscription_free_days": "أيام مجانية للبداية",
 	"subscription_save_package": "حفظ الباقة",

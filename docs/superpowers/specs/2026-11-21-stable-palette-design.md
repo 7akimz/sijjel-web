@@ -85,6 +85,7 @@ Hunter green `#355E3B`, the traditional hunting green, replaces brown `#7A5230` 
 ## Known and accepted
 
 - With no logo colour, the booked card's soft colour in Day is a fairly bright mint (`#b7f1ba`), close to the green "Paid" chip. It comes from the same logo-colour code as any academy colour. To look at again in the preview.
+- Settled on 2026-11-22: `accent-soft` and `on-accent-soft` now come from Material's muted secondary palette (Day `#d4e8d1` / `#0f1f11`, Night `#3a4b3a` / `#d4e8d1` for hunter green), for every academy colour.
 
 ## Delivery
 

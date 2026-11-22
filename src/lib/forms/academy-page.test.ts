@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { OwnerStatus } from '#lib/api/types.js';
 import type { Package } from '#lib/api/subscription-types.js';
-import { academyTab, addedText, packageOptionText } from './academy-page';
+import { academyTab, addedText, packageOptionText, unpaidText } from './academy-page';
 
 const noOwner: OwnerStatus = {
 	state: 'none',
@@ -59,6 +59,20 @@ describe('packageOptionText', () => {
 	it('says unlimited when there is no limit', () => {
 		expect(packageOptionText({ ...starter, nameEn: 'Unlimited', maxRiders: null }, 'en')).toMatch(
 			/^Unlimited · Unlimited riders · EGP\s1,500 a month$/
+		);
+	});
+});
+
+describe('unpaidText', () => {
+	const unpaid = { monthsUnpaid: 2, amountUnpaid: 3000, currency: 'EGP', blocked: false };
+
+	it('says how many months and how much is owed', () => {
+		expect(unpaidText(unpaid, 'en')).toBe('Unpaid: 2 months · EGP\u00a03,000');
+	});
+
+	it('adds that booking is blocked when it is', () => {
+		expect(unpaidText({ ...unpaid, blocked: true }, 'en')).toBe(
+			'Unpaid: 2 months · EGP\u00a03,000 Booking is blocked.'
 		);
 	});
 });

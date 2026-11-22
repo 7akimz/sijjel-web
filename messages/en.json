@@ -726,6 +726,7 @@
 	"package_unlimited": "Unlimited riders",
 	"package_per_month": "{price} a month",
 	"subscription_package": "Package",
+	"subscription_change_package": "Change package",
 	"subscription_choose_package": "Choose a package",
 	"subscription_free_days": "Free days to start with",
 	"subscription_save_package": "Save package",

@@ -1,6 +1,10 @@
 <script lang="ts">
 	type Props = { name: string; size?: 20 | 24; filled?: boolean; directional?: boolean };
-	let { name, size = 24, filled = false, directional = false }: Props = $props();
+	let { name, size = 24, filled = false, directional }: Props = $props();
+
+	// Icons that point follow the reading direction, so Arabic mirrors them.
+	const pointing = new Set(['arrow_back', 'arrow_forward', 'chevron_left', 'chevron_right']);
+	const mirrored = $derived(directional ?? pointing.has(name));
 
 	// A true arc with straight sides that lean in toward the heels, like the font's own icons.
 	const shoe = 'M5 20.5 4 11a8 8 0 0 1 16 0l-1 9.5h-4.5l1-9.5a3.5 3.5 0 0 0-7 0l1 9.5Z';
@@ -21,7 +25,7 @@
 		'sj-icon',
 		size === 20 && 'sj-icon--sm',
 		filled && 'sj-icon--filled',
-		directional && 'sj-icon--directional'
+		mirrored && 'sj-icon--directional'
 	]}
 	aria-hidden="true"
 >

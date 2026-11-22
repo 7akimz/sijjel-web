@@ -93,4 +93,20 @@ describe('AcademyPackageCard', () => {
 			.element(screen.getByRole('link', { name: 'Choose a package' }))
 			.toHaveAttribute('href', '/platform/academies/a1?tab=subscription');
 	});
+
+	it('says what is owed instead of a past paid-until date when unpaid', async () => {
+		const screen = render(
+			AcademyPackageCard,
+			props(
+				subscription({
+					status: 'unpaid',
+					paidUntil: '2026-11-15',
+					monthsUnpaid: 1,
+					amountUnpaid: 1500
+				})
+			)
+		);
+		await expect.element(screen.getByText('Unpaid: 1 month · EGP 1,500')).toBeVisible();
+		await expect.element(screen.getByText(/^Paid until/)).not.toBeInTheDocument();
+	});
 });

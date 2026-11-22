@@ -342,6 +342,7 @@ describe('AcademySubscription', () => {
 		await screen.getByRole('button', { name: 'Change' }).click();
 
 		await expect.element(screen.getByLabelText('Package')).toBeVisible();
+		expect(screen.getByText('Package', { exact: true }).all()).toHaveLength(1);
 		await expect.element(screen.getByRole('button', { name: 'Save package' })).toBeVisible();
 		await expect.element(screen.getByRole('button', { name: 'Cancel' })).toBeVisible();
 	});
