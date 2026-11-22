@@ -93,7 +93,14 @@ describe('Icon', () => {
 	});
 
 	it('mirrors icons that point, so they follow the reading direction in Arabic', async () => {
-		for (const name of ['arrow_back', 'arrow_forward', 'chevron_left', 'chevron_right']) {
+		for (const name of [
+			'arrow_back',
+			'arrow_forward',
+			'chevron_left',
+			'chevron_right',
+			'logout',
+			'login'
+		]) {
 			const { container } = render(Icon, { name });
 			expect(container.querySelector('.sj-icon')?.classList, name).toContain(
 				'sj-icon--directional'

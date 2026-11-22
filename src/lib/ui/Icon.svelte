@@ -3,7 +3,14 @@
 	let { name, size = 24, filled = false, directional }: Props = $props();
 
 	// Icons that point follow the reading direction, so Arabic mirrors them.
-	const pointing = new Set(['arrow_back', 'arrow_forward', 'chevron_left', 'chevron_right']);
+	const pointing = new Set([
+		'arrow_back',
+		'arrow_forward',
+		'chevron_left',
+		'chevron_right',
+		'logout',
+		'login'
+	]);
 	const mirrored = $derived(directional ?? pointing.has(name));
 
 	// A true arc with straight sides that lean in toward the heels, like the font's own icons.
