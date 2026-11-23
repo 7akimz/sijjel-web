@@ -7,7 +7,7 @@
 	import type { BookingView, SlotView } from '#lib/api/member-types.js';
 	import { bookingErrorText, dayName, warningTexts } from '#lib/forms/booking.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner } from '#lib/ui/index.js';
+	import { Banner, Button } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -54,10 +54,12 @@
 </svelte:head>
 
 <div class="sj-page">
-	<div class="sj-stack">
-		<a class="sj-small" href={memberHref}>{m.staff_book_back({ rider })}</a>
-		<h1 class="sj-title">{m.staff_book_title({ rider })}</h1>
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={memberHref}>
+			<bdi>{rider}</bdi>
+		</Button>
 	</div>
+	<h1 class="sj-title">{m.staff_book_title({ rider })}</h1>
 
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 	{#if failure}<Banner icon="error" tone="danger">{failure}</Banner>{/if}

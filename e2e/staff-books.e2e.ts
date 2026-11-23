@@ -49,6 +49,9 @@ test('where staff book, the owner adds a rider without an account, books their m
 	await expect(owner.getByText("Layla can't open sijjel yet.")).toBeVisible();
 
 	await owner.getByRole('link', { name: 'Book a month' }).click();
+	await owner.getByRole('main').getByRole('link', { name: 'Layla', exact: true }).click();
+	await expect(owner.getByRole('heading', { name: 'Layla' })).toBeVisible();
+	await owner.getByRole('link', { name: 'Book a month' }).click();
 	// Next month always has every 18:00 session still ahead of it, whatever today is.
 	const next = owner.getByRole('link', { name: 'Next month' });
 	if (await next.isVisible()) await next.click();

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { untrack } from 'svelte';
 	import { academyName } from '#lib/academy.js';
 	import AffectedBookings from '#lib/components/AffectedBookings.svelte';
@@ -117,6 +118,11 @@
 {/snippet}
 
 <div class="sj-page">
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={resolve('/(academy)/(admin)/settings')}>
+			{m.settings_title()}
+		</Button>
+	</div>
 	<div class="sj-stack">
 		<h1 class="sj-title">{m.closed_title()}</h1>
 		<p class="sj-muted">{m.closed_intro()}</p>

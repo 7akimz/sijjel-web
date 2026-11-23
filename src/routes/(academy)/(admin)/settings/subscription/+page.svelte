@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { localName } from '#lib/academy.js';
 	import {
 		ownerDateText,
@@ -9,7 +10,7 @@
 	import { monthsText, ridersText } from '#lib/forms/subscription.js';
 	import { formatMoney } from '#lib/money.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Card, EmptyState, StatusChip } from '#lib/ui/index.js';
+	import { Button, Card, EmptyState, StatusChip } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -25,6 +26,11 @@
 </svelte:head>
 
 <div class="sj-page">
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={resolve('/(academy)/(admin)/settings')}>
+			{m.settings_title()}
+		</Button>
+	</div>
 	<h1 class="sj-title">{m.subscription_title()}</h1>
 
 	{#if !sub.package}

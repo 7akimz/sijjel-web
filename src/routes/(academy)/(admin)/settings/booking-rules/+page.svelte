@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { untrack } from 'svelte';
 	import { api } from '#lib/api/client.js';
 	import { ApiError, errorText, fieldText, type FieldErrors } from '#lib/api/errors.js';
@@ -62,6 +63,11 @@
 </svelte:head>
 
 <div class="sj-page">
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={resolve('/(academy)/(admin)/settings')}>
+			{m.settings_title()}
+		</Button>
+	</div>
 	<div class="sj-stack">
 		<h1 class="sj-title">{m.rules_title()}</h1>
 		<p class="sj-muted">{m.rules_intro()}</p>

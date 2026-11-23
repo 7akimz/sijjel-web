@@ -48,6 +48,11 @@
 </svelte:head>
 
 <div class="sj-page">
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={resolve('/(academy)/(admin)/settings')}>
+			{m.settings_title()}
+		</Button>
+	</div>
 	<div class="sj-stack">
 		<h1 class="sj-title">{m.plans_title()}</h1>
 		<p class="sj-muted">{m.plans_intro()}</p>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { untrack } from 'svelte';
 	import LadderEditor from '#lib/components/LadderEditor.svelte';
 	import { localName } from '#lib/academy.js';
@@ -91,6 +92,11 @@
 </svelte:head>
 
 <div class="sj-page">
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={resolve('/(academy)/(admin)/settings')}>
+			{m.settings_title()}
+		</Button>
+	</div>
 	<div class="sj-stack">
 		<h1 class="sj-title">{m.disciplines_page_title()}</h1>
 		<p class="sj-muted">{m.disciplines_page_intro()}</p>

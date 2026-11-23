@@ -6,7 +6,7 @@
 	import { reveal } from '#lib/reveal.js';
 	import type { Horse } from '#lib/api/academy-types.js';
 	import { m } from '#lib/paraglide/messages.js';
-	import { Banner, Card } from '#lib/ui/index.js';
+	import { Banner, Button, Card } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -29,6 +29,11 @@
 </svelte:head>
 
 <div class="sj-page">
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={resolve('/(academy)/(admin)/horses')}>
+			{m.horse_back()}
+		</Button>
+	</div>
 	<h1 class="sj-title">{m.horse_new()}</h1>
 	{#if added}
 		<div class="sj-stack" use:reveal={saves}>

@@ -37,10 +37,12 @@
 </svelte:head>
 
 <div class="sj-page">
-	<div class="sj-stack">
-		<a class="sj-small" href={memberHref}>{m.staff_book_back({ rider })}</a>
-		<h1 class="sj-title">{m.book_month_title({ rider })}</h1>
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={memberHref}>
+			<bdi>{rider}</bdi>
+		</Button>
 	</div>
+	<h1 class="sj-title">{m.book_month_title({ rider })}</h1>
 
 	<nav class="month" aria-label={m.book_month_nav()}>
 		{#if onNext}

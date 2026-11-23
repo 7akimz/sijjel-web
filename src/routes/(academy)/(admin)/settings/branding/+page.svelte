@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import BrandingForm from '#lib/components/BrandingForm.svelte';
 	import { m } from '#lib/paraglide/messages.js';
+	import { Button } from '#lib/ui/index.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -12,6 +14,11 @@
 </svelte:head>
 
 <div class="sj-page">
+	<div>
+		<Button variant="quiet" icon="arrow_back" href={resolve('/(academy)/(admin)/settings')}>
+			{m.settings_title()}
+		</Button>
+	</div>
 	<h1 class="sj-title">{m.branding_title()}</h1>
 	<BrandingForm branding={data.branding} onsaved={() => invalidateAll()} />
 </div>
