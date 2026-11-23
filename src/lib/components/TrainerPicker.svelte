@@ -102,7 +102,7 @@
 		overflow-y: auto;
 		padding: var(--space-3);
 		background: var(--surface);
-		border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+		border-radius: var(--radius-float) var(--radius-float) 0 0;
 		box-shadow: var(--shadow-raised);
 	}
 	@media (min-width: 720px) {
@@ -111,7 +111,7 @@
 			inset-block-start: 20vh;
 			inset-inline-start: calc(50% - 180px);
 			inline-size: 360px;
-			border-radius: var(--radius-lg);
+			border-radius: var(--radius-float);
 		}
 	}
 	header {

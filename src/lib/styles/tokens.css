@@ -63,8 +63,9 @@
 	--space-8: 32px;
 	--space-12: 48px;
 	--radius-sm: 6px;
-	--radius-md: 10px;
-	--radius-lg: 16px;
+	--radius-md: 6px;
+	--radius-lg: 8px;
+	--radius-float: 16px;
 	--radius-pill: 999px;
 	--touch-target: 44px;
 	--appbar-height: 64px;

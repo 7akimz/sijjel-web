@@ -65,7 +65,7 @@ sijjel follows its own design system, the source of truth for every screen: http
 
 ### Foundations
 
-- **Surfaces.** Paint the page `ground`, put content on `surface`, recess wells, avatars and neutral chips into `surface-sunk`. Cards are separated by a 1px `line` border, not a shadow; `shadow-raised` is only for things that float (dialogs, menus, sheets, the sticky bar).
+- **Surfaces.** Paint the page `ground`, put content on `surface`, recess wells, avatars and neutral chips into `surface-sunk`. Cards are separated by a 1px `line` border, not a shadow; `shadow-raised` is only for things that float (dialogs, menus, sheets, the sticky bar). Below 720px, page-level cards and lists run edge to edge with no side borders or corners, so a phone screen isn't a stack of boxes; anything nested inside a card, a list, a dialog or an `sj-callout` (a tinted block holding its own list, such as the board's "not placed yet") keeps its place.
 - **Text.** `ink` for text, `ink-muted` for secondary text, hints and metadata. Control edges (inputs, selects, secondary buttons) use `line-strong`; dividers use `line`.
 - **Accent** is only for the one primary action on a screen, the active navigation item, selected states and links. Never for status, large fills or body text.
 - **Status** is a soft fill, its strong ink and a word: Pending `brass`, Active `paddock`, Suspended or Inactive `stone`, errors and Unavailable `danger`. Colour, position or a bare number never carries meaning alone; a count gets an icon and words ("0 of 5" with the group icon, and a label for screen readers).
@@ -73,7 +73,7 @@ sijjel follows its own design system, the source of truth for every screen: http
 - **Spacing.** 4px base (`space-1` 4 … `space-12` 48). Lay out with flex or grid `gap`, not margins. The side gutter is `space-4` at every width.
 - **Layout.** Every page is a `.sj-page`, capped at `--content-max`; never narrow or widen a single page (only staff tables may run full width). Below 720px navigation is the bottom bar, above it the app bar. Tap targets are at least 44px both ways.
 - **Direction.** Logical properties only (`margin-inline`, `padding-inline`, `inset-inline-*`), so Arabic mirrors without extra rules. Icons that point (arrows, chevrons) flip with `directional`; icons that depict don't. Use `<bdi>` for user-entered text (names, notes, reasons) rather than `dir="auto"`, which shifts alignment.
-- **Shape and states.** `radius-md` for buttons, inputs and nav items, `radius-lg` for cards and sheets, `radius-pill` for chips, `radius-sm` for avatars. Hover lays `hover-veil` over the fill. Focus is a solid 2px `focus` ring 2px outside the control. Disabled controls drop to 45% and say why nearby. Motion is 150ms ease-out, none under `prefers-reduced-motion`.
+- **Shape and states.** Corners follow the role: `radius-md` (6px) for buttons, inputs, tags and filters, `radius-sm` (6px) for avatars and the mark, `radius-lg` (8px) for cards and lists on desktop, `radius-float` (16px) for things that float (sheets, dialogs, menus, the sticky select bar). `radius-pill` is only for status chips, so a round shape always means a state. The current navigation item is marked by a 3px `accent` bar (under it in the app bar, above it in the bottom bar) and a bolder label, not a filled pill. Hover lays `hover-veil` over the fill. Focus is a solid 2px `focus` ring 2px outside the control. Disabled controls drop to 45% and say why nearby. Motion is 150ms ease-out, none under `prefers-reduced-motion`.
 - **Themes.** Day and Night are both first-class; Night is olive-dark, not inverted Day. Check both.
 - **Icons.** Material Symbols Rounded, weight 400, unfilled, 24px (20px in chips and dense rows); filled only for the active bottom-bar item. Horses use the custom horseshoe icon in `Icon`.
 
@@ -85,12 +85,14 @@ sijjel follows its own design system, the source of truth for every screen: http
   - quiet: low-emphasis actions and links, such as "All horses" back links and "Show older rides";
   - danger: destructive, always confirmed first;
   - icon-only (`label` prop): only for a familiar action on an item, such as the Edit pencil, with an `aria-label`.
-- **StatusChip**: labels a state or category in one to three words; never a button. Status chips have a dot and a word, level chips use the accent-soft, neutral chips are for roles, kinds and ranges.
+- **StatusChip**: labels a state or category in one to three words; never a button. Status chips have a dot and a word and are the only round chips; level chips use the accent-soft and neutral chips are for roles, kinds and ranges, both with `radius-md` corners.
 - **Banner**: a state that applies to the whole page or the action just taken (saved, pending, error), inline at the top of the content it concerns. A danger banner scrolls itself into view when it appears; wrap a saved banner in `use:reveal={saves}` so it does too.
 - **EmptyState**: what will appear here, why it matters, and the first step. Never a dead end; staff get the action. A muted sentence is enough for an empty sub-list inside a page ("No unavailable dates.").
 - **List rows** (`sj-list`, `sj-list__row`, `ListRow`): one member or horse with the facts staff scan for and at most one action; 64px tall, divided by `line`; name and secondary line truncate (wrap only text that must be read whole, such as notes).
 - **Fields** (`TextField`, `SelectField`, `DateRangeField`, `CheckboxField`): label always visible above, hint below, an error replaces the hint and names the fix.
 - **SessionSlot**: one bookable time; the app's signature element for riders. Staff see places and suitable horses side by side. Riders get the `compact` slot: no counts, only a note when it can't be booked or is theirs (Full, no suitable horse, Booked), with the action on the same row.
+- **Session group** (`sj-group`, `sj-group__head`): one day of sessions, its heading over slots that touch in one container. A booked slot inside a group gets a 4px `accent` bar on its leading edge as well as its fill; a slot on its own (rider home) keeps the plain fill.
+- **Filter** (`sj-filter` with `aria-current`): a link that narrows one list; the current one is selected in `accent-soft`.
 - **AppShell**: app bar with the academy mark, navigation in the bottom bar on phones, language switch showing the other language's name.
 
 ### Patterns in the app, and what each one means
@@ -99,8 +101,9 @@ Keep this list current. A new use of a pattern must mean the same thing as the u
 
 | Pattern                                              | Means                                                                    | Where                                                                                                                       |
 | ---------------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| Pill links (`.filter` with `aria-current`)           | Narrow **one list** to a category; the page stays the same               | Horses by discipline, Riders by payment                                                                                     |
+| Filter links (`sj-filter` with `aria-current`)       | Narrow **one list** to a category; the page stays the same               | Horses by discipline, Riders by payment                                                                                     |
 | Underlined tabs (`.tabs`, links with `aria-current`) | Switch between views of one item under its header                        | Horse page: Unavailable dates, Rides; rider page: Profile, Rides; academy page (platform): Overview, Subscription, Settings |
+| Session group (`sj-group`)                           | One day of bookable times, read as one block                             | Book a session, staff booking for a rider (`WeekSlots`)                                                                     |
 | Day strip and time pills                             | Pick the day or time the board shows                                     | Board (`BoardDays`, `BoardTimes`)                                                                                           |
 | Time pills with a count and `aria-pressed`           | Choose a time; the count is how many dates it is free on                 | Book a month (`BookMonth`): one time per weekday                                                                            |
 | `sj-page-head` with a labelled button                | The page's title and its main action                                     | Horses "New horse", Riders "Invite rider", Staff "Invite staff", Board "Select"                                             |

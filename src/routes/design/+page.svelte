@@ -103,9 +103,16 @@
 					<StatusChip tone="level">{ar ? 'الترويض · مبتدئ' : 'Dressage · Novice'}</StatusChip>
 					<StatusChip>{ar ? 'مدرّب' : 'Trainer'}</StatusChip>
 				</div>
+				<div class="sj-row">
+					<a class="sj-filter" href="#filters" aria-current="page">{ar ? 'الكل' : 'All'}</a>
+					<a class="sj-filter" href="#filters"
+						>{ar ? 'غير مسدَّد هذا الشهر' : 'Unpaid this month'}</a
+					>
+				</div>
 			</Card>
 
-			<div class="sj-stack">
+			<section class="sj-group">
+				<h2 class="sj-group__head">{ar ? 'الثلاثاء 24 نوفمبر' : 'Tuesday 24 November'}</h2>
 				<SessionSlot
 					start="18:00"
 					end="19:00"
@@ -176,7 +183,7 @@
 				>
 					{#snippet action()}<Button>Book</Button>{/snippet}
 				</SessionSlot>
-			</div>
+			</section>
 
 			<div class="sj-list">
 				<ListRow initials="LA" title="Layla Ahmed" subtitle="layla.ahmed@example.com" highlight>

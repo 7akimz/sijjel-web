@@ -42,7 +42,7 @@
 	<EmptyState icon="event_available" title={m.board_no_riders({}, { locale })} />
 {:else}
 	{#if waiting}
-		<section class="waiting">
+		<section class="waiting sj-callout">
 			<div class="head">
 				<Icon name="pending_actions" size={20} />
 				<h2 class="waiting-title">{waitingText(waiting.riders.length, locale)}</h2>

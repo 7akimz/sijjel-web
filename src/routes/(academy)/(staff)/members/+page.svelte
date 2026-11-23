@@ -64,7 +64,7 @@
 		<nav class="sj-row" aria-label={m.members_title()}>
 			{#each filters as filter (filter.id)}
 				<a
-					class="filter"
+					class="sj-filter"
 					href={filter.href}
 					aria-current={data.filter === filter.id ? 'page' : undefined}
 				>
@@ -165,22 +165,6 @@
 		min-inline-size: 0;
 	}
 	.name {
-		font-weight: 600;
-	}
-	.filter {
-		display: inline-flex;
-		align-items: center;
-		min-block-size: 44px;
-		padding-inline: var(--space-4);
-		border: 1px solid var(--line-strong);
-		border-radius: 999px;
-		color: inherit;
-		text-decoration: none;
-	}
-	.filter[aria-current='page'] {
-		background: var(--accent-soft);
-		color: var(--on-accent-soft);
-		border-color: transparent;
 		font-weight: 600;
 	}
 </style>

@@ -51,6 +51,23 @@ describe('WeekSlots', () => {
 		expect(onbook).toHaveBeenLastCalledWith(expect.objectContaining({ start: '18:30' }), true);
 	});
 
+	it('groups each day under its heading so the day reads as one block of rows', async () => {
+		const screen = render(
+			WeekSlots,
+			props(
+				[slot('2026-10-21', '18:00'), slot('2026-10-21', '19:00'), slot('2026-10-22', '18:00')],
+				'2026-10-17',
+				vi.fn()
+			)
+		);
+
+		const groups = screen.container.querySelectorAll('section.sj-group');
+		expect(groups).toHaveLength(2);
+		expect(groups[0].firstElementChild?.matches('h2.sj-group__head')).toBe(true);
+		expect(groups[0].querySelectorAll(':scope > .sj-slot')).toHaveLength(2);
+		expect(groups[1].querySelectorAll(':scope > .sj-slot')).toHaveLength(1);
+	});
+
 	it('drops a pending warning when the week changes', async () => {
 		const onbook = vi.fn(async () => ['Weekly limit reached']);
 		const screen = render(WeekSlots, props([slot('2026-10-21', '18:00')], '2026-10-17', onbook));

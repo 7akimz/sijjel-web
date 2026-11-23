@@ -61,12 +61,12 @@
 				{@const active = isCurrent(item.href)}
 				{#if item.disabled}
 					<span class="sj-bottombar__item" aria-disabled="true">
-						<span class="sj-bottombar__pill"><Icon name={item.icon} /></span>
+						<span class="sj-bottombar__icon"><Icon name={item.icon} /></span>
 						{item.label}
 					</span>
 				{:else}
 					<a class="sj-bottombar__item" href={item.href} aria-current={active ? 'page' : undefined}>
-						<span class="sj-bottombar__pill"><Icon name={item.icon} filled={active} /></span>
+						<span class="sj-bottombar__icon"><Icon name={item.icon} filled={active} /></span>
 						{item.label}
 					</a>
 				{/if}

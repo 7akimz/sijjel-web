@@ -218,14 +218,19 @@
 	align-items: center;
 	gap: 6px;
 	min-block-size: 28px;
-	padding-inline: 10px;
-	border-radius: var(--radius-pill);
+	padding-inline: var(--space-2);
+	border-radius: var(--radius-md);
 	background: var(--surface-sunk);
 	color: var(--ink);
 	font-size: 13px;
 	line-height: 18px;
 	font-weight: 500;
 	white-space: nowrap;
+}
+/* Status is the only round shape, so a pill always reads as a state. */
+.sj-chip--status {
+	border-radius: var(--radius-pill);
+	padding-inline: 10px;
 }
 .sj-chip--status::before {
 	content: '';
@@ -255,6 +260,24 @@
 	color: var(--on-accent-soft);
 }
 
+/* Filters: links that narrow one list; the current one is selected. */
+.sj-filter {
+	display: inline-flex;
+	align-items: center;
+	min-block-size: var(--touch-target);
+	padding-inline: var(--space-4);
+	border: 1px solid var(--line-strong);
+	border-radius: var(--radius-md);
+	color: inherit;
+	text-decoration: none;
+}
+.sj-filter[aria-current='page'] {
+	background: var(--accent-soft);
+	color: var(--on-accent-soft);
+	border-color: var(--accent);
+	font-weight: 600;
+}
+
 /* Cards */
 .sj-card {
 	background: var(--surface);
@@ -268,6 +291,7 @@
 }
 .sj-card--raised {
 	border-color: transparent;
+	border-radius: var(--radius-float);
 	box-shadow: var(--shadow-raised);
 }
 .sj-card__head {
@@ -322,16 +346,16 @@
 	display: inline-flex;
 	align-items: center;
 	gap: var(--space-2);
-	min-block-size: 40px;
+	min-block-size: var(--appbar-height);
 	padding-inline: var(--space-3);
-	border-radius: var(--radius-md);
 	color: var(--ink-muted);
 	font: 500 15px/20px var(--font-body);
 	text-decoration: none;
 }
 .sj-nav__item[aria-current='page'] {
-	background: var(--accent-soft);
-	color: var(--on-accent-soft);
+	color: var(--ink);
+	font-weight: 600;
+	box-shadow: inset 0 -3px 0 var(--accent);
 }
 .sj-nav__item[aria-disabled='true'],
 .sj-bottombar__item[aria-disabled='true'] {
@@ -359,19 +383,18 @@
 	font-weight: 500;
 	text-decoration: none;
 }
-.sj-bottombar__pill {
+.sj-bottombar__icon {
 	display: grid;
 	place-items: center;
-	inline-size: 56px;
 	block-size: 28px;
-	border-radius: var(--radius-pill);
 }
 .sj-bottombar__item[aria-current='page'] {
 	color: var(--ink);
+	font-weight: 600;
+	box-shadow: inset 0 3px 0 var(--accent);
 }
-.sj-bottombar__item[aria-current='page'] .sj-bottombar__pill {
-	background: var(--accent-soft);
-	color: var(--on-accent-soft);
+.sj-bottombar__item[aria-current='page'] .sj-bottombar__icon {
+	color: var(--ink);
 }
 
 /* Session slot */
@@ -454,6 +477,37 @@
 	}
 }
 
+/* Session groups: one day of sessions, its heading over rows that touch in one container. */
+.sj-group {
+	display: flex;
+	flex-direction: column;
+}
+.sj-group__head {
+	font-family: var(--font-display);
+	font-size: 19px;
+	line-height: 26px;
+	font-weight: 600;
+	padding-block-end: var(--space-3);
+}
+.sj-group > .sj-slot {
+	border-radius: 0;
+	border-block-start: 0;
+}
+.sj-group__head + .sj-slot {
+	border-block-start: 1px solid var(--line);
+	border-start-start-radius: var(--radius-lg);
+	border-start-end-radius: var(--radius-lg);
+}
+.sj-group > .sj-slot:last-of-type {
+	border-end-start-radius: var(--radius-lg);
+	border-end-end-radius: var(--radius-lg);
+}
+.sj-group > .sj-slot--booked {
+	border-color: var(--line);
+	border-inline-start: 4px solid var(--accent);
+	padding-inline-start: calc(var(--space-4) - 4px);
+}
+
 /* Lists */
 .sj-list {
 	display: flex;
@@ -497,6 +551,26 @@
 	place-items: center;
 	font: 600 15px/1 var(--font-display);
 	flex: none;
+}
+
+/* On phones, page-level sections run edge to edge with no box; anything nested inside a
+   section, callout or dialog keeps its place. */
+@media (max-width: 719.98px) {
+	:is(.sj-card, .sj-list):not(.sj-card--raised):not(
+			:is(.sj-card, .sj-list, .sj-callout, [role='dialog']) *
+		),
+	.sj-group > .sj-slot {
+		margin-inline: calc(-1 * var(--space-4));
+		border-inline-width: 0;
+		border-radius: 0;
+	}
+	.sj-group > .sj-slot--booked {
+		border-inline-start-width: 4px;
+	}
+	.sj-group__head + .sj-slot,
+	.sj-group > .sj-slot:last-of-type {
+		border-radius: 0;
+	}
 }
 
 /* Empty state */

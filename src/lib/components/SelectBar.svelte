@@ -79,7 +79,7 @@
 		padding: var(--space-3);
 		background: var(--surface);
 		border: 1px solid var(--line);
-		border-radius: var(--radius-lg);
+		border-radius: var(--radius-float);
 		box-shadow: var(--shadow-raised);
 	}
 	.actions {

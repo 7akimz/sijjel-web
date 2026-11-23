@@ -118,8 +118,8 @@
 	<EmptyState icon="event_busy" title={empty ?? m.book_no_slots()} />
 {/if}
 {#each days as day (day.date)}
-	<section class="sj-stack">
-		<h2 class="sj-heading">{dayName(day.date, locale)} · {dayDate(day.date)}</h2>
+	<section class="sj-group">
+		<h2 class="sj-group__head">{dayName(day.date, locale)} · {dayDate(day.date)}</h2>
 		{#each day.slots as slot (slot.start)}
 			<SessionSlot
 				start={slot.start}
