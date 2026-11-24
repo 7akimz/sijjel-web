@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
-import { AppShell, Banner, Button, Icon, SessionSlot, StatusChip, TextField } from './index';
+import { AppShell, Banner, Button, Card, Icon, SessionSlot, StatusChip, TextField } from './index';
 
 const text = (value: string) => createRawSnippet(() => ({ render: () => `<span>${value}</span>` }));
 
@@ -23,6 +23,26 @@ describe('Button', () => {
 		const link = container.querySelector('a');
 		expect(link?.getAttribute('href')).toBe('/platform/academies');
 		expect(link?.className).toContain('sj-btn--primary');
+	});
+});
+
+describe('Card', () => {
+	it('is a plain section unless asked otherwise', () => {
+		const { container } = render(Card, { children: text('New horse') });
+
+		expect(container.querySelector('section')?.className).toBe('sj-card');
+	});
+
+	it('marks the item being edited as active', () => {
+		const { container } = render(Card, { active: true, children: text('Show jumping') });
+
+		expect(container.querySelector('section')?.className).toContain('sj-card--active');
+	});
+
+	it('raises a card that stands alone on the page, like sign in', () => {
+		const { container } = render(Card, { raised: true, children: text('Sign in') });
+
+		expect(container.querySelector('section')?.className).toContain('sj-card--raised');
 	});
 });
 

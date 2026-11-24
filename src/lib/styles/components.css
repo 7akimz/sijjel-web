@@ -294,6 +294,10 @@
 	border-radius: var(--radius-float);
 	box-shadow: var(--shadow-raised);
 }
+.sj-card--active {
+	border-color: var(--accent);
+	box-shadow: inset 0 0 0 1px var(--accent);
+}
 .sj-card__head {
 	display: flex;
 	align-items: flex-start;
@@ -566,6 +570,9 @@
 	}
 	.sj-group > .sj-slot--booked {
 		border-inline-start-width: 4px;
+	}
+	.sj-card--active {
+		border-inline-width: 1px;
 	}
 	.sj-group__head + .sj-slot,
 	.sj-group > .sj-slot:last-of-type {

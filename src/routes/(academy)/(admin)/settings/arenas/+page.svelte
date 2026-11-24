@@ -59,7 +59,7 @@
 		<SetupNext state={data.setup} current="arenas" />
 	{/if}
 
-	<Card raised>
+	<Card>
 		<h2 class="sj-heading">{m.arena_new()}</h2>
 		<ArenaForm onsaved={onSaved} />
 	</Card>

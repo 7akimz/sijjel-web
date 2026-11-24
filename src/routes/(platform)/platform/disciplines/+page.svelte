@@ -52,7 +52,7 @@
 	{#if notice}<Banner icon="check_circle">{notice}</Banner>{/if}
 
 	{#if creating}
-		<Card raised>
+		<Card>
 			<div class="sj-stack">
 				<h2 class="sj-heading">{m.discipline_new()}</h2>
 				<DisciplineEditor onsaved={onSaved} oncancel={() => (creating = false)} />
@@ -61,7 +61,7 @@
 	{/if}
 
 	{#each disciplines as discipline (discipline.id)}
-		<Card raised={editing === discipline.id}>
+		<Card active={editing === discipline.id}>
 			<div class="sj-stack">
 				<div class="sj-card__head">
 					<div>

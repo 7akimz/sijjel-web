@@ -41,7 +41,7 @@
 			{#if data.setup}<SetupNext state={data.setup} current="horses" />{/if}
 		</div>
 	{/if}
-	<Card raised>
+	<Card>
 		{#key formKey}
 			<HorseForm disciplines={data.disciplines} locale={data.locale} onsaved={onSaved} />
 		{/key}

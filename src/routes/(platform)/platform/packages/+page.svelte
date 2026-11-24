@@ -58,7 +58,7 @@
 		<div use:reveal={saves}><Banner icon="check_circle">{notice}</Banner></div>
 	{/if}
 
-	<Card raised>
+	<Card>
 		<h2 class="sj-heading">{m.package_new()}</h2>
 		<PackageForm countries={data.countries} locale={data.locale} onsaved={onSaved} />
 	</Card>

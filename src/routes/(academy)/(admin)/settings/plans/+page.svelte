@@ -69,7 +69,7 @@
 		<SetupNext state={data.setup} current="plans" />
 	{/if}
 
-	<Card raised>
+	<Card>
 		<h2 class="sj-heading">{m.plan_new()}</h2>
 		<PlanForm
 			disciplines={data.disciplines}

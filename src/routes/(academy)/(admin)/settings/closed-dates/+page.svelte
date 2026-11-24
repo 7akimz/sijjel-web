@@ -162,7 +162,7 @@
 		/>
 	{/if}
 
-	<Card raised>
+	<Card>
 		<form method="post" class="sj-stack" bind:this={formElement} onsubmit={add} novalidate>
 			<h2 class="sj-heading">{m.closed_add()}</h2>
 			<DateRangeField

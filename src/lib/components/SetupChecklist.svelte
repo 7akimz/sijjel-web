@@ -37,7 +37,7 @@
 </script>
 
 {#if doneCount < steps.length}
-	<Card raised>
+	<Card>
 		<div class="checklist">
 			<div class="head sj-stack">
 				<h2 class="sj-heading">{m.setup_title({ academy: academyName })}</h2>

@@ -107,7 +107,7 @@
 
 	{#each disciplines.enabled as discipline (discipline.id)}
 		{@const lastOne = disciplines.enabled.length === 1}
-		<Card raised={editing === discipline.id}>
+		<Card active={editing === discipline.id}>
 			<div class="sj-card__head">
 				<h2 class="sj-heading">{name(discipline)}</h2>
 				{#if editing !== discipline.id}

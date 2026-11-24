@@ -52,7 +52,7 @@
 		<h1 class="sj-title">{title}</h1>
 		{#if data.kind === 'rider'}<p class="sj-muted">{ridersText(data.riders, data.locale)}</p>{/if}
 	</div>
-	<Card raised>
+	<Card>
 		{#if created}
 			<InviteShareCard
 				invite={created.invite}

@@ -27,7 +27,7 @@
 		</EmptyState>
 	{/if}
 {:else if board && summary}
-	<Card raised>
+	<Card>
 		<div class="today sj-stack">
 			<h2 class="sj-heading">{m.home_today()}</h2>
 			{#if summary.sessions.length === 0}

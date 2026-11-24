@@ -377,7 +377,7 @@
 		</div>
 	</Card>
 
-	<Card raised={confirming}>
+	<Card active={confirming}>
 		<div class="sj-stack" bind:this={blockCard}>
 			{@render status('block')}
 			{#if sub.blocked}
